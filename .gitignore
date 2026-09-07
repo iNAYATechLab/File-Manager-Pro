@@ -1,0 +1,23 @@
+# Gradle
+.gradle/
+build/
+
+# Local configuration
+local.properties
+*.properties.bak
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# Android / OS
+.DS_Store
+captures/
+.externalNativeBuild
+.cxx
+
+# Logs & caches
+*.log
+.kotlin/

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.FileManagerPro" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand_primary</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorPrimaryContainer">@color/brand_primary_dark</item>
+        <item name="colorSecondary">@color/brand_secondary</item>
+        <item name="colorTertiary">@color/brand_accent</item>
+    </style>
+
+    <style name="TextAppearance.Crumb" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>

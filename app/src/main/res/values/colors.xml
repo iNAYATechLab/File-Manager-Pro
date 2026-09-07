@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand palette -->
+    <color name="brand_primary">#1565C0</color>
+    <color name="brand_primary_dark">#0D47A1</color>
+    <color name="brand_secondary">#00838F</color>
+    <color name="brand_accent">#FFB300</color>
+
+    <!-- File type icon colors -->
+    <color name="file_folder">#FFB300</color>
+    <color name="file_image">#43A047</color>
+    <color name="file_audio">#8E24AA</color>
+    <color name="file_video">#E53935</color>
+    <color name="file_archive">#6D4C41</color>
+    <color name="file_pdf">#D84315</color>
+    <color name="file_doc">#1E88E5</color>
+    <color name="file_text">#546E7A</color>
+    <color name="file_apk">#00ACC1</color>
+    <color name="file_generic">#757575</color>
+
+    <!-- UI helpers -->
+    <color name="selection_tint">#331F6FEB</color>
+    <color name="scrim_light">#66FFFFFF</color>
+    <color name="launcher_background">#1565C0</color>
+</resources>

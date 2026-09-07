@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">File Manager Pro</string>
+
+    <!-- Navigation -->
+    <string name="nav_storage">Storage</string>
+    <string name="nav_categories">Categories</string>
+
+    <!-- Toolbar / actions -->
+    <string name="action_select">Select items</string>
+    <string name="action_clear_selection">Clear selection</string>
+    <string name="action_search">Search files</string>
+    <string name="action_new_folder">New folder</string>
+    <string name="action_sort">Sort &amp; view</string>
+    <string name="action_open">Open</string>
+    <string name="action_rename">Rename</string>
+    <string name="action_copy">Copy</string>
+    <string name="action_cut">Cut</string>
+    <string name="action_paste">Paste here</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_compress">Compress to ZIP</string>
+    <string name="action_extract">Extract here</string>
+    <string name="action_share">Share</string>
+    <string name="action_properties">Properties</string>
+    <string name="action_view_list">List view</string>
+    <string name="action_view_grid">Grid view</string>
+    <string name="action_sort_name">By name</string>
+    <string name="action_sort_date">By date</string>
+    <string name="action_sort_size">By size</string>
+    <string name="action_sort_type">By type</string>
+    <string name="action_sort_asc">Ascending</string>
+    <string name="action_sort_desc">Descending</string>
+    <string name="action_selected">selected</string>
+    <string name="action_select_all">Select all</string>
+    <string name="action_refresh">Refresh</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_new_folder_title">Create new folder</string>
+    <string name="dialog_rename_title">Rename</string>
+    <string name="dialog_delete_title">Delete items?</string>
+    <string name="dialog_delete_message">This will permanently remove the selected items from your device.</string>
+    <string name="action_delete_confirm">Delete</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_ok">OK</string>
+    <string name="hint_name">Folder name</string>
+    <string name="hint_new_name">New name</string>
+
+    <!-- Storage home -->
+    <string name="storage_primary">Internal storage</string>
+    <string name="storage_used">Used</string>
+    <string name="storage_free">Free</string>
+
+    <!-- Placeholders & messages -->
+    <string name="folder_empty">This folder is empty</string>
+    <string name="search_no_results">No results found</string>
+    <string name="search_hint">Search in current folder…</string>
+    <string name="extracting">Extracting…</string>
+    <string name="compressing">Compressing…</string>
+    <string name="done">Done</string>
+    <string name="cancelled">Cancelled</string>
+    <string name="error">Something went wrong</string>
+    <string name="no_app_found">No app can open this file</string>
+    <string name="storage_permission_needed">Storage permission is required. Tap here to allow access.</string>
+
+    <!-- Category labels -->
+    <string name="cat_images">Images</string>
+    <string name="cat_videos">Videos</string>
+    <string name="cat_audio">Audio</string>
+    <string name="cat_documents">Documents</string>
+    <string name="cat_archives">Archives</string>
+    <string name="cat_apk">Apps (APK)</string>
+    <string name="cat_empty">No files in this category</string>
+    <string name="items_count">items</string>
+</resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Folder glyph (white) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M47,28L27,28c-4.95,0 -8.96,4.05 -8.96,9L18.04,75c0,4.95 4.05,9 9,9h54c4.95,0 9,-4.05 9,-9L90,46c0,-4.95 -4.05,-9 -9,-9L63,37l-8,-9z" />
+    <!-- Badge circle -->
+    <path
+        android:fillColor="#FFC400"
+        android:pathData="M76.5,76.5m-14.5,0a14.5,14.5 0,1 1,29 0a14.5,14.5 0,1 1,-29 0" />
+    <!-- Check mark -->
+    <path
+        android:strokeColor="#0D47A1"
+        android:strokeWidth="3.6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M69.5,76.5l5,5 9,-9.5" />
+</vector>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ফাইল ম্যানেজার প্রো</string>
+
+    <!-- Navigation -->
+    <string name="nav_storage">স্টোরেজ</string>
+    <string name="nav_categories">ক্যাটাগরি</string>
+
+    <!-- Toolbar / actions -->
+    <string name="action_select">আইটেম নির্বাচন</string>
+    <string name="action_clear_selection">নির্বাচন মুছুন</string>
+    <string name="action_search">ফাইল খুঁজুন</string>
+    <string name="action_new_folder">নতুন ফোল্ডার</string>
+    <string name="action_sort">সাজানো ও ভিউ</string>
+    <string name="action_open">খুলুন</string>
+    <string name="action_rename">নাম পরিবর্তন</string>
+    <string name="action_copy">কপি</string>
+    <string name="action_cut">কাট</string>
+    <string name="action_paste">এখানে পেস্ট করুন</string>
+    <string name="action_delete">ডিলিট</string>
+    <string name="action_compress">ZIP-এ কমপ্রেস</string>
+    <string name="action_extract">এখানে আনজিপ</string>
+    <string name="action_share">শেয়ার</string>
+    <string name="action_properties">বিবরণ</string>
+    <string name="action_view_list">লিস্ট ভিউ</string>
+    <string name="action_view_grid">গ্রিড ভিউ</string>
+    <string name="action_sort_name">নাম অনুযায়ী</string>
+    <string name="action_sort_date">তারিখ অনুযায়ী</string>
+    <string name="action_sort_size">সাইজ অনুযায়ী</string>
+    <string name="action_sort_type">ধরন অনুযায়ী</string>
+    <string name="action_sort_asc">ক্রমবর্ধমান</string>
+    <string name="action_sort_desc">ক্রমহ্রাসমান</string>
+    <string name="action_selected">নির্বাচিত</string>
+    <string name="action_select_all">সব নির্বাচন</string>
+    <string name="action_refresh">রিফ্রেশ</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_new_folder_title">নতুন ফোল্ডার তৈরি করুন</string>
+    <string name="dialog_rename_title">নাম পরিবর্তন</string>
+    <string name="dialog_delete_title">আইটেম ডিলিট করবেন?</string>
+    <string name="dialog_delete_message">নির্বাচিত আইটেমগুলো ডিভাইস থেকে স্থায়ীভাবে মুছে যাবে।</string>
+    <string name="action_delete_confirm">ডিলিট</string>
+    <string name="action_cancel">বাতিল</string>
+    <string name="action_ok">ঠিক আছে</string>
+    <string name="hint_name">ফোল্ডারের নাম</string>
+    <string name="hint_new_name">নতুন নাম</string>
+
+    <!-- Storage home -->
+    <string name="storage_primary">ইন্টারনাল স্টোরেজ</string>
+    <string name="storage_used">ব্যবহৃত</string>
+    <string name="storage_free">খালি</string>
+
+    <!-- Placeholders & messages -->
+    <string name="folder_empty">এই ফোল্ডারটি খালি</string>
+    <string name="search_no_results">কোনো ফলাফল পাওয়া যায়নি</string>
+    <string name="search_hint">বর্তমান ফোল্ডারে খুঁজুন…</string>
+    <string name="extracting">আনজিপ হচ্ছে…</string>
+    <string name="compressing">কমপ্রেস হচ্ছে…</string>
+    <string name="done">সম্পন্ন</string>
+    <string name="cancelled">বাতিল হয়েছে</string>
+    <string name="error">কিছু একটা সমস্যা হয়েছে</string>
+    <string name="no_app_found">এই ফাইল খোলার মতো কোনো অ্যাপ নেই</string>
+    <string name="storage_permission_needed">স্টোরেজ অনুমতি প্রয়োজন। অ্যাক্সেস দিতে এখানে চাপুন।</string>
+
+    <!-- Category labels -->
+    <string name="cat_images">ছবি</string>
+    <string name="cat_videos">ভিডিও</string>
+    <string name="cat_audio">অডিও</string>
+    <string name="cat_documents">ডকুমেন্ট</string>
+    <string name="cat_archives">আর্কাইভ</string>
+    <string name="cat_apk">অ্যাপ (APK)</string>
+    <string name="cat_empty">এই ক্যাটাগরিতে কোনো ফাইল নেই</string>
+    <string name="items_count">টি আইটেম</string>
+</resources>

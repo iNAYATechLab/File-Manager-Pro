@@ -9,21 +9,22 @@ android {
 
     // Release signing is injected from environment variables (GitHub Secrets on CI).
     // Keystore material itself is NEVER stored in the repository.
-    val keystoreFile = System.getenv("KEYSTORE_FILE")
-    val keystorePassword = System.getenv("KEYSTORE_PASSWORD")
-    val keyAlias = System.getenv("KEY_ALIAS")
-    val keyPassword = System.getenv("KEY_PASSWORD")
-    val hasReleaseSigning = !keystoreFile.isNullOrBlank() &&
-        !keystorePassword.isNullOrBlank() &&
-        !keyAlias.isNullOrBlank()
+    // (env-* prefixes avoid name clashes with the SigningConfig DSL properties)
+    val envStoreFile = System.getenv("KEYSTORE_FILE")
+    val envStorePass = System.getenv("KEYSTORE_PASSWORD")
+    val envKeyAlias = System.getenv("KEY_ALIAS")
+    val envKeyPass = System.getenv("KEY_PASSWORD")
+    val hasReleaseSigning = !envStoreFile.isNullOrBlank() &&
+        !envStorePass.isNullOrBlank() &&
+        !envKeyAlias.isNullOrBlank()
 
     signingConfigs {
         if (hasReleaseSigning) {
             create("release") {
-                storeFile = file(keystoreFile!!)
-                storePassword = keystorePassword
-                keyAlias = keyAlias
-                keyPassword = keyPassword ?: keystorePassword
+                storeFile = file(envStoreFile!!)
+                storePassword = envStorePass
+                keyAlias = envKeyAlias
+                keyPassword = envKeyPass ?: envStorePass
             }
         }
     }

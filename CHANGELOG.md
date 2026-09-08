@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/iNAYATechLab/File-Manager-Pro/compare/v0.1.3...v0.2.0) (2026-09-08)
+
+
+### Features
+
+* **browse:** storage home screen with volume cards (internal + SD) ([#24](https://github.com/iNAYATechLab/File-Manager-Pro/issues/24)) ([d3fbf90](https://github.com/iNAYATechLab/File-Manager-Pro/commit/d3fbf903f3227dea7f488ec7d6df87897d102ae9))
+
 ## [0.1.3](https://github.com/iNAYATechLab/File-Manager-Pro/compare/v0.1.2...v0.1.3) (2026-09-08)
 
 

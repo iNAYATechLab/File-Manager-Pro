@@ -148,8 +148,8 @@ object FileOps {
             destDir.mkdirs()
 
             val zipIn = ZipInputStream(FileInputStream(zipFile).buffered(1 shl 16))
+            var total = 0
             try {
-                var total = 0
                 var temp = zipIn.nextEntry
                 while (temp != null) { total++; temp = zipIn.nextEntry }
             } finally {

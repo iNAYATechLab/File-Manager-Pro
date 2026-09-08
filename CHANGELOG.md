@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/iNAYATechLab/File-Manager-Pro/compare/v0.1.2...v0.1.3) (2026-09-08)
+
+
+### Bug Fixes
+
+* **browse:** crash on app start (NullPointerException in reload) ([#9](https://github.com/iNAYATechLab/File-Manager-Pro/issues/9)) ([f26e176](https://github.com/iNAYATechLab/File-Manager-Pro/commit/f26e176df098cb08c5da61151581a8b2ab2afdab))
+
 ## [0.1.2](https://github.com/iNAYATechLab/File-Manager-Pro/compare/v0.1.1...v0.1.2) (2026-09-08)
 
 

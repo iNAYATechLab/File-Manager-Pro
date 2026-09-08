@@ -12,6 +12,11 @@ local.properties
 .vscode/
 *.swp
 
+# Keystores & signing material — NEVER commit these!
+*.keystore
+*.jks
+android-keystore/
+
 # Android / OS
 .DS_Store
 captures/

@@ -7,6 +7,28 @@ android {
     namespace = "com.inayatechlab.filemanagerpro"
     compileSdk = 34
 
+    // Release signing is injected from environment variables (GitHub Secrets on CI).
+    // Keystore material itself is NEVER stored in the repository.
+    // (env-* prefixes avoid name clashes with the SigningConfig DSL properties)
+    val envStoreFile = System.getenv("KEYSTORE_FILE")
+    val envStorePass = System.getenv("KEYSTORE_PASSWORD")
+    val envKeyAlias = System.getenv("KEY_ALIAS")
+    val envKeyPass = System.getenv("KEY_PASSWORD")
+    val hasReleaseSigning = !envStoreFile.isNullOrBlank() &&
+        !envStorePass.isNullOrBlank() &&
+        !envKeyAlias.isNullOrBlank()
+
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = file(envStoreFile!!)
+                storePassword = envStorePass
+                keyAlias = envKeyAlias
+                keyPassword = envKeyPass ?: envStorePass
+            }
+        }
+    }
+
     defaultConfig {
         applicationId = "com.inayatechlab.filemanagerpro"
         minSdk = 26
@@ -33,6 +55,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 

@@ -65,6 +65,56 @@
     <string name="settings_section_about">সম্পর্কে</string>
     <string name="settings_version_value">ভার্সন %1$s</string>
 
+    <!-- Navigation -->
+    <string name="nav_favorites">পছন্দ</string>
+    <string name="nav_recent">সম্প্রতি</string>
+
+    <!-- Favorites -->
+    <string name="fav_empty">এখনো কোনো পছন্দ নেই\nকোনো আইটেমে দীর্ঘ চাপ দিয়ে তারকা চেপে এখানে যোগ করুন</string>
+    <string name="fav_added">%1$dটি আইটেম পছন্দের তালিকায় যোগ হয়েছে</string>
+    <string name="fav_removed">পছন্দের তালিকা থেকে সরানো হয়েছে</string>
+    <string name="action_add_favorite">পছন্দে যোগ করুন</string>
+    <string name="action_remove_favorite">পছন্দ থেকে সরান</string>
+    <string name="fav_type_folder">ফোল্ডার</string>
+    <string name="fav_sort_title">পছন্দ সাজান</string>
+    <string name="fav_sort_name">নাম</string>
+    <string name="fav_sort_newest">নতুন আগে</string>
+    <string name="fav_sort_oldest">পুরোনো আগে</string>
+    <string name="fav_group_by_type">ধরন অনুযায়ী সাজান</string>
+    <string name="fav_group_folders">ফোল্ডার (%1$d)</string>
+    <string name="fav_group_files">ফাইল (%1$d)</string>
+    <string name="fav_group_images">ছবি (%1$d)</string>
+    <string name="fav_group_videos">ভিডিও (%1$d)</string>
+    <string name="fav_group_audio">অডিও (%1$d)</string>
+    <string name="fav_group_archives">আর্কাইভ (%1$d)</string>
+    <string name="fav_group_documents">ডকুমেন্ট (%1$d)</string>
+    <string name="fav_group_apps">অ্যাপ (%1$d)</string>
+
+    <!-- Recent -->
+    <string name="recent_empty">এখনো কোনো সাম্প্রতিক কার্যকলাপ নেই</string>
+    <string name="recent_empty_filter">এই ফিল্টারে কোনো এন্ট্রি নেই</string>
+    <string name="action_clear_history">ইতিহাস মুছুন</string>
+    <string name="recent_clear_message">এতে সম্পূর্ণ সাম্প্রতিক ইতিহাস মুছে যাবে। ফাইল ডিলিট হবে না।</string>
+    <string name="recent_cleared">সাম্প্রতিক ইতিহাস মুছে ফেলা হয়েছে</string>
+    <string name="action_remove_from_history">ইতিহাস থেকে সরান</string>
+    <string name="recent_removed">ইতিহাস থেকে সরানো হয়েছে</string>
+    <string name="recent_event_opened">খোলা হয়েছে</string>
+    <string name="recent_event_modified">পরিবর্তিত</string>
+    <string name="recent_event_created">তৈরি হয়েছে</string>
+    <string name="recent_filter_all">সব</string>
+    <string name="recent_filter_files">ফাইল</string>
+    <string name="recent_filter_folders">ফোল্ডার</string>
+    <string name="recent_filter_opened">খোলা</string>
+    <string name="recent_filter_modified">পরিবর্তিত</string>
+    <string name="recent_filter_created">তৈরি</string>
+
+    <!-- Relative time -->
+    <string name="time_just_now">এইমাত্র</string>
+    <string name="time_min_ago">%1$d মিনিট আগে</string>
+    <string name="time_h_ago">%1$d ঘণ্টা আগে</string>
+    <string name="time_d_ago">%1$d দিন আগে</string>
+    <string name="time_w_ago">%1$d সপ্তাহ আগে</string>
+
     <!-- New file -->
     <string name="dialog_new_file_title">নতুন ফাইল তৈরি করুন</string>
     <string name="hint_new_file_name">ফাইলের নাম (এক্সটেনশনসহ)</string>

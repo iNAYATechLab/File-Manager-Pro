@@ -65,6 +65,56 @@
     <string name="settings_section_about">About</string>
     <string name="settings_version_value">Version %1$s</string>
 
+    <!-- Navigation -->
+    <string name="nav_favorites">Favorites</string>
+    <string name="nav_recent">Recent</string>
+
+    <!-- Favorites -->
+    <string name="fav_empty">No favorites yet\nLong-press an item, then tap the star, to add it here</string>
+    <string name="fav_added">%1$d item(s) added to favorites</string>
+    <string name="fav_removed">Removed from favorites</string>
+    <string name="action_add_favorite">Add to favorites</string>
+    <string name="action_remove_favorite">Remove from favorites</string>
+    <string name="fav_type_folder">Folder</string>
+    <string name="fav_sort_title">Sort favorites</string>
+    <string name="fav_sort_name">Name</string>
+    <string name="fav_sort_newest">Newest first</string>
+    <string name="fav_sort_oldest">Oldest first</string>
+    <string name="fav_group_by_type">Group by type</string>
+    <string name="fav_group_folders">Folders (%1$d)</string>
+    <string name="fav_group_files">Files (%1$d)</string>
+    <string name="fav_group_images">Images (%1$d)</string>
+    <string name="fav_group_videos">Videos (%1$d)</string>
+    <string name="fav_group_audio">Audio (%1$d)</string>
+    <string name="fav_group_archives">Archives (%1$d)</string>
+    <string name="fav_group_documents">Documents (%1$d)</string>
+    <string name="fav_group_apps">Apps (%1$d)</string>
+
+    <!-- Recent -->
+    <string name="recent_empty">No recent activity yet</string>
+    <string name="recent_empty_filter">No entries match this filter</string>
+    <string name="action_clear_history">Clear history</string>
+    <string name="recent_clear_message">This removes the whole recent history. Files are not deleted.</string>
+    <string name="recent_cleared">Recent history cleared</string>
+    <string name="action_remove_from_history">Remove from history</string>
+    <string name="recent_removed">Removed from history</string>
+    <string name="recent_event_opened">Opened</string>
+    <string name="recent_event_modified">Modified</string>
+    <string name="recent_event_created">Created</string>
+    <string name="recent_filter_all">All</string>
+    <string name="recent_filter_files">Files</string>
+    <string name="recent_filter_folders">Folders</string>
+    <string name="recent_filter_opened">Opened</string>
+    <string name="recent_filter_modified">Modified</string>
+    <string name="recent_filter_created">Created</string>
+
+    <!-- Relative time -->
+    <string name="time_just_now">Just now</string>
+    <string name="time_min_ago">%1$d min ago</string>
+    <string name="time_h_ago">%1$d h ago</string>
+    <string name="time_d_ago">%1$d d ago</string>
+    <string name="time_w_ago">%1$d w ago</string>
+
     <!-- New file -->
     <string name="dialog_new_file_title">Create new file</string>
     <string name="hint_new_file_name">File name (with extension)</string>

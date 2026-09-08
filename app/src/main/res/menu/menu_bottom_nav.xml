@@ -5,6 +5,14 @@
         android:icon="@drawable/ic_storage"
         android:title="@string/nav_storage" />
     <item
+        android:id="@+id/nav_favorites"
+        android:icon="@drawable/ic_star"
+        android:title="@string/nav_favorites" />
+    <item
+        android:id="@+id/nav_recent"
+        android:icon="@drawable/ic_history"
+        android:title="@string/nav_recent" />
+    <item
         android:id="@+id/nav_categories"
         android:icon="@drawable/ic_folder"
         android:title="@string/nav_categories" />

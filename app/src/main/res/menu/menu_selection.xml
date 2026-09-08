@@ -37,6 +37,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_favorite"
+        android:title="@string/action_add_favorite"
+        android:icon="@drawable/ic_star"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_compress"
         android:title="@string/action_compress"
         app:showAsAction="never" />

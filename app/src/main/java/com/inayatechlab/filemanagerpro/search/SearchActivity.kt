@@ -95,6 +95,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun onResultClick(entry: FileEntry, root: File) {
+        com.inayatechlab.filemanagerpro.util.EntryTracker.onOpened(this, entry.path)
         if (entry.isDir) {
             val intent = Intent(this, MainActivity::class.java).apply {
                 putExtra(MainActivity.EXTRA_OPEN_PATH, entry.path)

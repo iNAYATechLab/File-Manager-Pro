@@ -21,6 +21,7 @@ import com.inayatechlab.filemanagerpro.model.FileEntry
 import com.inayatechlab.filemanagerpro.ops.FileOps
 import com.inayatechlab.filemanagerpro.preview.PreviewActivity
 import com.inayatechlab.filemanagerpro.util.Dialogs
+import com.inayatechlab.filemanagerpro.util.EntryTracker
 import com.inayatechlab.filemanagerpro.util.FileCat
 import com.inayatechlab.filemanagerpro.util.MediaCat
 import com.inayatechlab.filemanagerpro.util.OpenUtils
@@ -140,6 +141,7 @@ class CategoriesFragment : Fragment() {
 
     private fun openEntry(entry: FileEntry) {
         if (entry.isDir) return // categories only list files
+        EntryTracker.onOpened(requireContext(), entry.path)
         if (FileCat.of(entry) == FileCat.IMAGE) {
             val images = (adapter?.entries ?: emptyList())
                 .filter { FileCat.of(it) == FileCat.IMAGE }
@@ -175,6 +177,7 @@ class CategoriesFragment : Fragment() {
                     ) {
                         scope.launch {
                             FileOps.delete(listOf(entry))
+                            EntryTracker.onDeleted(requireContext(), listOf(entry.path))
                             loadCategory()
                         }
                     }

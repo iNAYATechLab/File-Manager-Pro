@@ -28,7 +28,9 @@ import com.inayatechlab.filemanagerpro.preview.PreviewActivity
 import com.inayatechlab.filemanagerpro.search.SearchActivity
 import com.inayatechlab.filemanagerpro.settings.SettingsActivity
 import com.inayatechlab.filemanagerpro.util.Dialogs
+import com.inayatechlab.filemanagerpro.util.EntryTracker
 import com.inayatechlab.filemanagerpro.util.FileCat
+import com.inayatechlab.filemanagerpro.util.FavoritesStore
 import com.inayatechlab.filemanagerpro.util.OpenUtils
 import com.inayatechlab.filemanagerpro.util.SettingsStore
 import com.inayatechlab.filemanagerpro.util.StorageRoot
@@ -206,6 +208,9 @@ class BrowseFragment : Fragment() {
                 menu.findItem(R.id.action_paste)?.isVisible = false
                 menu.findItem(R.id.action_sort)?.isVisible = false
                 menu.findItem(R.id.action_hidden)?.isVisible = false
+                menu.findItem(R.id.action_fav_sort)?.isVisible = false
+                menu.findItem(R.id.action_fav_group)?.isVisible = false
+                menu.findItem(R.id.action_clear_history)?.isVisible = false
                 menu.findItem(R.id.action_select_all)?.isVisible = false
             }
             return
@@ -222,8 +227,12 @@ class BrowseFragment : Fragment() {
         act.setUpButton(true) { goUp() }
         act.setAppTitle(if (isAtRoot()) baseLabel else dir.name)
 
-        act.currentMenu()?.findItem(R.id.action_paste)?.isVisible = ClipboardBus.isActive
-        act.currentMenu()?.findItem(R.id.action_hidden)?.let {
+        val current = act.currentMenu()
+        current?.findItem(R.id.action_paste)?.isVisible = ClipboardBus.isActive
+        current?.findItem(R.id.action_fav_sort)?.isVisible = false
+        current?.findItem(R.id.action_fav_group)?.isVisible = false
+        current?.findItem(R.id.action_clear_history)?.isVisible = false
+        current?.findItem(R.id.action_hidden)?.let {
             val show = SettingsStore.showHiddenFiles(requireContext())
             it.isChecked = show
             it.title = getString(if (show) R.string.hidden_hide else R.string.hidden_show)
@@ -247,7 +256,15 @@ class BrowseFragment : Fragment() {
                 ) { name ->
                     scope.launch {
                         val err = FileOps.createFolder(dir, name)
-                        if (err == null) reload() else snack(localizeOpError(err))
+                        if (err == null) {
+                            EntryTracker.onCreated(
+                                requireContext(),
+                                File(dir, name.trim()).canonicalPath
+                            )
+                            reload()
+                        } else {
+                            snack(localizeOpError(err))
+                        }
                     }
                 }
                 true
@@ -261,6 +278,10 @@ class BrowseFragment : Fragment() {
                     scope.launch {
                         val err = FileOps.createFile(dir, name)
                         if (err == null) {
+                            EntryTracker.onCreated(
+                                requireContext(),
+                                File(dir, name.trim()).canonicalPath
+                            )
                             snack(getString(R.string.ops_created, name.trim()))
                             reload()
                         } else {
@@ -365,6 +386,12 @@ class BrowseFragment : Fragment() {
                     mode.finish()
                     true
                 }
+                R.id.action_favorite -> {
+                    selected.forEach { FavoritesStore.add(requireContext(), it, scope) }
+                    snack(getString(R.string.fav_added, selected.size))
+                    mode.finish()
+                    true
+                }
                 R.id.action_delete -> {
                     confirmAndDelete(selected)
                     true
@@ -431,6 +458,7 @@ class BrowseFragment : Fragment() {
                 ClipboardBus.entries = emptyList()
                 ClipboardBus.isCut = false
                 syncMenu()
+                if (cut && r.done > 0) EntryTracker.onMovedCut(requireContext(), items, dir)
                 if (r.failed > 0) snack(r.errors.joinToString("\n").take(240))
                 else snack(getString(R.string.ops_pasted, r.done))
                 reload()
@@ -462,6 +490,7 @@ class BrowseFragment : Fragment() {
                 exitSelectionMode()
                 if (r.failed > 0) snack(r.errors.joinToString("\n").take(240))
                 else snack(getString(R.string.ops_deleted, r.done))
+                EntryTracker.onDeleted(requireContext(), selected.map { it.path })
                 reload()
             }
         }
@@ -478,6 +507,11 @@ class BrowseFragment : Fragment() {
                 withContext(Dispatchers.Main) {
                     if (err != null) snack(localizeOpError(err))
                     else {
+                        EntryTracker.onRenamed(
+                            requireContext(),
+                            File(dir, entry.name).canonicalPath,
+                            File(dir, newName.trim()).canonicalPath
+                        )
                         exitSelectionMode()
                         reload()
                     }
@@ -490,6 +524,7 @@ class BrowseFragment : Fragment() {
         runOp(getString(R.string.compressing)) {
             val created = FileOps.zip(selected)
             withContext(Dispatchers.Main) {
+                EntryTracker.onCreated(requireContext(), created.canonicalPath)
                 snack(getString(R.string.ops_created, created.name))
                 reload()
             }
@@ -500,6 +535,7 @@ class BrowseFragment : Fragment() {
         runOp(getString(R.string.extracting)) {
             val dest = FileOps.extract(File(entry.path))
             withContext(Dispatchers.Main) {
+                EntryTracker.onCreated(requireContext(), dest.canonicalPath)
                 snack(getString(R.string.ops_extracted_to, dest.name))
                 reload()
             }
@@ -652,9 +688,11 @@ class BrowseFragment : Fragment() {
 
     private fun openEntry(entry: FileEntry) {
         if (entry.isDir) {
+            EntryTracker.onOpened(requireContext(), entry.path)
             navigateInto(entry.file)
             return
         }
+        EntryTracker.onOpened(requireContext(), entry.path)
         if (FileCat.of(entry) == FileCat.IMAGE) {
             val images = (adapter?.entries ?: emptyList())
                 .filter { FileCat.of(it) == FileCat.IMAGE }

@@ -28,12 +28,15 @@ class CategoryChipAdapter(
         chip.text = holder.itemView.context.getString(cat.titleRes)
         chip.isChecked = position == selected
         chip.setOnClickListener {
-            if (selected != position) {
+            // resolve the current adapter position at click time (lint-compliant)
+            val pos = holder.bindingAdapterPosition
+            if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+            if (selected != pos) {
                 val old = selected
-                selected = position
+                selected = pos
                 notifyItemChanged(old)
-                notifyItemChanged(position)
-                onSelect(cat)
+                notifyItemChanged(pos)
+                onSelect(cats[pos])
             }
         }
     }

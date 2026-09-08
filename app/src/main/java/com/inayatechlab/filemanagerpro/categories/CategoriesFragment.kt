@@ -29,6 +29,7 @@ import com.inayatechlab.filemanagerpro.util.StorageUtils
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -118,7 +119,7 @@ class CategoriesFragment : Fragment() {
                 }
                 found.sortedWith(FileOpsComparator.comparator(1, false))
             }
-            if (!isActive) return@launch
+            if (!coroutineContext.isActive) return@launch
             binding.progress.isVisible = false
             adapter?.entries = result.toMutableList()
             binding.tvEmpty.isVisible = result.isEmpty()

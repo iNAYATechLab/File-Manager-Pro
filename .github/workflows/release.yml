@@ -1,0 +1,92 @@
+# Release automation — File-Manager-Pro
+#
+# Triggered automatically on every push/merge to `main`:
+#
+#   merge to main
+#      │
+#      ├─ release-please: analyze conventional commits since last tag
+#      │     • feat       → MINOR bump
+#      │     • fix        → PATCH bump
+#      │     • feat!/BREAKING CHANGE → MAJOR bump
+#      │     • ci/chore/docs/build/test → no release
+#      │     • opens a "chore(main): release vX.Y.Z" PR for human review & merge
+#      │
+#      └─ after the release PR is merged:
+#            • vX.Y.Z tag created automatically
+#            • GitHub Release + changelog created automatically
+#            • APK built from the tag and attached to the release
+#
+# Merges to main are performed by the repository owner (see repo policy).
+
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    name: Release Please (version + tag + release notes)
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.rp.outputs.release_created }}
+      tag_name: ${{ steps.rp.outputs.tag_name }}
+    steps:
+      - name: Run release-please
+        id: rp
+        uses: google-github-actions/release-please-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  attach-apk:
+    name: Build APK & attach to release
+    runs-on: ubuntu-latest
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    permissions:
+      contents: write
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install SDK components
+        run: |
+          sdkmanager --install "platforms;android-34" "build-tools;34.0.0" "platform-tools"
+          yes | sdkmanager --licenses >/dev/null 2>&1 || true
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Make wrapper executable
+        run: chmod +x gradlew
+
+      - name: Assemble debug APK (versioned from release tag)
+        run: ./gradlew --no-daemon assembleDebug -PversionName=${{ needs.release-please.outputs.tag_name }}
+
+      - name: Rename APK with tag
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk \
+             File-Manager-Pro-${{ needs.release-please.outputs.tag_name }}.apk
+
+      - name: Upload APK to GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ needs.release-please.outputs.tag_name }} File-Manager-Pro-${{ needs.release-please.outputs.tag_name }}.apk --clobber

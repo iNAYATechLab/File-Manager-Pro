@@ -116,6 +116,7 @@ class BrowseFragment : Fragment() {
     /** Called whenever the storage tab is shown again. */
     fun becomeVisible() {
         exitSelectionMode()
+        if (_binding == null) return // view not created yet — onResume will reload
         syncMenu()
         reload()
     }
@@ -449,13 +450,18 @@ class BrowseFragment : Fragment() {
 
     private fun reload() {
         if (loading.getAndSet(true)) return
-        binding.swipe.isRefreshing = false
+        val b = _binding
+        if (b == null) { // view gone/not ready — skip; a later lifecycle event reloads
+            loading.set(false)
+            return
+        }
+        b.swipe.isRefreshing = false
 
         if (!StorageUtils.isStoragePermitted(requireContext())) {
             loading.set(false)
-            binding.tvEmpty.isVisible = true
-            binding.tvEmpty.text = getString(R.string.storage_permission_needed)
-            binding.recycler.adapter = null
+            b.tvEmpty.isVisible = true
+            b.tvEmpty.text = getString(R.string.storage_permission_needed)
+            b.recycler.adapter = null
             return
         }
 
@@ -480,14 +486,14 @@ class BrowseFragment : Fragment() {
                     .sortedWith(FileOpsComparator.comparator(mode, asc))
                     .toList()
             }
-            if (listDir != dir) {
+            val b = _binding
+            if (b == null || listDir != dir) { // view destroyed or stale request
                 loading.set(false)
                 return@launch
             }
-            val cur = requireContext()
-            binding.tvEmpty.isVisible = entries.isEmpty()
-            binding.tvEmpty.text = getString(R.string.folder_empty)
-            binding.tvEmpty.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
+            b.tvEmpty.isVisible = entries.isEmpty()
+            b.tvEmpty.text = getString(R.string.folder_empty)
+            b.tvEmpty.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
 
             val newAdapter = FileAdapter(grid).apply {
                 this.entries = entries.toMutableList()
@@ -496,15 +502,15 @@ class BrowseFragment : Fragment() {
                 onSelectionChanged = { actionMode?.invalidate() }
             }
             adapter = newAdapter
-            binding.recycler.adapter = newAdapter
-            val lm = binding.recycler.layoutManager
+            b.recycler.adapter = newAdapter
+            val lm = b.recycler.layoutManager
             val needNewLm = if (grid) lm !is GridLayoutManager else lm !is LinearLayoutManager
-            if (needNewLm || binding.recycler.layoutManager == null) {
-                binding.recycler.layoutManager =
-                    if (grid) GridLayoutManager(cur, gridSpan())
-                    else LinearLayoutManager(cur)
+            if (needNewLm || b.recycler.layoutManager == null) {
+                b.recycler.layoutManager =
+                    if (grid) GridLayoutManager(b.recycler.context, gridSpan())
+                    else LinearLayoutManager(b.recycler.context)
             }
-            binding.swipe.isRefreshing = false
+            b.swipe.isRefreshing = false
             loading.set(false)
             syncMenu()
         }

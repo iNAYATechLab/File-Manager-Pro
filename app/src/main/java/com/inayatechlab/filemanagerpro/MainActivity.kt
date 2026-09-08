@@ -81,7 +81,11 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
-        binding.bottomNav.selectedItemId = R.id.nav_storage
+        // Select the initial tab only after the first layout pass. Firing the
+        // listener during onCreate reaches fragments whose view/_binding is not
+        // created yet (e.g. after process death / rotation), crashing in
+        // reload() with a NullPointerException.
+        binding.bottomNav.post { binding.bottomNav.selectedItemId = R.id.nav_storage }
 
         // Open a folder passed by another screen (e.g. search results)
         handleOpenPath(intent.getStringExtra(EXTRA_OPEN_PATH))

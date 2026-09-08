@@ -1,0 +1,72 @@
+# GitHub Actions CI pipeline for File-Manager-Pro.
+#
+# Runs on every push and pull request:
+#   1. Checkout
+#   2. JDK 17 + Android SDK setup
+#   3. JVM unit tests
+#   4. Android Lint (lintDebug)
+#   5. Debug APK assembly
+#   6. APK artifact upload
+#
+# The main branch is protected: merges require this pipeline to pass.
+
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android-build:
+    name: Android Build, Lint & Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install SDK components
+        run: |
+          sdkmanager --install "platforms;android-34" "build-tools;34.0.0" "platform-tools"
+          yes | sdkmanager --licenses >/dev/null 2>&1 || true
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Make wrapper executable
+        run: chmod +x gradlew
+
+      - name: Run JVM unit tests
+        run: ./gradlew --no-daemon testDebugUnitTest
+
+      - name: Run Android Lint
+        run: ./gradlew --no-daemon lintDebug
+
+      - name: Assemble debug APK
+        run: ./gradlew --no-daemon assembleDebug
+
+      - name: Upload debug APK artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: app-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: warn

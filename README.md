@@ -73,14 +73,11 @@ the system screen — on Android 10 and below the app requests the legacy
 external-storage runtime permissions instead. On first launch the app guides
 you through this.
 
-## 🧭 Roadmap (next milestones)
+## 🧭 Roadmap
 
-- [ ] Sorting dialog: dedicated list/grid switch polish & stability pass
-- [ ] SAF (Storage Access Framework) support for files outside app scope
-- [ ] Search: filter chips & recursive folder results opening
-- [ ] Multiple archive formats (7z/rar read), encrypted zips
-- [ ] Root-page storage cards with used/free charts
-- [ ] Thumbnails in list view, video frames, EXIF info panel
+See **[docs/ROADMAP.md](docs/ROADMAP.md)** for the full milestone plan
+(M1 foundation → M4 stable 1.0.0). GitHub Milestones & issues track each item;
+every merge to `main` produces an automatically versioned, signed **prerelease** APK.
 
 ## 📜 License
 

@@ -29,6 +29,7 @@ import com.inayatechlab.filemanagerpro.search.SearchActivity
 import com.inayatechlab.filemanagerpro.util.Dialogs
 import com.inayatechlab.filemanagerpro.util.FileCat
 import com.inayatechlab.filemanagerpro.util.OpenUtils
+import com.inayatechlab.filemanagerpro.util.StorageRoot
 import com.inayatechlab.filemanagerpro.util.StorageUtils
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
@@ -54,6 +55,8 @@ class BrowseFragment : Fragment() {
     private var dir: File = StorageUtils.primaryRoot()
     private var baseDir: File = StorageUtils.primaryRoot()
     private var baseLabel: String = "Internal storage"
+    /** When true the Storage home (volume cards) is shown instead of a folder. */
+    private var storageHome = true
     private var adapter: FileAdapter? = null
     private var actionMode: ActionMode? = null
     private val loading = AtomicBoolean(false)
@@ -129,6 +132,8 @@ class BrowseFragment : Fragment() {
     fun navigateInto(newDir: File) {
         if (!newDir.isDirectory) return
         dir = newDir
+        storageHome = false
+        syncMenu()
         reload()
     }
 
@@ -136,14 +141,34 @@ class BrowseFragment : Fragment() {
         val f = File(path)
         if (!f.isDirectory) return
         dir = f
+        storageHome = false
+        syncMenu()
+        reload()
+    }
+
+    /** Opens a storage volume card from the Storage home. */
+    private fun openRoot(root: StorageRoot) {
+        dir = root.file
+        baseDir = root.file
+        baseLabel = root.label
+        storageHome = false
         syncMenu()
         reload()
     }
 
     fun goUp(): Boolean {
-        if (isAtRoot()) return false
+        if (storageHome) return false // back button exits the app from home
+        if (isAtRoot()) { // top of a volume → back to the Storage home
+            storageHome = true
+            reload()
+            return true
+        }
         val parent = dir.parentFile
-        if (parent == null) return false
+        if (parent == null) {
+            storageHome = true
+            reload()
+            return true
+        }
         dir = parent
         reload()
         return true
@@ -171,17 +196,33 @@ class BrowseFragment : Fragment() {
 
     private fun syncMenu() {
         val act = activity as? MainActivity ?: return
+        act.installBrowseMenu(::onMenuItem)
+
+        if (storageHome) {
+            act.setAppTitle(getString(R.string.nav_storage))
+            act.showCrumbBarVisible(false)
+            act.setUpButton(false) {}
+            act.currentMenu()?.let { menu ->
+                menu.findItem(R.id.action_search)?.isVisible = false
+                menu.findItem(R.id.action_new_folder)?.isVisible = false
+                menu.findItem(R.id.action_paste)?.isVisible = false
+                menu.findItem(R.id.action_sort)?.isVisible = false
+                menu.findItem(R.id.action_select_all)?.isVisible = false
+            }
+            return
+        }
+
         val crumbs = crumbs()
-        val upVisible = !isAtRoot()
-        act.showCrumbBarVisible(upVisible)
+        // Up arrow always shown inside a volume: at the top level it goes back
+        // to the Storage home screen.
+        act.showCrumbBarVisible(true)
         act.setCrumbs(crumbs) { crumb ->
             val target = File(crumb.path)
             if (target.isDirectory) navigateInto(target)
         }
-        act.setUpButton(upVisible) { goUp() }
+        act.setUpButton(true) { goUp() }
         act.setAppTitle(if (isAtRoot()) baseLabel else dir.name)
 
-        act.installBrowseMenu(::onMenuItem)
         act.currentMenu()?.findItem(R.id.action_paste)?.isVisible = ClipboardBus.isActive
     }
 
@@ -462,6 +503,27 @@ class BrowseFragment : Fragment() {
             b.tvEmpty.isVisible = true
             b.tvEmpty.text = getString(R.string.storage_permission_needed)
             b.recycler.adapter = null
+            return
+        }
+
+        if (storageHome) {
+            scope.launch {
+                val roots = withContext(Dispatchers.IO) { StorageUtils.roots() }
+                val bb = _binding
+                if (bb == null) {
+                    loading.set(false)
+                    return@launch
+                }
+                bb.tvEmpty.isVisible = roots.isEmpty()
+                bb.tvEmpty.text = getString(R.string.storage_empty)
+                bb.tvEmpty.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
+                if (bb.recycler.layoutManager !is LinearLayoutManager) {
+                    bb.recycler.layoutManager = LinearLayoutManager(bb.recycler.context)
+                }
+                bb.recycler.adapter = StorageRootAdapter(roots) { openRoot(it) }
+                bb.swipe.isRefreshing = false
+                loading.set(false)
+            }
             return
         }
 

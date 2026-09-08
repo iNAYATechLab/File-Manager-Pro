@@ -49,6 +49,8 @@
     <string name="storage_primary">Internal storage</string>
     <string name="storage_used">Used</string>
     <string name="storage_free">Free</string>
+    <string name="storage_summary">Used %1$s • Free %2$s • Total %3$s</string>
+    <string name="storage_empty">No storage volumes found</string>
 
     <!-- Placeholders & messages -->
     <string name="folder_empty">This folder is empty</string>

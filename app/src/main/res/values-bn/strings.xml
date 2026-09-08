@@ -49,6 +49,8 @@
     <string name="storage_primary">ইন্টারনাল স্টোরেজ</string>
     <string name="storage_used">ব্যবহৃত</string>
     <string name="storage_free">খালি</string>
+    <string name="storage_summary">ব্যবহৃত %1$s • খালি %2$s • মোট %3$s</string>
+    <string name="storage_empty">কোনো স্টোরেজ ভলিউম পাওয়া যায়নি</string>
 
     <!-- Placeholders & messages -->
     <string name="folder_empty">এই ফোল্ডারটি খালি</string>

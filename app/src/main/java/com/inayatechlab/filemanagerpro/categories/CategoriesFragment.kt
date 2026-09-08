@@ -82,6 +82,7 @@ class CategoriesFragment : Fragment() {
     }
 
     fun becomeVisible() {
+        if (_binding == null) return // view not ready yet — onResume will handle
         val act = activity as? MainActivity ?: return
         act.setAppTitle(getString(R.string.nav_categories))
         act.clearMenu()
@@ -97,36 +98,43 @@ class CategoriesFragment : Fragment() {
     }
 
     private fun loadCategory() {
-        if (!StorageUtils.isStoragePermitted(requireContext())) {
-            binding.tvEmpty.isVisible = true
-            binding.tvEmpty.text = getString(R.string.storage_permission_needed)
-            binding.tvEmpty.setOnClickListener {
-                StorageUtils.requestStorageAccess(requireContext())
+        val b = _binding ?: return
+        val ctx = requireContext()
+        if (!StorageUtils.isStoragePermitted(ctx)) {
+            b.tvEmpty.isVisible = true
+            b.tvEmpty.text = getString(R.string.storage_permission_needed)
+            b.tvEmpty.setOnClickListener {
+                StorageUtils.requestStorageAccess(ctx)
             }
             return
         }
-        binding.tvEmpty.setOnClickListener(null)
+        b.tvEmpty.setOnClickListener(null)
         if (scanning.getAndSet(true)) return
 
         scanJob = scope.launch {
-            val cat = currentCat
-            binding.progress.isVisible = true
-            val result = withContext(Dispatchers.IO) {
-                val found = if (cat.filter == FileCat.IMAGE || cat.filter == FileCat.VIDEO || cat.filter == FileCat.AUDIO) {
-                    Scanner.scanMedia(requireContext(), cat.filter!!)
-                } else {
-                    Scanner.scanFilesystem(cat.filter ?: FileCat.GENERIC)
+            try {
+                val cat = currentCat
+                _binding?.progress?.isVisible = true
+                val result = withContext(Dispatchers.IO) {
+                    val found = if (cat.filter == FileCat.IMAGE || cat.filter == FileCat.VIDEO || cat.filter == FileCat.AUDIO) {
+                        Scanner.scanMedia(ctx, cat.filter!!)
+                    } else {
+                        Scanner.scanFilesystem(cat.filter ?: FileCat.GENERIC)
+                    }
+                    found.sortedWith(FileOpsComparator.comparator(1, false))
                 }
-                found.sortedWith(FileOpsComparator.comparator(1, false))
+                val b1 = _binding
+                if (b1 == null) return@launch
+                b1.progress.isVisible = false
+                adapter?.entries = result.toMutableList()
+                b1.tvEmpty.isVisible = result.isEmpty()
+                b1.tvEmpty.text = getString(R.string.cat_empty)
+                (activity as? MainActivity)?.setAppTitle(
+                    getString(cat.titleRes) + (if (result.isNotEmpty()) " (${result.size})" else "")
+                )
+            } finally {
+                scanning.set(false)
             }
-            if (!coroutineContext.isActive) return@launch
-            binding.progress.isVisible = false
-            adapter?.entries = result.toMutableList()
-            binding.tvEmpty.isVisible = result.isEmpty()
-            binding.tvEmpty.text = getString(R.string.cat_empty)
-            val act = activity as? MainActivity
-            act?.setAppTitle(getString(cat.titleRes) + (if (result.isNotEmpty()) " (${result.size})" else ""))
-            scanning.set(false)
         }
     }
 

@@ -34,17 +34,18 @@ object Icons {
         FileCat.GENERIC -> R.color.file_generic
     }
 
-    /** Short human label of a category, used in list subtext. */
-    fun label(cat: FileCat): String = when (cat) {
-        FileCat.FOLDER -> "Folder"
-        FileCat.IMAGE -> "Image"
-        FileCat.VIDEO -> "Video"
-        FileCat.AUDIO -> "Audio"
-        FileCat.ARCHIVE -> "Archive"
-        FileCat.PDF -> "PDF"
-        FileCat.DOC -> "Document"
-        FileCat.TEXT -> "Text"
-        FileCat.APK -> "App"
-        FileCat.GENERIC -> "File"
+    /** Short human label resource of a category, used in list subtext and dialogs. */
+    @StringRes
+    fun labelRes(cat: FileCat): Int = when (cat) {
+        FileCat.FOLDER -> R.string.label_folder
+        FileCat.IMAGE -> R.string.label_image
+        FileCat.VIDEO -> R.string.label_video
+        FileCat.AUDIO -> R.string.label_audio
+        FileCat.ARCHIVE -> R.string.label_archive
+        FileCat.PDF -> R.string.label_pdf
+        FileCat.DOC -> R.string.label_doc
+        FileCat.TEXT -> R.string.label_text
+        FileCat.APK -> R.string.label_apk
+        FileCat.GENERIC -> R.string.label_generic
     }
 }

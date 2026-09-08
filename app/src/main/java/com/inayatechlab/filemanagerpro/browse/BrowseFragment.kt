@@ -444,7 +444,11 @@ class BrowseFragment : Fragment() {
             return
         }
         val sample = selected.take(3).joinToString { it.name }
-        val more = if (selected.size > 3) "\n+${selected.size - 3} more" else ""
+        val more = if (selected.size > 3) {
+            "\n" + getString(R.string.ops_and_more, selected.size - 3)
+        } else {
+            ""
+        }
         Dialogs.confirm(
             requireContext(),
             getString(R.string.dialog_delete_title),

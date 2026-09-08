@@ -77,6 +77,40 @@
     <string name="hidden_files_visible">This folder contains hidden files</string>
     <string name="hidden_toggle_hide">Hide</string>
 
+    <!-- Category labels (localized) -->
+    <string name="label_folder">Folder</string>
+    <string name="label_image">Image</string>
+    <string name="label_video">Video</string>
+    <string name="label_audio">Audio</string>
+    <string name="label_archive">Archive</string>
+    <string name="label_pdf">PDF</string>
+    <string name="label_doc">Document</string>
+    <string name="label_text">Text</string>
+    <string name="label_apk">App</string>
+    <string name="label_generic">File</string>
+
+    <!-- Properties dialog -->
+    <string name="props_name_fmt">Name: %1$s</string>
+    <string name="props_type_fmt">Type: %1$s</string>
+    <string name="props_type_file_fmt">%1$s (%2$s)</string>
+    <string name="props_location_fmt">Location: %1$s</string>
+    <string name="props_size_fmt">Size: %1$s</string>
+    <string name="props_modified_fmt">Modified: %1$s</string>
+    <string name="props_content_size_fmt">Content size: %1$s</string>
+
+    <!-- Settings: sort / language / about -->
+    <string name="settings_default_sort">Default sort</string>
+    <string name="sort_mode_name_asc">Name (A to Z)</string>
+    <string name="sort_mode_name_desc">Name (Z to A)</string>
+    <string name="sort_mode_date_newest">Date (newest first)</string>
+    <string name="sort_mode_date_oldest">Date (oldest first)</string>
+    <string name="sort_mode_size_largest">Size (largest first)</string>
+    <string name="sort_mode_size_smallest">Size (smallest first)</string>
+    <string name="sort_mode_type">Type</string>
+    <string name="settings_section_language">Language</string>
+    <string name="settings_language_note">The app follows the system language. Bangla (বাংলা) and English are supported; remaining strings are translated gradually.</string>
+    <string name="settings_about_text">A fast, lightweight file manager with storage overview, categories, favorites, recent files, hidden-file support and archive tools.</string>
+
     <!-- Operation feedback (UI level) -->
     <string name="ops_copied_clipboard">%1$d item(s) copied to clipboard</string>
     <string name="ops_cut_clipboard">%1$d item(s) cut to clipboard</string>
@@ -92,6 +126,8 @@
     <string name="ops_error_name_exists">A file/folder with this name already exists</string>
     <string name="ops_error_cannot_create">Could not create</string>
     <string name="ops_error_rename_failed">Rename failed</string>
+    <string name="ops_and_more">+%1$d more</string>
+
 
     <!-- Placeholders & messages -->
     <string name="folder_empty">This folder is empty</string>

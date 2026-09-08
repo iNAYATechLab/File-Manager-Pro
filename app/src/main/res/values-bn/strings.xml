@@ -77,6 +77,40 @@
     <string name="hidden_files_visible">এই ফোল্ডারে লুকানো ফাইল আছে</string>
     <string name="hidden_toggle_hide">লুকান</string>
 
+    <!-- Category labels (localized) -->
+    <string name="label_folder">ফোল্ডার</string>
+    <string name="label_image">ছবি</string>
+    <string name="label_video">ভিডিও</string>
+    <string name="label_audio">অডিও</string>
+    <string name="label_archive">আর্কাইভ</string>
+    <string name="label_pdf">PDF</string>
+    <string name="label_doc">ডকুমেন্ট</string>
+    <string name="label_text">টেক্সট</string>
+    <string name="label_apk">অ্যাপ</string>
+    <string name="label_generic">ফাইল</string>
+
+    <!-- Properties dialog -->
+    <string name="props_name_fmt">নাম: %1$s</string>
+    <string name="props_type_fmt">ধরন: %1$s</string>
+    <string name="props_type_file_fmt">%1$s (%2$s)</string>
+    <string name="props_location_fmt">অবস্থান: %1$s</string>
+    <string name="props_size_fmt">আকার: %1$s</string>
+    <string name="props_modified_fmt">পরিবর্তিত: %1$s</string>
+    <string name="props_content_size_fmt">কন্টেন্ট-আকার: %1$s</string>
+
+    <!-- Settings: sort / language / about -->
+    <string name="settings_default_sort">ডিফল্ট সাজানো</string>
+    <string name="sort_mode_name_asc">নাম (ক–জ)</string>
+    <string name="sort_mode_name_desc">নাম (জ–ক)</string>
+    <string name="sort_mode_date_newest">তারিখ (নতুন আগে)</string>
+    <string name="sort_mode_date_oldest">তারিখ (পুরোনো আগে)</string>
+    <string name="sort_mode_size_largest">আকার (বড় আগে)</string>
+    <string name="sort_mode_size_smallest">আকার (ছোট আগে)</string>
+    <string name="sort_mode_type">ধরন</string>
+    <string name="settings_section_language">ভাষা</string>
+    <string name="settings_language_note">অ্যাপটি সিস্টেমের ভাষা অনুসরণ করে। বাংলা ও ইংরেজি সমর্থিত; বাকি স্ট্রিংগুলো ধাপে ধাপে অনুবাদ হচ্ছে।</string>
+    <string name="settings_about_text">দ্রুত ও হালকা ফাইল ম্যানেজার — স্টোরেজ ওভারভিউ, ক্যাটাগরি, পছন্দ, সম্প্রতি, লুকানো-ফাইল সাপোর্ট ও আর্কাইভ টুলসহ।</string>
+
     <!-- Operation feedback (UI level) -->
     <string name="ops_copied_clipboard">%1$dটি আইটেম ক্লিপবোর্ডে কপি হয়েছে</string>
     <string name="ops_cut_clipboard">%1$dটি আইটেম ক্লিপবোর্ডে কাট হয়েছে</string>
@@ -92,6 +126,8 @@
     <string name="ops_error_name_exists">এই নামে ইতিমধ্যে একটি ফাইল/ফোল্ডার আছে</string>
     <string name="ops_error_cannot_create">তৈরি করা যায়নি</string>
     <string name="ops_error_rename_failed">নাম পরিবর্তন ব্যর্থ হয়েছে</string>
+    <string name="ops_and_more">+আরও %1$dটি</string>
+
 
     <!-- Placeholders & messages -->
     <string name="folder_empty">এই ফোল্ডারটি খালি</string>

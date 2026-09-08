@@ -118,7 +118,7 @@ class CategoriesFragment : Fragment() {
                 }
                 found.sortedWith(FileOpsComparator.comparator(1, false))
             }
-            if (!isActive) return@launch
+            if (!coroutineContext.isActive) return@launch
             binding.progress.isVisible = false
             adapter?.entries = result.toMutableList()
             binding.tvEmpty.isVisible = result.isEmpty()

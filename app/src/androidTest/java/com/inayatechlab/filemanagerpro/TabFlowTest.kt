@@ -5,19 +5,20 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
+import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import org.hamcrest.Matchers.allOf
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.hamcrest.Matchers.allOf
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * UI flow tests over the bottom navigation (1.0.0 hardening, #22).
+ * UI flow tests over the drawer navigation (UI/Design redesign).
  *
- * All assertions are permission-free: they exercise fragment/tab wiring and
- * the vault overview chrome, not storage listings.
+ * All assertions are permission-free: they exercise drawer/fragment wiring
+ * and the vault overview chrome, not storage listings.
  */
 @RunWith(AndroidJUnit4::class)
 class TabFlowTest {
@@ -25,47 +26,57 @@ class TabFlowTest {
     @get:Rule
     val activityRule = ActivityScenarioRule(MainActivity::class.java)
 
+    private fun openDrawer() {
+        onView(withContentDescription(R.string.nav_drawer_open)).perform(click())
+    }
+
+    /** Opens the drawer and taps the given drawer row. */
+    private fun clickDrawerRow(rowId: Int) {
+        openDrawer()
+        onView(withId(rowId)).perform(click())
+    }
+
     @Test
-    fun vaultTab_showsCreateFab_andReturnsToStorage() {
-        onView(withId(R.id.nav_vault)).perform(click())
+    fun vaultRow_showsCreateFab_andReturnsHome() {
+        clickDrawerRow(R.id.drowVault)
         // Vault overview: create button is always present, regardless of the
         // storage permission state.
         onView(withId(R.id.fabCreate)).check(matches(isDisplayed()))
         onView(withId(R.id.fabCreate)).check(matches(isEnabled()))
 
-        onView(withId(R.id.nav_storage)).perform(click())
+        clickDrawerRow(R.id.drowHome)
         onView(allOf(withId(R.id.recycler), isDisplayed())).check(matches(isDisplayed()))
-        onView(withId(R.id.nav_storage)).check(matches(isDisplayed()))
+        onView(withId(R.id.toolbar)).check(matches(isDisplayed()))
     }
 
     @Test
-    fun allTabs_roundTripWithoutCrash() {
-        val tabs = intArrayOf(
-            R.id.nav_categories,
-            R.id.nav_vault,
-            R.id.nav_library,
-            R.id.nav_storage
+    fun allSections_roundTripWithoutCrash() {
+        val sections = listOf(
+            R.id.drowImages to R.id.chipRecycler,
+            R.id.drowFavorites to R.id.chipFavorites,
+            R.id.drowVault to R.id.fabCreate,
+            R.id.drowHome to R.id.recycler
         )
-        for (tab in tabs) {
-            onView(withId(tab)).perform(click())
-            onView(withId(tab)).check(matches(isDisplayed()))
+        for ((row, marker) in sections) {
+            clickDrawerRow(row)
+            onView(withId(marker)).check(matches(isDisplayed()))
         }
     }
 
     @Test
-    fun libraryTab_showsQuickAccessChips() {
-        onView(withId(R.id.nav_library)).perform(click())
+    fun libraryRow_showsQuickAccessChips() {
+        clickDrawerRow(R.id.drowFavorites)
         onView(withId(R.id.chipFavorites)).check(matches(isDisplayed()))
         onView(withId(R.id.chipRecents)).check(matches(isDisplayed()))
         onView(withId(R.id.chipDownloads)).check(matches(isDisplayed()))
 
-        onView(withId(R.id.nav_storage)).perform(click())
+        clickDrawerRow(R.id.drowHome)
         onView(allOf(withId(R.id.recycler), isDisplayed())).check(matches(isDisplayed()))
     }
 
     @Test
-    fun categories_tabShowsChipRow() {
-        onView(withId(R.id.nav_categories)).perform(click())
+    fun categoriesRow_showsChipRow() {
+        clickDrawerRow(R.id.drowImages)
         onView(withId(R.id.chipRecycler)).check(matches(isDisplayed()))
         onView(allOf(withId(R.id.recycler), isDisplayed())).check(matches(isDisplayed()))
     }

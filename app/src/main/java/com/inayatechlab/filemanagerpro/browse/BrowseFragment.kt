@@ -187,12 +187,27 @@ class BrowseFragment : Fragment() {
 
     /** Opens a storage volume card from the Storage home. */
     private fun openRoot(root: StorageRoot) {
-        dir = root.file
-        baseDir = root.file
-        baseLabel = root.label
-        storageHome = false
+        openStorageVolume(root.label, root.file)
+    }
+
+    /** Shows the Storage home (volume cards). Used by the drawer Home row. */
+    fun showStorageHome() {
+        if (_binding == null) return
+        storageHome = true
         syncMenu()
         reload()
+    }
+
+    /** Opens a volume root directly. Used by the drawer Internal/SD rows. */
+    fun openStorageVolume(label: String, file: File) {
+        dir = file
+        baseDir = file
+        baseLabel = label
+        storageHome = false
+        if (_binding != null) {
+            syncMenu()
+            reload()
+        }
     }
 
     fun goUp(): Boolean {

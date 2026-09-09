@@ -366,4 +366,14 @@ Add Android/data, Android/obb or another folder above.</string>
     <string name="about_visit_github">Visit project on GitHub</string>
     <string name="about_open_source">Open source · MIT license</string>
     <string name="about_copyright_fmt">© %1$d iNayaTech Lab</string>
+
+    <!-- Drawer navigation -->
+    <string name="nav_drawer_open">Open navigation menu</string>
+    <string name="drawer_home">Home</string>
+    <string name="drawer_internal">Internal storage</string>
+    <string name="drawer_sd">SD card</string>
+    <string name="drawer_dark_mode">Dark mode</string>
+    <string name="drawer_used">Used %1$s</string>
+    <string name="drawer_free">Free %1$s</string>
+    <string name="drawer_pct_fmt">Used %1$d%%</string>
 </resources>

@@ -366,4 +366,14 @@
     <string name="about_visit_github">GitHub-এ প্রকল্প দেখুন</string>
     <string name="about_open_source">ওপেন-সোর্স · MIT লাইসেন্স</string>
     <string name="about_copyright_fmt">© %1$d iNayaTech Lab</string>
+
+    <!-- Drawer navigation -->
+    <string name="nav_drawer_open">নেভিগেশন মেনু খুলুন</string>
+    <string name="drawer_home">হোম</string>
+    <string name="drawer_internal">অভ্যন্তরীণ স্টোরেজ</string>
+    <string name="drawer_sd">SD কার্ড</string>
+    <string name="drawer_dark_mode">ডার্ক মোড</string>
+    <string name="drawer_used">ব্যবহৃত %1$s</string>
+    <string name="drawer_free">ফ্রি %1$s</string>
+    <string name="drawer_pct_fmt">ব্যবহৃত %1$d%%</string>
 </resources>

@@ -52,6 +52,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_favorite"
+        android:icon="@drawable/ic_star"
+        android:title="@string/action_add_favorite"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_share"
         android:title="@string/action_share"
         app:showAsAction="never" />

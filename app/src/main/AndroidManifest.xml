@@ -46,6 +46,11 @@
             android:launchMode="singleTop" />
 
         <activity
+            android:name=".textviewer.TextActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+
+        <activity
             android:name=".settings.SettingsActivity"
             android:exported="false"
             android:launchMode="singleTop" />

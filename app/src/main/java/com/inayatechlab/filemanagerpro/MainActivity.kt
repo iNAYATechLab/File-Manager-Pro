@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.inayatechlab.filemanagerpro.browse.BrowseFragment
 import com.inayatechlab.filemanagerpro.browse.CrumbAdapter
 import com.inayatechlab.filemanagerpro.categories.CategoriesFragment
+import com.inayatechlab.filemanagerpro.library.LibraryFragment
 import com.inayatechlab.filemanagerpro.databinding.ActivityMainBinding
 import com.inayatechlab.filemanagerpro.model.PathCrumb
 import com.inayatechlab.filemanagerpro.vault.VaultFragment
@@ -24,12 +25,14 @@ class MainActivity : AppCompatActivity() {
         private const val TAG_BROWSE = "browse"
         private const val TAG_CATEGORIES = "categories"
         private const val TAG_VAULT = "vault"
+        private const val TAG_LIBRARY = "library"
     }
 
     private lateinit var binding: ActivityMainBinding
     private var browseFragment: BrowseFragment? = null
     private var categoriesFragment: CategoriesFragment? = null
     private var vaultFragment: VaultFragment? = null
+    private var libraryFragment: LibraryFragment? = null
     private var menuHandler: ((MenuItem) -> Boolean)? = null
 
     private val backCallback = object : OnBackPressedCallback(true) {
@@ -41,6 +44,11 @@ class MainActivity : AppCompatActivity() {
             }
             val cats = categoriesFragment
             if (cats != null && !cats.isHidden && cats.isVisible) {
+                selectTab(R.id.nav_storage)
+                return
+            }
+            val library = libraryFragment
+            if (library != null && !library.isHidden && library.isVisible) {
                 selectTab(R.id.nav_storage)
                 return
             }
@@ -83,7 +91,13 @@ class MainActivity : AppCompatActivity() {
             }
         vaultFragment = vault
 
-        fm.beginTransaction().hide(cats).hide(vault).show(browse).commitNow()
+        val library = fm.findFragmentByTag(TAG_LIBRARY) as? LibraryFragment
+            ?: LibraryFragment.newInstance().also { created ->
+                fm.beginTransaction().add(R.id.fragmentContainer, created, TAG_LIBRARY).hide(created).commitNow()
+            }
+        libraryFragment = library
+
+        fm.beginTransaction().hide(cats).hide(vault).hide(library).show(browse).commitNow()
 
         binding.bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
@@ -97,6 +111,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.nav_vault -> {
                     showFragment(vault)
+                    true
+                }
+                R.id.nav_library -> {
+                    showFragment(library)
                     true
                 }
                 else -> false
@@ -120,13 +138,18 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleOpenPath(path: String?) {
         if (path.isNullOrBlank()) return
+        openFolderInBrowse(path)
+    }
+
+    /** Switches to the Storage tab and opens [path] (used by Library/Recents). */
+    fun openFolderInBrowse(path: String) {
         selectTab(R.id.nav_storage)
         browseFragment?.navigateToPath(path)
     }
 
     private fun showFragment(fragment: Fragment) {
         val fm = supportFragmentManager
-        val others = listOf(browseFragment, categoriesFragment, vaultFragment).filterNotNull()
+        val others = listOf(browseFragment, categoriesFragment, vaultFragment, libraryFragment).filterNotNull()
         val tx = fm.beginTransaction()
         others.filter { it !== fragment }.forEach { tx.hide(it) }
         tx.show(fragment).commitNow()
@@ -134,6 +157,7 @@ class MainActivity : AppCompatActivity() {
             is BrowseFragment -> fragment.becomeVisible()
             is CategoriesFragment -> fragment.becomeVisible()
             is VaultFragment -> fragment.becomeVisible()
+            is LibraryFragment -> fragment.becomeVisible()
         }
     }
 
@@ -146,6 +170,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_storage -> showFragment(browseFragment ?: return)
                 R.id.nav_categories -> showFragment(categoriesFragment ?: return)
                 R.id.nav_vault -> showFragment(vaultFragment ?: return)
+                R.id.nav_library -> showFragment(libraryFragment ?: return)
             }
         }
     }

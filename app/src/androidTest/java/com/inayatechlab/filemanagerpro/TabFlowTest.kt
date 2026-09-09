@@ -43,12 +43,24 @@ class TabFlowTest {
         val tabs = intArrayOf(
             R.id.nav_categories,
             R.id.nav_vault,
+            R.id.nav_library,
             R.id.nav_storage
         )
         for (tab in tabs) {
             onView(withId(tab)).perform(click())
             onView(withId(tab)).check(matches(isDisplayed()))
         }
+    }
+
+    @Test
+    fun libraryTab_showsQuickAccessChips() {
+        onView(withId(R.id.nav_library)).perform(click())
+        onView(withId(R.id.chipFavorites)).check(matches(isDisplayed()))
+        onView(withId(R.id.chipRecents)).check(matches(isDisplayed()))
+        onView(withId(R.id.chipDownloads)).check(matches(isDisplayed()))
+
+        onView(withId(R.id.nav_storage)).perform(click())
+        onView(allOf(withId(R.id.recycler), isDisplayed())).check(matches(isDisplayed()))
     }
 
     @Test

@@ -20,7 +20,9 @@ import com.inayatechlab.filemanagerpro.databinding.ActivitySafBrowserBinding
 import com.inayatechlab.filemanagerpro.model.FileEntry
 import com.inayatechlab.filemanagerpro.preview.PreviewActivity
 import com.inayatechlab.filemanagerpro.util.Dialogs
+import com.inayatechlab.filemanagerpro.textviewer.TextActivity
 import com.inayatechlab.filemanagerpro.util.FormatUtils
+import com.inayatechlab.filemanagerpro.util.TextFiles
 import com.inayatechlab.filemanagerpro.util.OpenUtils
 import java.io.File
 import java.util.ArrayDeque
@@ -229,6 +231,8 @@ class SafBrowserActivity : AppCompatActivity() {
                         )
                         .putExtra(PreviewActivity.EXTRA_INDEX, 0)
                 )
+            } else if (TextFiles.isTextFile(file.name)) {
+                TextActivity.start(this@SafBrowserActivity, file)
             } else if (!OpenUtils.openExternal(this@SafBrowserActivity, file)) {
                 snack(getString(R.string.no_app_found))
             }

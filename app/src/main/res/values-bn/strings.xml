@@ -308,4 +308,24 @@
     <string name="wallpaper_setting">ওয়ালপেপার সেট হচ্ছে…</string>
     <string name="wallpaper_set_ok">ওয়ালপেপার সেট হয়েছে</string>
     <string name="wallpaper_set_failed">ওয়ালপেপার সেট করা যায়নি</string>
+    <!-- Quick access (Library tab): favorites / recents / downloads -->
+    <string name="nav_library">লাইব্রেরি</string>
+    <string name="lib_chip_favorites">ফেভারিট</string>
+    <string name="lib_chip_recent">সাম্প্রতিক</string>
+    <string name="lib_chip_downloads">ডাউনলোড</string>
+    <string name="lib_empty_favorites">এখনো কোনো ফেভারিট নেই। স্টোরেজে ফাইল/ফোল্ডার দীর্ঘ-টিপে “ফেভারিটে যোগ করুন” বেছে নিন।</string>
+    <string name="lib_empty_recent">যে ফাইলগুলো খুলবেন সেগুলো এখানে দেখাবে।</string>
+    <string name="lib_empty_downloads">কোনো ডাউনলোড পাওয়া যায়নি।</string>
+    <string name="lib_remove_from_favorites">ফেভারিট থেকে সরান</string>
+    <string name="lib_remove_from_recents">সাম্প্রতিক থেকে সরান</string>
+    <string name="lib_removed">সরানো হয়েছে</string>
+    <string name="lib_added_favorite_fmt">“%1$s” ফেভারিটে যোগ হয়েছে</string>
+    <string name="lib_fav_added_fmt">%1$dটি আইটেম ফেভারিটে যোগ হয়েছে</string>
+    <string name="action_add_favorite">ফেভারিটে যোগ করুন</string>
+
+    <!-- Text viewer -->
+    <string name="txt_loading">লোড হচ্ছে…</string>
+    <string name="txt_open_failed">ফাইলটি পড়া যায়নি</string>
+    <string name="txt_meta_fmt">%1$s • %2$s</string>
+    <string name="txt_showing_head">(বড় ফাইলের শুরুর অংশ দেখানো হচ্ছে)</string>
 </resources>

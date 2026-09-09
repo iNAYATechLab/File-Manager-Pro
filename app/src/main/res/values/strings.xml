@@ -308,4 +308,24 @@ Add Android/data, Android/obb or another folder above.</string>
     <string name="wallpaper_setting">Setting wallpaper…</string>
     <string name="wallpaper_set_ok">Wallpaper set</string>
     <string name="wallpaper_set_failed">Could not set wallpaper</string>
+    <!-- Quick access (Library tab): favorites / recents / downloads -->
+    <string name="nav_library">Library</string>
+    <string name="lib_chip_favorites">Favorites</string>
+    <string name="lib_chip_recent">Recent</string>
+    <string name="lib_chip_downloads">Downloads</string>
+    <string name="lib_empty_favorites">No favorites yet. Long-press a file or folder in Storage and choose “Add to favorites”.</string>
+    <string name="lib_empty_recent">Files you open will appear here.</string>
+    <string name="lib_empty_downloads">No downloads found.</string>
+    <string name="lib_remove_from_favorites">Remove from favorites</string>
+    <string name="lib_remove_from_recents">Remove from recents</string>
+    <string name="lib_removed">Removed</string>
+    <string name="lib_added_favorite_fmt">Added “%1$s” to favorites</string>
+    <string name="lib_fav_added_fmt">%1$d item(s) added to favorites</string>
+    <string name="action_add_favorite">Add to favorites</string>
+
+    <!-- Text viewer -->
+    <string name="txt_loading">Loading…</string>
+    <string name="txt_open_failed">Could not read this file</string>
+    <string name="txt_meta_fmt">%1$s • %2$s</string>
+    <string name="txt_showing_head">(showing the beginning of a large file)</string>
 </resources>

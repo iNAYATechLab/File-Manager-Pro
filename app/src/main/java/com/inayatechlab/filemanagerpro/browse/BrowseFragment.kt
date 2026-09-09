@@ -25,6 +25,8 @@ import com.inayatechlab.filemanagerpro.model.FileEntry
 import com.inayatechlab.filemanagerpro.model.PathCrumb
 import com.inayatechlab.filemanagerpro.ops.FileOps
 import com.inayatechlab.filemanagerpro.preview.PreviewActivity
+import com.inayatechlab.filemanagerpro.saf.SafBrowserActivity
+import com.inayatechlab.filemanagerpro.saf.SafGrants
 import com.inayatechlab.filemanagerpro.search.SearchActivity
 import com.inayatechlab.filemanagerpro.util.Dialogs
 import com.inayatechlab.filemanagerpro.util.FileCat
@@ -520,7 +522,18 @@ class BrowseFragment : Fragment() {
                 if (bb.recycler.layoutManager !is LinearLayoutManager) {
                     bb.recycler.layoutManager = LinearLayoutManager(bb.recycler.context)
                 }
-                bb.recycler.adapter = StorageRootAdapter(roots) { openRoot(it) }
+                val perms = requireContext().contentResolver.persistedUriPermissions
+                    .map { it.uri }.toSet()
+                val granted = SafGrants.list(requireContext()).count { it in perms }
+                bb.recycler.adapter = StorageRootAdapter(
+                    roots,
+                    { openRoot(it) },
+                    grantedSafCount = granted,
+                    onSafClick = {
+                        startActivity(
+                            Intent(requireContext(), SafBrowserActivity::class.java)
+                        )
+                    })
                 bb.swipe.isRefreshing = false
                 loading.set(false)
             }

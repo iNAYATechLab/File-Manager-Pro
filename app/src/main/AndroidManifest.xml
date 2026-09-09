@@ -35,6 +35,11 @@
             android:launchMode="singleTop" />
 
         <activity
+            android:name=".saf.SafBrowserActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop">

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base theme. All colors come from the ui_* design tokens in
          colors.xml, which swap automatically to their values-night twins,
          so this single style serves both light and dark. -->
@@ -33,7 +33,7 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@color/ui_bg</item>
         <item name="android:windowLightStatusBar">true</item>
-        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
     </style>
 
     <!-- Splash screen (1.0.0 hardening, #22). System splash on Android 12+,

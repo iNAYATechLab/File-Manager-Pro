@@ -279,7 +279,7 @@ class PreviewActivity : AppCompatActivity() {
                 current = pos
                 updateTitle()
             } else {
-                snack(result.errors.firstOrNull() ?: getString(R.string.error))
+                snack(getString(R.string.trash_failed_fmt, entry.name))
             }
         }
     }

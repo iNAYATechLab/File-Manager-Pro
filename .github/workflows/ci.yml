@@ -170,9 +170,7 @@ jobs:
             adb shell settings put system screen_off_timeout 600000 || true
             adb shell mkdir -p /sdcard/Download
             for f in seed-files/*; do adb push "$f" /sdcard/Download/; done
-            ./gradlew --no-daemon :app:connectedDebugAndroidTest \
-              -Pandroid.testInstrumentationRunnerArguments.class=com.inayatechlab.filemanagerpro.ScreenshotCaptureTest \
-              -Pandroid.testInstrumentationRunnerArguments.screenshots=true
+            ./gradlew --no-daemon :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.inayatechlab.filemanagerpro.ScreenshotCaptureTest -Pandroid.testInstrumentationRunnerArguments.screenshots=true
 
       - name: Pull screenshots
         run: |

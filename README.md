@@ -1,12 +1,31 @@
 # File Manager Pro
 
-**A modern Android file manager** built with Kotlin + Material Design 3.
+**A modern Android file manager** built with Kotlin + Material Design 3,
+crafted and maintained by **iNayaTech Lab** — a software lab focused on
+practical, privacy-friendly Android tooling.
+
 Browse internal storage & SD cards, view media by category, search,
-copy / move / rename / delete / compress / extract — all with an
+copy / move / rename / delete / compress / extract, read text files and
+jump straight back to your favorites and recent files — all with an
 intuitive selection-mode workflow and full Bangla (বাংলা) localization.
 
-> ⚠️ This is a brand-new repository — the project is currently in its first
-> development milestone. Not all flows have been device-tested yet.
+---
+
+## 📸 Screenshots
+
+Real screenshots captured from the app running on an Android 10 (API 29)
+emulator as part of the project's CI pipeline — no mockups.
+
+| | |
+| --- | --- |
+| <img src="docs/screenshots/01-storage-home.png" width="270" alt="Storage home with quick-access chips"> | <img src="docs/screenshots/02-folder-downloads.png" width="270" alt="Browsing the Downloads folder"> |
+| **Storage home** — quick-access chips + volume cards | **Folder browsing** — Downloads folder (list view) |
+| <img src="docs/screenshots/03-text-viewer.png" width="270" alt="In-app text viewer"> | <img src="docs/screenshots/04-categories.png" width="270" alt="Categories tab"> |
+| **Text viewer** — read text/markdown right inside the app | **Categories** — images, videos, audio, documents & more |
+| <img src="docs/screenshots/05-library-downloads.png" width="270" alt="Library with Downloads quick access"> | <img src="docs/screenshots/06-search.png" width="270" alt="Search results"> |
+| **Library** — Favorites, Recents & Downloads quick access | **Search** — live incremental file search |
+| <img src="docs/screenshots/07-about.png" width="270" alt="About page with company info"> |
+| **About** — company information, version & open-source links |
 
 ---
 
@@ -21,9 +40,12 @@ intuitive selection-mode workflow and full Bangla (বাংলা) localization
 | 📦 Archives | Compress selection to `.zip`, extract `.zip` (with zip-slip protection) |
 | 🖼 Categories | Images / Videos / Audio via MediaStore; Documents / Archives / APKs via filesystem scan |
 | 🔍 Search | Live incremental search of the current folder tree (up to 4000 results) |
+| 📄 Text viewer | In-app reader for text & markdown files, with automatic encoding detection |
+| 📚 Library | Favorites, Recents and Downloads quick-access chips for one-tap opening |
 | 👁 Preview | Swipeable full-screen image viewer; other types open with external apps |
 | 📤 Share / Info | Share any selection; detailed properties dialog (folder sizes included) |
 | 🌐 Storage | Internal storage + removable volumes (needs "All files access") |
+| 💼 About | Company page with version, license and GitHub link |
 | 🈶 Localization | English + Bangla (values-bn) |
 
 ## 🛠 Tech stack
@@ -39,9 +61,12 @@ app/src/main/java/com/inayatechlab/filemanagerpro/
 ├── MainActivity.kt            # Host activity: toolbar, crumbs, bottom nav, tab switching
 ├── browse/                    # Folder browsing (BrowseFragment), list/grid FileAdapter,
 │                              # breadcrumb CrumbAdapter, SortDialog
+├── library/                   # Library tab: Favorites / Recents / Downloads + trash screen
+├── textviewer/                # In-app TextActivity for text & markdown files
 ├── categories/                # Category chips + MediaStore/filesystem scans
 ├── search/                    # SearchActivity + recursive Scanner
 ├── preview/                   # Swipeable image PreviewActivity + pager
+├── settings/                  # Settings + AboutActivity (company info)
 ├── ops/FileOps.kt             # Copy/move/delete/rename/zip/unzip engine (IO-safe)
 ├── util/                      # FileCat, StorageUtils, FormatUtils, OpenUtils, Icons, Dialogs, Scanner
 └── model/FileEntry.kt         # Data model + in-process clipboard
@@ -78,6 +103,14 @@ you through this.
 See **[docs/ROADMAP.md](docs/ROADMAP.md)** for the full milestone plan
 (M1 foundation → M4 stable 1.0.0). GitHub Milestones & issues track each item;
 every merge to `main` produces an automatically versioned, signed **prerelease** APK.
+
+## 🏢 About iNayaTech Lab
+
+**File Manager Pro** is developed by **iNayaTech Lab**, a software lab building
+practical Android applications with a focus on clean UX and open tooling.
+This project is open source — explore the code, report issues, or contribute
+on GitHub: [github.com/iNAYATechLab](https://github.com/iNAYATechLab)
+(project: [File-Manager-Pro](https://github.com/iNAYATechLab/File-Manager-Pro)).
 
 ## 📜 License
 

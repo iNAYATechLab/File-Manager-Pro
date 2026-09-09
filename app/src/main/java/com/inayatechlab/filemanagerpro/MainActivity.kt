@@ -50,8 +50,8 @@ class MainActivity : AppCompatActivity() {
     private var vaultFragment: VaultFragment? = null
     private var libraryFragment: LibraryFragment? = null
     /** Drawer rows with the icon tint used when the row is not selected. */
-    private lateinit var drawerRows: List<Pair<View, Int>>
-    private var activeDrawerRow: View? = null
+    private lateinit var drawerRows: List<Pair<android.view.ViewGroup, Int>>
+    private var activeDrawerRow: android.view.View? = null
 
     private val backCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
@@ -269,7 +269,7 @@ class MainActivity : AppCompatActivity() {
 
     // ----------------------------------------------------------- drawer state
 
-    private fun highlightRow(selected: View?) {
+    private fun highlightRow(selected: android.view.View?) {
         activeDrawerRow = selected
         val accent = ContextCompat.getColor(this, R.color.ui_accent)
         val ink2 = ContextCompat.getColor(this, R.color.ui_ink2)

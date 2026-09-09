@@ -67,12 +67,17 @@ object Dialogs {
     fun properties(context: Context, entry: FileEntry, scope: CoroutineScope) {
         val cat = FileCat.of(entry)
         val body = buildString {
-            append(context.getString(R.string.action_open).let { "" })
-            appendLine("Name: ${entry.name}")
-            appendLine("Type: ${Icons.label(cat)}${if (!entry.isDir) " (${entry.extension.uppercase()})" else ""}")
-            appendLine("Location: ${entry.file.parentFile?.path ?: entry.path}")
-            if (!entry.isDir) appendLine("Size: ${FormatUtils.formatSize(entry.size)}")
-            appendLine("Modified: ${FormatUtils.formatDate(entry.lastModified)}")
+            appendLine(context.getString(R.string.props_name_fmt, entry.name))
+            val catLabel = context.getString(Icons.labelRes(cat))
+            val typeLine = if (entry.isDir) {
+                catLabel
+            } else {
+                context.getString(R.string.props_type_file_fmt, catLabel, entry.extension.uppercase())
+            }
+            appendLine(context.getString(R.string.props_type_fmt, typeLine))
+            appendLine(context.getString(R.string.props_location_fmt, entry.file.parentFile?.path ?: entry.path))
+            if (!entry.isDir) appendLine(context.getString(R.string.props_size_fmt, FormatUtils.formatSize(entry.size)))
+            appendLine(context.getString(R.string.props_modified_fmt, FormatUtils.formatDate(entry.lastModified)))
         }
         val dialog = MaterialAlertDialogBuilder(context)
             .setTitle(R.string.action_properties)
@@ -83,7 +88,7 @@ object Dialogs {
             scope.launch(Dispatchers.IO) {
                 val size = FileOpsSafe.sizeOf(entry.file)
                 kotlinx.coroutines.withContext(Dispatchers.Main) {
-                    dialog.setMessage(body + "Content size: " + size)
+                    dialog.setMessage(body + context.getString(R.string.props_content_size_fmt, size) + "\n")
                 }
             }
         }

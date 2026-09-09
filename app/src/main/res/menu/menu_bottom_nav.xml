@@ -8,4 +8,8 @@
         android:id="@+id/nav_categories"
         android:icon="@drawable/ic_folder"
         android:title="@string/nav_categories" />
+    <item
+        android:id="@+id/nav_vault"
+        android:icon="@drawable/ic_locked_folder"
+        android:title="@string/nav_vault" />
 </menu>

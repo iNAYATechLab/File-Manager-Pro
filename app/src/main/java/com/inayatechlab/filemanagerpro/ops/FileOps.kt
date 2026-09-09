@@ -146,6 +146,25 @@ object FileOps {
         null
     }
 
+    /** Create an empty file inside [dir]. Returns a message on failure, null on success. */
+    suspend fun createFile(dir: File, name: String): String? = withContext(Dispatchers.IO) {
+        val clean = name.trim()
+        if (clean.isEmpty() || clean == "." || clean == ".." ||
+            clean.contains('/') || clean.contains('\\')
+        ) {
+            return@withContext "Invalid name"
+        }
+        val target = File(dir, clean)
+        if (target.exists()) return@withContext "A file with this name already exists"
+        val created = try {
+            target.createNewFile()
+        } catch (e: Exception) {
+            false
+        }
+        if (!created) return@withContext "Could not create file"
+        null
+    }
+
     /** Create <name>.zip next to the selected items. Returns created file or throws. */
     suspend fun zip(entries: List<FileEntry>, onProgress: (Int, Int, String) -> Unit = { _, _, _ -> }): File =
         withContext(Dispatchers.IO) {

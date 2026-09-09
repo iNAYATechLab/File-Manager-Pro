@@ -154,15 +154,16 @@ class FileAdapter(
 
         fun bindCommon(root: View, icon: ImageView, name: android.widget.TextView, sub: android.widget.TextView, check: ImageView) {
             name.text = entry.name
+            val ctx = holder.itemView.context
+            val catLabel = ctx.getString(Icons.labelRes(cat))
             sub.text = if (entry.isDir) {
                 if (entry.childCount >= 0) {
-                    val ctx = holder.itemView.context
                     "${entry.childCount} ${ctx.getString(R.string.items_count)}"
                 } else {
-                    Icons.label(cat)
+                    catLabel
                 }
             } else {
-                "${Icons.label(cat)} • ${FormatUtils.formatSize(entry.size)} • ${FormatUtils.formatDate(entry.lastModified)}"
+                "$catLabel • ${FormatUtils.formatSize(entry.size)} • ${FormatUtils.formatDate(entry.lastModified)}"
             }
             root.isSelected = isSelected(entry)
             check.isVisible = selectionMode

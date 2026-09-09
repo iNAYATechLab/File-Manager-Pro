@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/iNAYATechLab/File-Manager-Pro/compare/v0.3.0...v0.4.0) (2026-09-09)
+
+
+### Features
+
+* **build:** 1.0.0 hardening — R8, splash, emulator tests, Play assets ([#22](https://github.com/iNAYATechLab/File-Manager-Pro/issues/22)) ([39f0dc5](https://github.com/iNAYATechLab/File-Manager-Pro/commit/39f0dc5881a30be81e498df6500797686c1f9a5a))
+
 ## [0.3.0](https://github.com/iNAYATechLab/File-Manager-Pro/compare/v0.2.0...v0.3.0) (2026-09-09)
 
 

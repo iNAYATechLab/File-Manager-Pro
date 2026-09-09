@@ -52,7 +52,7 @@
     <string name="storage_summary">ব্যবহৃত %1$s • খালি %2$s • মোট %3$s</string>
     <string name="storage_empty">কোনো স্টোরেজ ভলিউম পাওয়া যায়নি</string>
 
-    <!-- Placeholders & messages -->
+    <!-- Placeholders &amp; messages -->
     <string name="folder_empty">এই ফোল্ডারটি খালি</string>
     <string name="search_no_results">কোনো ফলাফল পাওয়া যায়নি</string>
     <string name="search_hint">বর্তমান ফোল্ডারে খুঁজুন…</string>
@@ -73,4 +73,63 @@
     <string name="cat_apk">অ্যাপ (APK)</string>
     <string name="cat_empty">এই ক্যাটাগরিতে কোনো ফাইল নেই</string>
     <string name="items_count">টি আইটেম</string>
+
+    <!-- Vault (#20) -->
+    <string name="nav_vault">ভল্ট</string>
+    <string name="vlt_empty">এখনো কোনো ভল্ট নেই</string>
+    <string name="vlt_empty_hint">এনক্রিপ্টেড ভল্ট তৈরি করতে + চাপুন; এরপর স্টোরেজ থেকে ফাইল বেছে “Move to vault” ব্যবহার করুন।</string>
+    <string name="vlt_empty_vault">ভল্ট খালি — স্টোরেজ থেকে ফাইল বেছে “Move to vault” চাপুন।</string>
+    <string name="vlt_action_create">ভল্ট তৈরি করুন</string>
+    <string name="vlt_hint_name">ভল্টের নাম</string>
+    <string name="vlt_hint_password">পাসওয়ার্ড (কমপক্ষে ৪ অক্ষর)</string>
+    <string name="vlt_hint_confirm">পাসওয়ার্ড আবার দিন</string>
+    <string name="vlt_creating">ভল্ট তৈরি হচ্ছে…</string>
+    <string name="vlt_created_fmt">“%1$s” ভল্ট তৈরি হয়েছে</string>
+    <string name="vlt_error_name">অবৈধ ভল্টের নাম</string>
+    <string name="vlt_error_short_pw">পাসওয়ার্ড খুব ছোট (কমপক্ষে ৪ অক্ষর)</string>
+    <string name="vlt_error_mismatch">পাসওয়ার্ড দুটি মিলছে না</string>
+    <string name="vlt_error_corrupt">ভুল পাসওয়ার্ড অথবা ভল্ট ক্ষতিগ্রস্ত</string>
+    <string name="vlt_error_io">ভল্ট অপারেশন ব্যর্থ হয়েছে</string>
+    <string name="vlt_error_too_large">ফাইলটি ভল্টের জন্য খুব বড় (সীমা ১২৮ MB)</string>
+    <string name="vlt_loading">ভল্ট খোঁজা হচ্ছে…</string>
+    <string name="vlt_overview_sub_fmt">%1$s • তৈরি %2$s</string>
+    <string name="vlt_bio_marker">ফিঙ্গারপ্রিন্ট চালু</string>
+    <string name="vlt_unlock_title">ভল্ট আনলক করুন</string>
+    <string name="vlt_unlock_biometric">ফিঙ্গারপ্রিন্ট দিয়ে আনলক</string>
+    <string name="vlt_unlock_password">পাসওয়ার্ড দিয়ে আনলক</string>
+    <string name="vlt_wrong_password">ভুল পাসওয়ার্ড</string>
+    <string name="vlt_bio_unavailable">ফিঙ্গারপ্রিন্ট আনলক পাওয়া যাচ্ছে না — পাসওয়ার্ড ব্যবহার করুন</string>
+    <string name="vlt_bio_enable">ফিঙ্গারপ্রিন্ট আনলক চালু করুন</string>
+    <string name="vlt_bio_disable">ফিঙ্গারপ্রিন্ট আনলক বন্ধ করুন</string>
+    <string name="vlt_bio_setup_message">ফিঙ্গারপ্রিন্ট আনলক চালু করতে একবার ভল্টের পাসওয়ার্ড দিন।</string>
+    <string name="vlt_bio_enabled">ফিঙ্গারপ্রিন্ট আনলক চালু হয়েছে</string>
+    <string name="vlt_bio_disabled">ফিঙ্গারপ্রিন্ট আনলক বন্ধ হয়েছে</string>
+    <string name="vlt_bio_enable_failed">ফিঙ্গারপ্রিন্ট আনলক চালু করা যায়নি</string>
+    <string name="vlt_bio_not_supported">এই ডিভাইসে ফিঙ্গারপ্রিন্ট হার্ডওয়্যার নেই বা কোনো ফিঙ্গারপ্রিন্ট নথিভুক্ত নেই</string>
+    <string name="vlt_action_lock">লক</string>
+    <string name="vlt_restore_all">সব পুনরুদ্ধার করুন</string>
+    <string name="vlt_restoring">পুনরুদ্ধার হচ্ছে…</string>
+    <string name="vlt_restored_fmt">%1$dটি ফাইল পুনরুদ্ধার হয়েছে</string>
+    <string name="vlt_restore_partial_fmt">%1$dটি পুনরুদ্ধার হয়েছে, %2$dটি ব্যর্থ</string>
+    <string name="vlt_opening">খোলা হচ্ছে…</string>
+    <string name="vlt_remove_entry_title">ভল্ট থেকে ডিলিট করবেন?</string>
+    <string name="vlt_removed_fmt">“%1$s” ভল্ট থেকে সরানো হয়েছে</string>
+    <string name="vlt_delete_vault_title">ভল্ট ডিলিট করুন</string>
+    <string name="vlt_delete_vault_message">“%1$s” ভল্ট ও ভেতরের সব এনক্রিপ্টেড ফাইল স্থায়ীভাবে মুছে যাবে। এটি ফেরানো যাবে না।</string>
+    <string name="vlt_deleting">ভল্ট ডিলিট হচ্ছে…</string>
+    <string name="vlt_row_menu">আরও অ্যাকশন</string>
+    <string name="vlt_file_icon">ফাইল</string>
+    <string name="vlt_loc_root">ভল্টের মূল</string>
+    <string name="vlt_action_add">Move to vault</string>
+    <string name="vlt_none_hint">কোনো ভল্ট পাওয়া যায়নি — আগে Vault ট্যাবে একটি তৈরি করুন</string>
+    <string name="vlt_pick_vault">ভল্ট বেছে নিন</string>
+    <string name="vlt_move_title">“%2$s”-এ %1$dটি আইটেম যোগ করবেন?</string>
+    <string name="vlt_move_delete_originals">সরান ও মূল ডিলিট করুন</string>
+    <string name="vlt_move_copy_originals">কপি করুন ও মূল রেখে দিন</string>
+    <string name="vlt_encrypting">এনক্রিপ্ট হচ্ছে…</string>
+    <string name="vlt_move_done_fmt">“%2$s”-এ %1$dটি ফাইল যোগ হয়েছে</string>
+    <string name="vlt_move_partial_fmt">%1$dটি যোগ হয়েছে, %2$dটি বাদ</string>
+    <string name="vlt_move_nothing">যোগ করার মতো ফাইল নেই</string>
+
+    <string name="vlt_action_restore">পুনরুদ্ধার</string>
 </resources>

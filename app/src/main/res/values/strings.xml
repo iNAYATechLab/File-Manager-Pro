@@ -52,7 +52,7 @@
     <string name="storage_summary">Used %1$s • Free %2$s • Total %3$s</string>
     <string name="storage_empty">No storage volumes found</string>
 
-    <!-- Placeholders & messages -->
+    <!-- Placeholders &amp; messages -->
     <string name="folder_empty">This folder is empty</string>
     <string name="search_no_results">No results found</string>
     <string name="search_hint">Search in current folder…</string>
@@ -73,4 +73,63 @@
     <string name="cat_apk">Apps (APK)</string>
     <string name="cat_empty">No files in this category</string>
     <string name="items_count">items</string>
+
+    <!-- Vault (#20) -->
+    <string name="nav_vault">Vault</string>
+    <string name="vlt_empty">No vault yet</string>
+    <string name="vlt_empty_hint">Tap + to create an encrypted vault, then select files in Storage and use “Move to vault”.</string>
+    <string name="vlt_empty_vault">Vault is empty — select files in Storage and choose “Move to vault”.</string>
+    <string name="vlt_action_create">Create vault</string>
+    <string name="vlt_hint_name">Vault name</string>
+    <string name="vlt_hint_password">Password (at least 4 characters)</string>
+    <string name="vlt_hint_confirm">Repeat password</string>
+    <string name="vlt_creating">Creating vault…</string>
+    <string name="vlt_created_fmt">Vault “%1$s” created</string>
+    <string name="vlt_error_name">Invalid vault name</string>
+    <string name="vlt_error_short_pw">Password too short (min 4 characters)</string>
+    <string name="vlt_error_mismatch">Passwords do not match</string>
+    <string name="vlt_error_corrupt">Wrong password or the vault is damaged</string>
+    <string name="vlt_error_io">Vault operation failed</string>
+    <string name="vlt_error_too_large">A file is too large for the vault (limit 128 MB)</string>
+    <string name="vlt_loading">Scanning vaults…</string>
+    <string name="vlt_overview_sub_fmt">%1$s • created %2$s</string>
+    <string name="vlt_bio_marker">fingerprint enabled</string>
+    <string name="vlt_unlock_title">Unlock vault</string>
+    <string name="vlt_unlock_biometric">Unlock with fingerprint</string>
+    <string name="vlt_unlock_password">Unlock with password</string>
+    <string name="vlt_wrong_password">Wrong password</string>
+    <string name="vlt_bio_unavailable">Fingerprint unlock is unavailable — use your password</string>
+    <string name="vlt_bio_enable">Enable fingerprint unlock</string>
+    <string name="vlt_bio_disable">Disable fingerprint unlock</string>
+    <string name="vlt_bio_setup_message">Enter the vault password once to enable fingerprint unlock.</string>
+    <string name="vlt_bio_enabled">Fingerprint unlock enabled</string>
+    <string name="vlt_bio_disabled">Fingerprint unlock disabled</string>
+    <string name="vlt_bio_enable_failed">Could not enable fingerprint unlock</string>
+    <string name="vlt_bio_not_supported">No fingerprint hardware or no fingerprint enrolled on this device</string>
+    <string name="vlt_action_lock">Lock</string>
+    <string name="vlt_restore_all">Restore all</string>
+    <string name="vlt_restoring">Restoring…</string>
+    <string name="vlt_restored_fmt">Restored %1$d file(s)</string>
+    <string name="vlt_restore_partial_fmt">Restored %1$d file(s), %2$d failed</string>
+    <string name="vlt_opening">Opening…</string>
+    <string name="vlt_remove_entry_title">Delete from vault?</string>
+    <string name="vlt_removed_fmt">Removed “%1$s” from the vault</string>
+    <string name="vlt_delete_vault_title">Delete vault</string>
+    <string name="vlt_delete_vault_message">This permanently deletes the vault “%1$s” and every encrypted file inside. This cannot be undone.</string>
+    <string name="vlt_deleting">Deleting vault…</string>
+    <string name="vlt_row_menu">More actions</string>
+    <string name="vlt_file_icon">File</string>
+    <string name="vlt_loc_root">vault root</string>
+    <string name="vlt_action_add">Move to vault</string>
+    <string name="vlt_none_hint">No vault found — create one in the Vault tab first</string>
+    <string name="vlt_pick_vault">Choose vault</string>
+    <string name="vlt_move_title">Add %1$d item(s) to “%2$s”?</string>
+    <string name="vlt_move_delete_originals">Move &amp; delete originals</string>
+    <string name="vlt_move_copy_originals">Copy &amp; keep originals</string>
+    <string name="vlt_encrypting">Encrypting…</string>
+    <string name="vlt_move_done_fmt">%1$d file(s) added to “%2$s”</string>
+    <string name="vlt_move_partial_fmt">Added %1$d, skipped %2$d</string>
+    <string name="vlt_move_nothing">No files to add</string>
+
+    <string name="vlt_action_restore">Restore</string>
 </resources>

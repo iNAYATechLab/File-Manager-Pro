@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_vault_create"
+        android:icon="@drawable/ic_new_folder"
+        android:title="@string/vlt_action_create"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_vault_lock"
+        android:icon="@drawable/ic_locked_folder"
+        android:title="@string/vlt_action_lock"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_vault_restore_all"
+        android:title="@string/vlt_restore_all"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_vault_bio"
+        android:title="@string/vlt_bio_enable"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_vault_delete"
+        android:title="@string/vlt_delete_vault_title"
+        app:showAsAction="never" />
+</menu>

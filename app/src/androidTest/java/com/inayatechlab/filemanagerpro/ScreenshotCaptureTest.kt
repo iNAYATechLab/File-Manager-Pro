@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.provider.MediaStore
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
@@ -57,6 +58,20 @@ class ScreenshotCaptureTest {
         FileOutputStream(File(cacheDir, "$name.png")).use { out ->
             bmp.compress(Bitmap.CompressFormat.PNG, 100, out)
         }
+        // Publish to a shell-readable public folder via MediaStore (API 29).
+        runCatching {
+            val values = android.content.ContentValues().apply {
+                put(MediaStore.Images.Media.DISPLAY_NAME, "$name.png")
+                put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/FMP-Screenshots")
+            }
+            val uri = ctx.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+            if (uri != null) {
+                ctx.contentResolver.openOutputStream(uri)?.use { out ->
+                    bmp.compress(Bitmap.CompressFormat.PNG, 100, out)
+                }
+            }
+        }.onFailure { android.util.Log.e("Screenshots", "MediaStore publish failed: $name", it) }
         bmp.recycle()
         android.util.Log.i("Screenshots", "saved $name.png -> ${outDir.absolutePath}")
     }
@@ -75,6 +90,7 @@ class ScreenshotCaptureTest {
 
     @Test
     fun captureAllPages() {
+        android.util.Log.i("Screenshots", "pkg=$pkg outDir=${outDir.absolutePath} cacheDir=${cacheDir.absolutePath}")
         // Only runs when the screenshots workflow passes the flag; the normal
         // CI emulator suite must stay fast and seed-free.
         val args = InstrumentationRegistry.getArguments()

@@ -172,9 +172,9 @@ jobs:
             for f in seed-files/*; do adb push "$f" /sdcard/Download/; done
             ./gradlew --no-daemon :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.inayatechlab.filemanagerpro.ScreenshotCaptureTest -Pandroid.testInstrumentationRunnerArguments.screenshots=true
             # Pull while the emulator is still alive inside this action step.
+            adb logcat -d -s Screenshots
             mkdir -p artifacts
-            timeout 60 adb pull /sdcard/Android/data/com.inayatechlab.filemanagerpro/files/screenshots ./artifacts/ || true
-            for f in 01-storage-home 02-folder-downloads 03-text-viewer 04-categories 05-library-downloads 06-search 07-about; do timeout 30 adb exec-out run-as com.inayatechlab.filemanagerpro cat cache/screenshots/$f.png > artifacts/$f.png 2>/dev/null || echo "missing $f"; done
+            timeout 60 adb pull /sdcard/Pictures/FMP-Screenshots ./artifacts/ || true
             ls -laR artifacts || true
 
       - name: Pull screenshots (fallback)

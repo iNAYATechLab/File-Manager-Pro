@@ -147,6 +147,12 @@ class MainActivity : AppCompatActivity() {
         browseFragment?.navigateToPath(path)
     }
 
+    /** Switches to the Library tab and opens one of its sections (home shortcuts). */
+    fun openLibrarySection(section: com.inayatechlab.filemanagerpro.library.LibrarySection) {
+        selectTab(R.id.nav_library)
+        libraryFragment?.jumpTo(section)
+    }
+
     private fun showFragment(fragment: Fragment) {
         val fm = supportFragmentManager
         val others = listOf(browseFragment, categoriesFragment, vaultFragment, libraryFragment).filterNotNull()

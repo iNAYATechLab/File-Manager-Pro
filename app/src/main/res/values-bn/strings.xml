@@ -349,4 +349,13 @@
     <string name="trash_empty_done">ট্র্যাশ খালি হয়েছে</string>
     <string name="trash_empty_failed_fmt">%1$dটি আইটেম ডিলিট করা যায়নি</string>
     <string name="trash_sub_fmt">%1$s • ট্র্যাশ হয়েছে %2$s</string>
+    <!-- Selection helpers & open with -->
+    <string name="action_select_type">ধরন অনুযায়ী নির্বাচন</string>
+    <string name="action_open_with">অন্য অ্যাপ দিয়ে খুলুন…</string>
+    <string name="select_files">ফাইল</string>
+    <string name="select_folders">ফোল্ডার</string>
+    <!-- Sorting extras -->
+    <string name="action_sort_ext">এক্সটেনশন</string>
+    <string name="action_sort_created">তৈরির তারিখ</string>
+    <string name="sort_folders_first">ফোল্ডার আগে</string>
 </resources>

@@ -34,6 +34,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/** Public sections of the Library tab, addressable from other screens. */
+enum class LibrarySection { FAVORITES, RECENT, DOWNLOADS, TRASH }
+
 /**
  * Quick access (core, beta scope): Favorites, Recent files, Downloads and
  * the Trash (recycle bin) in one place. Covers the master list's Quick
@@ -61,6 +64,7 @@ class LibraryFragment : Fragment() {
     private var fileAdapter: FileAdapter? = null
     private var trashAdapter: TrashAdapter? = null
     private val loading = AtomicBoolean(false)
+    private var pendingJump: LibrarySection? = null
 
     private val storeDir: File get() = LibraryStore.storeDir(requireContext().filesDir)
 
@@ -87,6 +91,22 @@ class LibraryFragment : Fragment() {
         binding.chipTrash.setOnClickListener { select(Section.TRASH) }
         binding.btnEmptyTrash.setOnClickListener { confirmEmptyTrash() }
         refreshChipState()
+        pendingJump?.let { jumpTo(it) }
+        pendingJump = null
+    }
+
+    /** Opens a specific section on request from another screen (home shortcuts). */
+    fun jumpTo(section: LibrarySection) {
+        if (_binding == null) {
+            pendingJump = section
+            return
+        }
+        when (section) {
+            LibrarySection.FAVORITES -> select(Section.FAVORITES)
+            LibrarySection.RECENT -> select(Section.RECENT)
+            LibrarySection.DOWNLOADS -> select(Section.DOWNLOADS)
+            LibrarySection.TRASH -> select(Section.TRASH)
+        }
     }
 
     override fun onResume() {
@@ -266,6 +286,7 @@ class LibraryFragment : Fragment() {
         }
         actions += getString(R.string.action_share)
         actions += getString(R.string.action_properties)
+        if (!entry.isDir) actions += getString(R.string.action_open_with)
 
         MaterialAlertDialogBuilder(ctx)
             .setTitle(entry.name)
@@ -287,10 +308,10 @@ class LibraryFragment : Fragment() {
                             Section.DOWNLOADS -> which - 1
                             Section.TRASH -> which - 1
                         }
-                        if (relWhich == 0) {
-                            if (!OpenUtils.share(ctx, listOf(entry))) snack(getString(R.string.no_app_found))
-                        } else if (relWhich == 1) {
-                            Dialogs.properties(ctx, entry, scope)
+                        when (relWhich) {
+                            0 -> if (!OpenUtils.share(ctx, listOf(entry))) snack(getString(R.string.no_app_found))
+                            1 -> Dialogs.properties(ctx, entry, scope)
+                            2 -> if (!OpenUtils.openWith(ctx, entry.file)) snack(getString(R.string.no_app_found))
                         }
                     }
                 }

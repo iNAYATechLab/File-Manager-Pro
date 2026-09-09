@@ -81,6 +81,7 @@ class BrowseFragment : Fragment() {
     private var sortMode = 0
     private var sortAsc = true
     private var isGrid = false
+    private var foldersFirst = true
     /** Folder (canonical path) for which the hidden-files snackbar was already shown. */
     private var hiddenNoticeShownFor: String? = null
 
@@ -106,6 +107,27 @@ class BrowseFragment : Fragment() {
             if (!StorageUtils.isStoragePermitted(requireContext())) {
                 StorageUtils.requestStorageAccess(requireContext())
             }
+        }
+        // Storage-home quick access shortcuts -> Library tab sections.
+        binding.chipHomeFavorites.setOnClickListener {
+            (activity as? MainActivity)?.openLibrarySection(
+                com.inayatechlab.filemanagerpro.library.LibrarySection.FAVORITES
+            )
+        }
+        binding.chipHomeRecents.setOnClickListener {
+            (activity as? MainActivity)?.openLibrarySection(
+                com.inayatechlab.filemanagerpro.library.LibrarySection.RECENT
+            )
+        }
+        binding.chipHomeDownloads.setOnClickListener {
+            (activity as? MainActivity)?.openLibrarySection(
+                com.inayatechlab.filemanagerpro.library.LibrarySection.DOWNLOADS
+            )
+        }
+        binding.chipHomeTrash.setOnClickListener {
+            (activity as? MainActivity)?.openLibrarySection(
+                com.inayatechlab.filemanagerpro.library.LibrarySection.TRASH
+            )
         }
     }
 
@@ -313,13 +335,15 @@ class BrowseFragment : Fragment() {
                 true
             }
             R.id.action_sort -> {
-                SortDialog.show(requireContext(), sortMode, sortAsc, isGrid) { mode, asc, grid ->
+                SortDialog.show(requireContext(), sortMode, sortAsc, isGrid, foldersFirst) { mode, asc, grid, folders ->
                     sortMode = mode
                     sortAsc = asc
                     isGrid = grid
+                    foldersFirst = folders
                     SettingsStore.setSortMode(requireContext(), mode)
                     SettingsStore.setSortAscending(requireContext(), asc)
                     SettingsStore.setGridView(requireContext(), grid)
+                    SettingsStore.setFoldersFirst(requireContext(), folders)
                     reload()
                 }
                 true
@@ -346,6 +370,31 @@ class BrowseFragment : Fragment() {
         adapter?.clearSelection()
     }
 
+    /** Selection-mode helper: select all entries of one kind in this folder. */
+    private fun showSelectTypeDialog() {
+        val ctx = requireContext()
+        val options = listOf<Pair<String, (FileEntry) -> Boolean>>(
+            getString(R.string.select_files) to { e -> !e.isDir },
+            getString(R.string.select_folders) to { e -> e.isDir },
+            getString(R.string.cat_images) to { e -> FileCat.of(e) == FileCat.IMAGE },
+            getString(R.string.cat_videos) to { e -> FileCat.of(e) == FileCat.VIDEO },
+            getString(R.string.cat_audio) to { e -> FileCat.of(e) == FileCat.AUDIO },
+            getString(R.string.cat_documents) to { e ->
+                FileCat.of(e) == FileCat.DOC || FileCat.of(e) == FileCat.PDF ||
+                    FileCat.of(e) == FileCat.TEXT
+            },
+            getString(R.string.cat_archives) to { e -> FileCat.of(e) == FileCat.ARCHIVE },
+            getString(R.string.cat_apk) to { e -> FileCat.of(e) == FileCat.APK }
+        )
+        MaterialAlertDialogBuilder(ctx)
+            .setTitle(R.string.action_select_type)
+            .setItems(options.map { it.first }.toTypedArray()) { _, which ->
+                adapter?.selectAllWhere(options[which].second)
+                actionMode?.invalidate()
+            }
+            .show()
+    }
+
     private val actionModeCallback = object : ActionMode.Callback {
         override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
             mode.menuInflater.inflate(R.menu.menu_selection, menu)
@@ -361,6 +410,8 @@ class BrowseFragment : Fragment() {
                 count == 1 && Extractor.isSupportedName(
                     adapter?.selectedEntries()?.firstOrNull()?.name.orEmpty()
                 )
+            menu.findItem(R.id.action_open_with)?.isVisible =
+                count == 1 && adapter?.selectedEntries()?.firstOrNull()?.let { !it.isDir } == true
             return true
         }
 
@@ -389,6 +440,18 @@ class BrowseFragment : Fragment() {
                 }
                 R.id.action_delete -> {
                     confirmTrash(selected)
+                    true
+                }
+                R.id.action_open_with -> {
+                    val entry = selected.firstOrNull()
+                    if (entry != null && !entry.isDir) {
+                        OpenUtils.openWith(requireContext(), entry.file)
+                    }
+                    mode.finish()
+                    true
+                }
+                R.id.action_select_type -> {
+                    showSelectTypeDialog()
                     true
                 }
                 R.id.action_rename -> {
@@ -817,6 +880,7 @@ class BrowseFragment : Fragment() {
         }
 
         if (storageHome) {
+            b.quickAccessBar.isVisible = true
             scope.launch {
                 val roots = withContext(Dispatchers.IO) { StorageUtils.roots() }
                 val bb = _binding
@@ -852,11 +916,13 @@ class BrowseFragment : Fragment() {
         val mode = sortMode
         val asc = sortAsc
         val grid = isGrid
+        val folders = foldersFirst
         val showHidden = SettingsStore.showHiddenFiles(requireContext())
+        b.quickAccessBar.isVisible = false
         scope.launch {
             val entries = withContext(Dispatchers.IO) {
                 val files = listDir.listFiles() ?: return@withContext emptyList<FileEntry>()
-                files
+                val listed = files
                     .asSequence()
                     .filter { showHidden || !it.name.startsWith(".") }
                     .map { f ->
@@ -867,8 +933,25 @@ class BrowseFragment : Fragment() {
                             FileEntry(f.name, f.canonicalPath, false, f.length(), f.lastModified())
                         }
                     }
-                    .sortedWith(FileOpsComparator.comparator(mode, asc))
                     .toList()
+                // Creation time is not exposed via java.io — query it once per
+                // entry only when the "Created" sort mode is active.
+                val created = if (mode == SettingsStore.SORT_CREATED) {
+                    listed.associate { e ->
+                        val millis = try {
+                            java.nio.file.Files.readAttributes(
+                                e.file.toPath(),
+                                java.nio.file.attribute.BasicFileAttributes::class.java
+                            ).creationTime().toMillis()
+                        } catch (ex: Exception) {
+                            e.lastModified
+                        }
+                        e.path to millis
+                    }
+                } else {
+                    null
+                }
+                listed.sortedWith(FileOpsComparator.comparator(mode, asc, folders, created))
             }
             val b = _binding
             if (b == null || listDir != dir) { // view destroyed or stale request
@@ -979,18 +1062,34 @@ class BrowseFragment : Fragment() {
         sortMode = SettingsStore.sortMode(requireContext())
         sortAsc = SettingsStore.sortAscending(requireContext())
         isGrid = SettingsStore.gridView(requireContext())
+        foldersFirst = SettingsStore.foldersFirst(requireContext())
     }
 }
 
 /** Sorting logic shared with other lists. */
 object FileOpsComparator {
-    fun comparator(mode: Int, asc: Boolean): Comparator<FileEntry> = Comparator { a, b ->
-        // directories always first
-        if (a.isDir != b.isDir) return@Comparator if (a.isDir) -1 else 1
+    /**
+     * [createdAt] optionally carries real creation times (path -> millis)
+     * precomputed by the caller; entries missing from the map fall back to
+     * lastModified (creation time is not exposed on every filesystem).
+     */
+    fun comparator(
+        mode: Int,
+        asc: Boolean,
+        foldersFirst: Boolean = true,
+        createdAt: Map<String, Long>? = null
+    ): Comparator<FileEntry> = Comparator { a, b ->
+        if (a.isDir != b.isDir) {
+            // directories first (default) or files first when disabled
+            return@Comparator if (a.isDir == foldersFirst) -1 else 1
+        }
         val cmp: Int = when (mode) {
             1 -> a.lastModified.compareTo(b.lastModified)
             2 -> a.size.compareTo(b.size)
             3 -> FileCat.of(a).ordinal.compareTo(FileCat.of(b).ordinal)
+            4 -> a.extension.lowercase().compareTo(b.extension.lowercase())
+            5 -> (createdAt?.get(a.path) ?: a.lastModified)
+                .compareTo(createdAt?.get(b.path) ?: b.lastModified)
             else -> a.name.lowercase().compareTo(b.name.lowercase())
         }
         if (asc) cmp else -cmp

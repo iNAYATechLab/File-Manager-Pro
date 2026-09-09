@@ -19,7 +19,7 @@ import com.inayatechlab.filemanagerpro.browse.FileOpsComparator
 import com.inayatechlab.filemanagerpro.databinding.FragmentCategoriesBinding
 import com.inayatechlab.filemanagerpro.model.FileEntry
 import com.inayatechlab.filemanagerpro.model.LibraryStore
-import com.inayatechlab.filemanagerpro.ops.FileOps
+import com.inayatechlab.filemanagerpro.ops.TrashOps
 import com.inayatechlab.filemanagerpro.preview.PreviewActivity
 import com.inayatechlab.filemanagerpro.util.Dialogs
 import com.inayatechlab.filemanagerpro.util.FileCat
@@ -175,12 +175,17 @@ class CategoriesFragment : Fragment() {
                     1 -> Dialogs.properties(requireContext(), entry, scope)
                     2 -> Dialogs.confirm(
                         requireContext(),
-                        getString(R.string.dialog_delete_title),
-                        entry.name,
-                        getString(R.string.action_delete_confirm)
+                        getString(R.string.trash_confirm_title),
+                        getString(R.string.trash_confirm_message) + "\n\n" + entry.name,
+                        getString(R.string.trash_confirm_ok)
                     ) {
                         scope.launch {
-                            FileOps.delete(listOf(entry))
+                            val r = TrashOps.move(requireContext(), listOf(entry))
+                            if (r.failed == 0) {
+                                snack(getString(R.string.trash_moved_fmt, r.done))
+                            } else {
+                                snack(getString(R.string.trash_failed_fmt, entry.name))
+                            }
                             loadCategory()
                         }
                     }

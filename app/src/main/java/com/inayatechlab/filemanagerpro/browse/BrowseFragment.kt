@@ -28,6 +28,7 @@ import com.inayatechlab.filemanagerpro.model.PathCrumb
 import com.inayatechlab.filemanagerpro.ops.ConflictPolicy
 import com.inayatechlab.filemanagerpro.ops.Extractor
 import com.inayatechlab.filemanagerpro.ops.FileOps
+import com.inayatechlab.filemanagerpro.ops.TrashOps
 import com.inayatechlab.filemanagerpro.vault.VaultEngine
 import com.inayatechlab.filemanagerpro.vault.VaultFormat
 import com.inayatechlab.filemanagerpro.vault.VaultSessionManager
@@ -387,7 +388,7 @@ class BrowseFragment : Fragment() {
                     true
                 }
                 R.id.action_delete -> {
-                    confirmAndDelete(selected)
+                    confirmTrash(selected)
                     true
                 }
                 R.id.action_rename -> {
@@ -554,9 +555,9 @@ class BrowseFragment : Fragment() {
             cont.invokeOnCancellation { dialog.dismiss() }
         }
 
-    private fun confirmAndDelete(selected: List<FileEntry>) {
+    private fun confirmTrash(selected: List<FileEntry>) {
         if (!SettingsStore.confirmDelete(requireContext())) {
-            doDelete(selected)
+            doTrash(selected)
             return
         }
         val sample = selected.take(3).joinToString { it.name }
@@ -567,21 +568,27 @@ class BrowseFragment : Fragment() {
         }
         Dialogs.confirm(
             requireContext(),
-            getString(R.string.dialog_delete_title),
-            getString(R.string.dialog_delete_message) + "\n\n$sample$more",
-            getString(R.string.action_delete_confirm)
+            getString(R.string.trash_confirm_title),
+            getString(R.string.trash_confirm_message) + "\n\n$sample$more",
+            getString(R.string.trash_confirm_ok)
         ) {
-            doDelete(selected)
+            doTrash(selected)
         }
     }
 
-    private fun doDelete(selected: List<FileEntry>) {
-        runOp(getString(R.string.ops_deleting)) {
-            val r = FileOps.delete(selected)
+    /** Deletes are recoverable: items move to the app-managed Trash. */
+    private fun doTrash(selected: List<FileEntry>) {
+        runOp(getString(R.string.trash_op_progress)) {
+            val r = TrashOps.move(requireContext(), selected)
             withContext(Dispatchers.Main) {
                 exitSelectionMode()
-                if (r.failed > 0) snack(r.errors.joinToString("\n").take(240))
-                else snack(getString(R.string.ops_deleted, r.done))
+                snack(
+                    when {
+                        r.failed == 0 -> getString(R.string.trash_moved_fmt, r.done)
+                        r.done == 0 -> getString(R.string.trash_failed_fmt, r.firstFailedName.orEmpty())
+                        else -> getString(R.string.trash_partial_fmt, r.done, r.failed)
+                    }
+                )
                 reload()
             }
         }

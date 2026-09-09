@@ -14,6 +14,7 @@ import com.inayatechlab.filemanagerpro.browse.CrumbAdapter
 import com.inayatechlab.filemanagerpro.categories.CategoriesFragment
 import com.inayatechlab.filemanagerpro.databinding.ActivityMainBinding
 import com.inayatechlab.filemanagerpro.model.PathCrumb
+import com.inayatechlab.filemanagerpro.vault.VaultFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,15 +22,22 @@ class MainActivity : AppCompatActivity() {
         const val EXTRA_OPEN_PATH = "extra_open_path"
         private const val TAG_BROWSE = "browse"
         private const val TAG_CATEGORIES = "categories"
+        private const val TAG_VAULT = "vault"
     }
 
     private lateinit var binding: ActivityMainBinding
     private var browseFragment: BrowseFragment? = null
     private var categoriesFragment: CategoriesFragment? = null
+    private var vaultFragment: VaultFragment? = null
     private var menuHandler: ((MenuItem) -> Boolean)? = null
 
     private val backCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
+            val vault = vaultFragment
+            if (vault != null && !vault.isHidden && vault.isVisible) {
+                if (!vault.handleBack()) selectTab(R.id.nav_storage)
+                return
+            }
             val cats = categoriesFragment
             if (cats != null && !cats.isHidden && cats.isVisible) {
                 selectTab(R.id.nav_storage)
@@ -66,7 +74,14 @@ class MainActivity : AppCompatActivity() {
                 fm.beginTransaction().add(R.id.fragmentContainer, created, TAG_CATEGORIES).hide(created).commitNow()
             }
         categoriesFragment = cats
-        fm.beginTransaction().hide(cats).show(browse).commitNow()
+
+        val vault = fm.findFragmentByTag(TAG_VAULT) as? VaultFragment
+            ?: VaultFragment.newInstance().also { created ->
+                fm.beginTransaction().add(R.id.fragmentContainer, created, TAG_VAULT).hide(created).commitNow()
+            }
+        vaultFragment = vault
+
+        fm.beginTransaction().hide(cats).hide(vault).show(browse).commitNow()
 
         binding.bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
@@ -76,6 +91,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.nav_categories -> {
                     showFragment(cats)
+                    true
+                }
+                R.id.nav_vault -> {
+                    showFragment(vault)
                     true
                 }
                 else -> false
@@ -105,12 +124,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun showFragment(fragment: Fragment) {
         val fm = supportFragmentManager
-        val show = fragment
-        val hide = if (fragment === browseFragment) categoriesFragment else browseFragment
-        fm.beginTransaction().hide(hide ?: return).show(show).commitNow()
-        when (show) {
-            is BrowseFragment -> (show as BrowseFragment).becomeVisible()
-            is CategoriesFragment -> (show as CategoriesFragment).becomeVisible()
+        val others = listOf(browseFragment, categoriesFragment, vaultFragment).filterNotNull()
+        val tx = fm.beginTransaction()
+        others.filter { it !== fragment }.forEach { tx.hide(it) }
+        tx.show(fragment).commitNow()
+        when (fragment) {
+            is BrowseFragment -> fragment.becomeVisible()
+            is CategoriesFragment -> fragment.becomeVisible()
+            is VaultFragment -> fragment.becomeVisible()
         }
     }
 
@@ -122,6 +143,7 @@ class MainActivity : AppCompatActivity() {
             when (id) {
                 R.id.nav_storage -> showFragment(browseFragment ?: return)
                 R.id.nav_categories -> showFragment(categoriesFragment ?: return)
+                R.id.nav_vault -> showFragment(vaultFragment ?: return)
             }
         }
     }
@@ -141,6 +163,15 @@ class MainActivity : AppCompatActivity() {
     fun installBrowseMenu(handler: (MenuItem) -> Boolean): Menu {
         binding.toolbar.menu.clear()
         binding.toolbar.inflateMenu(R.menu.menu_browse)
+        menuHandler = handler
+        binding.toolbar.setOnMenuItemClickListener { item -> handler(item) }
+        return binding.toolbar.menu
+    }
+
+    /** Installs an arbitrary menu resource (used by the Vault tab). */
+    fun installVaultMenu(handler: (MenuItem) -> Boolean): Menu {
+        binding.toolbar.menu.clear()
+        binding.toolbar.inflateMenu(R.menu.menu_vault)
         menuHandler = handler
         binding.toolbar.setOnMenuItemClickListener { item -> handler(item) }
         return binding.toolbar.menu

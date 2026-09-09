@@ -16,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.inayatechlab.filemanagerpro.MainActivity
 import com.inayatechlab.filemanagerpro.R
@@ -24,6 +25,10 @@ import com.inayatechlab.filemanagerpro.model.ClipboardBus
 import com.inayatechlab.filemanagerpro.model.FileEntry
 import com.inayatechlab.filemanagerpro.model.PathCrumb
 import com.inayatechlab.filemanagerpro.ops.FileOps
+import com.inayatechlab.filemanagerpro.vault.VaultEngine
+import com.inayatechlab.filemanagerpro.vault.VaultFormat
+import com.inayatechlab.filemanagerpro.vault.VaultSessionManager
+import com.inayatechlab.filemanagerpro.vault.VaultUnlock
 import com.inayatechlab.filemanagerpro.preview.PreviewActivity
 import com.inayatechlab.filemanagerpro.search.SearchActivity
 import com.inayatechlab.filemanagerpro.settings.SettingsActivity
@@ -383,6 +388,11 @@ class BrowseFragment : Fragment() {
                     mode.finish()
                     true
                 }
+                R.id.action_vault -> {
+                    addSelectionToVault(selected)
+                    mode.finish()
+                    true
+                }
                 R.id.action_share -> {
                     share(selected)
                     mode.finish()
@@ -508,6 +518,130 @@ class BrowseFragment : Fragment() {
                 reload()
             }
         }
+    }
+
+    // ---------------------------------------------------------------- vault (#20)
+
+    /** Adds the selected items into a vault: pick -> unlock -> encrypt -> optional delete. */
+    private fun addSelectionToVault(items: List<FileEntry>) {
+        val act = requireActivity() as? androidx.appcompat.app.AppCompatActivity ?: return
+        val ctx = requireContext()
+        scope.launch {
+            val vaults = withContext(Dispatchers.IO) {
+                VaultEngine.discoverVaults(StorageUtils.roots().map { it.file })
+            }
+            if (_binding == null) return@launch
+            if (vaults.isEmpty()) {
+                snack(getString(R.string.vlt_none_hint))
+                return@launch
+            }
+            val target = if (vaults.size == 1) vaults.first() else {
+                val names: Array<CharSequence> =
+                    vaults.map { VaultFormat.displayName(it) as CharSequence }.toTypedArray()
+                var picked: java.io.File? = null
+                val latch = java.util.concurrent.CountDownLatch(1)
+                // Back on the main thread here (lifecycleScope), safe to show UI.
+                MaterialAlertDialogBuilder(ctx)
+                    .setTitle(R.string.vlt_pick_vault)
+                    .setItems(names) { _, which ->
+                        picked = vaults[which]
+                        latch.countDown()
+                    }
+                    .setOnCancelListener { latch.countDown() }
+                    .setNegativeButton(R.string.action_cancel) { _, _ -> latch.countDown() }
+                    .show()
+                withContext(Dispatchers.IO) { latch.await() }
+                picked ?: return@launch
+            }
+            // Unlock flow (password or biometric) then confirm originals handling.
+            VaultUnlock.prompt(act, scope, target,
+                onUnlocked = { session -> confirmVaultAdd(session, items) },
+                onDismissed = {}
+            )
+        }
+    }
+
+    private fun confirmVaultAdd(session: VaultEngine.Session, items: List<FileEntry>) {
+        val ctx = requireContext()
+        val options = arrayOf(
+            getString(R.string.vlt_move_delete_originals),
+            getString(R.string.vlt_move_copy_originals),
+            getString(R.string.action_cancel)
+        )
+        MaterialAlertDialogBuilder(ctx)
+            .setTitle(getString(R.string.vlt_move_title, items.size, session.name))
+            .setItems(options) { _, which ->
+                if (which == 2) {
+                    VaultSessionManager.close()
+                    return@setItems
+                }
+                val deleteOriginals = which == 0
+                val progress = Dialogs.showProgress(ctx, getString(R.string.vlt_encrypting))
+                scope.launch {
+                    try {
+                        val expanded = withContext(Dispatchers.IO) {
+                            expandVaultItems(items)
+                        }
+                        if (expanded.isEmpty()) {
+                            snack(getString(R.string.vlt_move_nothing))
+                            return@launch
+                        }
+                        val outcome = withContext(Dispatchers.IO) {
+                            VaultEngine.addFiles(
+                                session, expanded,
+                                onProgress = { _, _, _ -> }
+                            )
+                        }
+                        if (deleteOriginals && outcome.addedRelPaths.isNotEmpty()) {
+                            val toDelete = expanded
+                                .filter { it.relPath in outcome.addedRelPaths }
+                                .map { it.source }
+                            withContext(Dispatchers.IO) { deleteQuietly(toDelete) }
+                        }
+                        val msg = if (outcome.errors.isEmpty()) {
+                            getString(R.string.vlt_move_done_fmt, outcome.added, session.name)
+                        } else {
+                            getString(R.string.vlt_move_partial_fmt, outcome.added, outcome.errors.size)
+                        }
+                        snack(msg)
+                    } finally {
+                        progress.dismiss()
+                        VaultSessionManager.close()
+                    }
+                }
+            }
+            .show()
+    }
+
+    private suspend fun deleteQuietly(files: List<java.io.File>) {
+        fun del(f: java.io.File) {
+            if (f.isFile) f.delete()
+            else if (f.isDirectory) f.deleteRecursively()
+        }
+        for (f in files) runCatching { del(f) }
+    }
+
+    /** Expands selected files/folders into vault items with relative paths. */
+    private suspend fun expandVaultItems(items: List<FileEntry>): List<VaultEngine.AddItem> {
+        val out = mutableListOf<VaultEngine.AddItem>()
+        val seen = HashSet<String>()
+        fun walk(f: java.io.File, prefix: String?) {
+            val rel = if (prefix == null) f.name else "$prefix/${f.name}"
+            if (!seen.add(rel)) return
+            if (f.isDirectory) {
+                f.listFiles()?.forEach { child -> walk(child, rel) }
+            } else if (f.isFile) {
+                out.add(VaultEngine.AddItem(rel, f))
+            }
+        }
+        val topLevel = items.filter { e ->
+            val path = e.file.canonicalPath
+            items.none { other ->
+                other !== e && other.isDir && path.startsWith(other.file.canonicalPath + java.io.File.separator)
+            }
+        }
+        topLevel.forEach { walk(it.file, null) }
+        return out
     }
 
     private fun share(selected: List<FileEntry>) {

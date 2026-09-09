@@ -121,3 +121,69 @@ jobs:
           disable-animations: true
           # Software-emulated (no KVM on hosted runners): give the boot more time.
           script: ./gradlew --no-daemon connectedDebugAndroidTest
+
+  # Real-emulator screenshots for the README (not mockups). Runs on pushes to
+  # the basic-core feature branch only, is never a required check, and uploads
+  # the PNGs so they can be committed to docs/screenshots.
+  app-screenshots:
+    name: App screenshots (API 29 emulator)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/feature/basic-core'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    continue-on-error: true # capture must never block merges
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install SDK components
+        run: |
+          sdkmanager --install "platforms;android-29" "build-tools;34.0.0" "platform-tools" "emulator"
+          sdkmanager --install "system-images;android-29;default;x86_64"
+          yes | sdkmanager --licenses >/dev/null 2>&1 || true
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Make wrapper executable
+        run: chmod +x gradlew
+
+      - name: Run capture instrumentation on emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          arch: x86_64
+          target: default
+          profile: pixel_2
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -memory 2048
+          disable-animations: true
+          script: |
+            adb wait-for-device
+            adb shell settings put system screen_off_timeout 600000 || true
+            adb shell mkdir -p /sdcard/Download
+            for f in seed-files/*; do adb push "$f" /sdcard/Download/; done
+            ./gradlew --no-daemon :app:connectedDebugAndroidTest \
+              -Pandroid.testInstrumentationRunnerArguments.class=com.inayatechlab.filemanagerpro.ScreenshotCaptureTest \
+              -Pandroid.testInstrumentationRunnerArguments.screenshots=true
+
+      - name: Pull screenshots
+        run: |
+          mkdir -p artifacts
+          adb pull /sdcard/Android/data/com.inayatechlab.filemanagerpro/files/screenshots ./artifacts/ || true
+          ls -laR artifacts
+
+      - name: Upload screenshot artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: app-screenshots
+          path: artifacts
+          if-no-files-found: error

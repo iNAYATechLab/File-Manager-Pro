@@ -32,7 +32,6 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySearchBinding
     private var searchJob: Job? = null
     private val searching = AtomicBoolean(false)
-    private var roots: List<File> = listOf(StorageUtils.primaryRoot())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,66 +40,39 @@ class SearchActivity : AppCompatActivity() {
 
         binding.toolbar.setNavigationOnClickListener { finish() }
 
-        val folderRoot = intent.getStringExtra(EXTRA_ROOT)
+        val rootDir = intent.getStringExtra(EXTRA_ROOT)
             ?.let { File(it) }
             ?.takeIf { it.isDirectory }
             ?: StorageUtils.primaryRoot()
 
         val adapter = FileAdapter(isGrid = false, selectable = false).apply {
-            onItemClick = { entry -> onResultClick(entry) }
+            onItemClick = { entry -> onResultClick(entry, rootDir) }
         }
         binding.recycler.layoutManager = LinearLayoutManager(this)
         binding.recycler.adapter = adapter
         binding.etQuery.requestFocus()
 
-        // Scope: current folder vs whole storage (all readable volumes).
-        binding.chipScopeCurrent.setOnCheckedChangeListener { _, checked ->
-            if (checked) {
-                roots = listOf(folderRoot)
-                runSearch(adapter)
-            }
-        }
-        binding.chipScopeWhole.setOnCheckedChangeListener { _, checked ->
-            if (checked) {
-                roots = StorageUtils.roots().map { it.file }
-                runSearch(adapter)
-            }
-        }
-
-        // Result type filter: all / files / folders.
-        binding.chipGroupType.setOnCheckedStateChangeListener { _, _ ->
-            runSearch(adapter)
-        }
-
         binding.etQuery.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
             override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                runSearch(adapter)
+                runSearch(s?.toString().orEmpty(), rootDir, adapter)
             }
         })
     }
 
-    private fun selectedType(): Scanner.SearchType = when (binding.chipGroupType.checkedChipId) {
-        R.id.chipTypeFiles -> Scanner.SearchType.FILES
-        R.id.chipTypeFolders -> Scanner.SearchType.FOLDERS
-        else -> Scanner.SearchType.ALL
-    }
-
-    private fun runSearch(adapter: FileAdapter) {
+    private fun runSearch(query: String, root: File, adapter: FileAdapter) {
         searchJob?.cancel()
         searching.set(false)
         adapter.entries = mutableListOf()
         binding.tvEmpty.isVisible = false
-        val query = binding.etQuery.text?.toString().orEmpty().trim()
-        if (query.isEmpty()) return
+        if (query.trim().isEmpty()) return
 
         searching.set(true)
-        binding.progress.isVisible = true
         searchJob = lifecycleScope.launch {
             val pending = mutableListOf<FileEntry>()
             val count = withContext(kotlinx.coroutines.Dispatchers.IO) {
-                Scanner.search(roots, query, selectedType()) { entry ->
+                Scanner.search(root, query) { entry ->
                     pending.add(entry)
                     if (pending.size % 25 == 0) {
                         flush(pending, adapter)
@@ -108,10 +80,8 @@ class SearchActivity : AppCompatActivity() {
                 }
             }
             flush(pending, adapter)
-            binding.progress.isVisible = false
             binding.tvEmpty.isVisible = count == 0
             binding.tvEmpty.text = getString(R.string.search_no_results)
-            searching.set(false)
         }
     }
 
@@ -124,7 +94,7 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun onResultClick(entry: FileEntry) {
+    private fun onResultClick(entry: FileEntry, root: File) {
         if (entry.isDir) {
             val intent = Intent(this, MainActivity::class.java).apply {
                 putExtra(MainActivity.EXTRA_OPEN_PATH, entry.path)

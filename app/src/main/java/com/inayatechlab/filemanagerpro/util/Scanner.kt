@@ -97,34 +97,15 @@ object Scanner {
             result
         }
 
-    /** Which entries a name search should return. */
-    enum class SearchType { ALL, FILES, FOLDERS }
-
-    /**
-     * Search files + folders whose name contains [query] (case-insensitive),
-     * walking every directory in [roots].
-     * [type] restricts the results to files, folders, or both.
-     */
+    /** Search files + folders whose name contains [query] (case-insensitive). */
     suspend fun search(
-        roots: List<File>,
+        root: File,
         query: String,
-        type: SearchType = SearchType.ALL,
         onFound: (FileEntry) -> Unit
     ): Int = withContext(Dispatchers.IO) {
         val q = query.trim().lowercase()
         if (q.isEmpty()) return@withContext 0
         var count = 0
-        val seen = HashSet<String>()
-
-        fun matches(child: File, name: String): Boolean {
-            val nameHit = name.lowercase().contains(q)
-            if (!nameHit) return false
-            return when (type) {
-                SearchType.ALL -> true
-                SearchType.FILES -> child.isFile
-                SearchType.FOLDERS -> child.isDirectory
-            }
-        }
 
         fun walk(dir: File) {
             if (count >= MAX_RESULTS || !coroutineContext.isActive) return
@@ -139,13 +120,13 @@ object Scanner {
                     if (StorageUtils.isExcludedScanPath(canonical)) continue
                     if (child.isDirectory) {
                         if (StorageUtils.SKIP_DIR_NAMES.contains(name)) continue
-                        if (matches(child, name) && seen.add(canonical)) {
+                        if (name.lowercase().contains(q)) {
                             onFound(FileEntry(name, canonical, true, 0, child.lastModified()))
                             count++
                         }
                         walk(child)
                     } else {
-                        if (matches(child, name) && seen.add(canonical)) {
+                        if (name.lowercase().contains(q)) {
                             onFound(
                                 FileEntry(
                                     name, canonical, false,
@@ -159,7 +140,7 @@ object Scanner {
                 }
             }
         }
-        roots.forEach { walk(it) }
+        walk(root)
         count
     }
 }

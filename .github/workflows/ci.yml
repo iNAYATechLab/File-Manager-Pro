@@ -170,15 +170,27 @@ jobs:
             adb shell settings put system screen_off_timeout 600000 || true
             adb shell mkdir -p /sdcard/Download
             for f in seed-files/*; do adb push "$f" /sdcard/Download/; done
-            ./gradlew --no-daemon :app:connectedDebugAndroidTest \
-              -Pandroid.testInstrumentationRunnerArguments.class=com.inayatechlab.filemanagerpro.ScreenshotCaptureTest \
-              -Pandroid.testInstrumentationRunnerArguments.screenshots=true
+            ./gradlew --no-daemon :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.inayatechlab.filemanagerpro.ScreenshotCaptureTest -Pandroid.testInstrumentationRunnerArguments.screenshots=true
+            # Pull while the emulator is still alive inside this action step.
+            adb logcat -d -s Screenshots
+            mkdir -p artifacts
+            timeout 60 adb pull /sdcard/Pictures/FMP-Screenshots ./artifacts/ || true
+            ls -laR artifacts || true
 
-      - name: Pull screenshots
+      - name: Pull screenshots (fallback)
         run: |
           mkdir -p artifacts
-          adb pull /sdcard/Android/data/com.inayatechlab.filemanagerpro/files/screenshots ./artifacts/ || true
-          ls -laR artifacts
+          for i in 1 2 3; do
+            timeout 20 adb wait-for-device || true
+            state=$(timeout 10 adb get-state 2>/dev/null || echo offline)
+            echo "adb state: $state"
+            if [ "$state" = "device" ] && timeout 60 adb pull /sdcard/Android/data/com.inayatechlab.filemanagerpro/files/screenshots ./artifacts/; then
+              echo "PULL OK"
+              break
+            fi
+            sleep 10
+          done
+          ls -laR artifacts || true
 
       - name: Upload screenshot artifact
         uses: actions/upload-artifact@v4

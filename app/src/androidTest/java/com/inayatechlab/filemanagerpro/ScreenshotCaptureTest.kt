@@ -1,15 +1,16 @@
 package com.inayatechlab.filemanagerpro
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.provider.MediaStore
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.platform.app.InstrumentationRegistry
 import com.inayatechlab.filemanagerpro.search.SearchActivity
 import com.inayatechlab.filemanagerpro.settings.AboutActivity
@@ -24,9 +25,16 @@ import org.junit.runners.JUnit4
 /**
  * Captures real emulator screenshots (not mockups) of the main app pages.
  *
- * Run from CI on an API 29 emulator with demo files pre-pushed to
- * /sdcard/Download (see .github/workflows/screenshots.yml). PNGs are written
- * to the app's external files dir so the workflow can `adb pull` them.
+ * Seed fixtures are pushed to /sdcard/Download by the "App screenshots"
+ * CI job before this test runs (see .github/workflows/ci.yml). PNGs are
+ * written to the app's external files dir, internal cache, and published
+ * through MediaStore to Pictures/FMP-Screenshots so the workflow can
+ * `adb pull` them (FUSE hides Android/data from the shell on API 29).
+ *
+ * Interactions deliberately avoid Espresso: under a slow/loaded emulator
+ * the app window can lack input focus for long stretches, which makes
+ * Espresso throw RootViewWithoutFocusException. Direct performClick()
+ * inside ActivityScenario.onActivity is immune to that.
  */
 @RunWith(JUnit4::class)
 class ScreenshotCaptureTest {
@@ -34,6 +42,7 @@ class ScreenshotCaptureTest {
     private val ctx: Context = ApplicationProvider.getApplicationContext()
     private val pkg = ctx.packageName
     private val outDir: File = File(ctx.getExternalFilesDir(null), "screenshots")
+    private val cacheDir: File = File(ctx.cacheDir, "screenshots")
 
     private fun grant() {
         val ui = InstrumentationRegistry.getInstrumentation().uiAutomation
@@ -50,8 +59,26 @@ class ScreenshotCaptureTest {
         FileOutputStream(File(outDir, "$name.png")).use { out ->
             bmp.compress(Bitmap.CompressFormat.PNG, 100, out)
         }
+        cacheDir.mkdirs()
+        FileOutputStream(File(cacheDir, "$name.png")).use { out ->
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, out)
+        }
+        // Publish to a shell-readable public folder via MediaStore (API 29).
+        runCatching {
+            val values = android.content.ContentValues().apply {
+                put(MediaStore.Images.Media.DISPLAY_NAME, "$name.png")
+                put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/FMP-Screenshots")
+            }
+            val uri = ctx.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+            if (uri != null) {
+                ctx.contentResolver.openOutputStream(uri)?.use { out ->
+                    bmp.compress(Bitmap.CompressFormat.PNG, 100, out)
+                }
+            }
+        }.onFailure { android.util.Log.e("Screenshots", "MediaStore publish failed: $name", it) }
         bmp.recycle()
-        android.util.Log.i("Screenshots", "saved $name.png -> ${outDir.absolutePath}")
+        android.util.Log.i("Screenshots", "saved $name.png")
     }
 
     private fun sleepMs(ms: Long) = Thread.sleep(ms)
@@ -66,58 +93,109 @@ class ScreenshotCaptureTest {
         }
     }
 
+    // ---- view helpers -------------------------------------------------------
+
+    private fun allViews(root: View, out: MutableList<View>) {
+        out.add(root)
+        if (root is ViewGroup) {
+            for (i in 0 until root.childCount) allViews(root.getChildAt(i), out)
+        }
+    }
+
+    private fun View.byId(id: Int): View? {
+        val all = mutableListOf<View>()
+        allViews(this, all)
+        return all.firstOrNull { it.id == id }
+    }
+
+    private fun View.byText(text: String): View? {
+        val all = mutableListOf<View>()
+        allViews(this, all)
+        return all.firstOrNull { it is TextView && it.text?.toString() == text }
+    }
+
+    private fun click(activity: Activity, target: View?) {
+        requireNotNull(target) { "target view not found in ${activity.javaClass.simpleName}" }
+        // Ascend to the first clickable ancestor: row listeners live on the
+        // item root, not on the inner text view Espresso-style matchers see.
+        var v: View = target
+        while (!v.isClickable && v.parent is View) v = v.parent as View
+        v.performClick()
+    }
+
     @Test
     fun captureAllPages() {
         // Only runs when the screenshots workflow passes the flag; the normal
         // CI emulator suite must stay fast and seed-free.
         val args = InstrumentationRegistry.getArguments()
         Assume.assumeTrue(
-            "capture disabled outside .github/workflows/screenshots.yml",
+            "capture disabled outside the app-screenshots CI job",
             args.getString("screenshots") == "true"
         )
         grant()
+        android.util.Log.i(
+            "Screenshots",
+            "pkg=$pkg outDir=${outDir.absolutePath} cacheDir=${cacheDir.absolutePath}"
+        )
+        val downloadPath = "/storage/emulated/0/Download"
 
-        // ---- 1. Storage home (quick access chips + volume cards) ------------
-        ActivityScenario.launch(MainActivity::class.java).use {
-            sleepMs(4000)
-            shot("01-storage-home")
+        // ---- 1. Storage home ------------------------------------------------
+        step("storage home shot") {
+            ActivityScenario.launch(MainActivity::class.java).use {
+                sleepMs(4500)
+                shot("01-storage-home")
+            }
         }
 
-        // ---- 2/3/5. Browse Downloads folder, text viewer, library -----------
-        val downloadPath = "/storage/emulated/0/Download"
-        ActivityScenario.launch<MainActivity>(
-            Intent(ctx, MainActivity::class.java)
-                .putExtra(MainActivity.EXTRA_OPEN_PATH, downloadPath)
-        ).use {
-            sleepMs(3500)
-            shot("02-folder-downloads")
+        // ---- 2. Downloads folder --------------------------------------------
+        step("downloads folder shot") {
+            ActivityScenario.launch<MainActivity>(
+                Intent(ctx, MainActivity::class.java)
+                    .putExtra(MainActivity.EXTRA_OPEN_PATH, downloadPath)
+            ).use {
+                sleepMs(3500)
+                shot("02-folder-downloads")
+            }
+        }
 
-            // tap the guide.md row -> in-app text viewer
-            step("text viewer shot") {
-                onView(ViewMatchers.withText("guide.md")).perform(ViewActions.click())
+        // ---- 3. Text viewer on guide.md -------------------------------------
+        step("text viewer shot") {
+            ActivityScenario.launch<MainActivity>(
+                Intent(ctx, MainActivity::class.java)
+                    .putExtra(MainActivity.EXTRA_OPEN_PATH, downloadPath)
+            ).use { sc ->
+                sleepMs(4000)
+                sc.onActivity { act -> click(act, act.window.decorView.byText("guide.md")) }
                 sleepMs(2500)
                 shot("03-text-viewer")
-                Espresso.pressBack()
-                sleepMs(1200)
-            }
-
-            step("library downloads shot") {
-                onView(ViewMatchers.withId(R.id.nav_library)).perform(ViewActions.click())
-                sleepMs(1800)
-                onView(ViewMatchers.withId(R.id.chipDownloads)).perform(ViewActions.click())
-                sleepMs(2200)
-                shot("05-library-downloads")
-                onView(ViewMatchers.withId(R.id.nav_storage)).perform(ViewActions.click())
             }
         }
 
         // ---- 4. Categories tab ----------------------------------------------
         step("categories shot") {
-            ActivityScenario.launch(MainActivity::class.java).use {
-                sleepMs(3000)
-                onView(ViewMatchers.withId(R.id.nav_categories)).perform(ViewActions.click())
+            ActivityScenario.launch(MainActivity::class.java).use { sc ->
+                sleepMs(3500)
+                sc.onActivity { act ->
+                    click(act, act.window.decorView.byId(R.id.nav_categories))
+                }
                 sleepMs(2500)
                 shot("04-categories")
+            }
+        }
+
+        // ---- 5. Library tab + Downloads chip --------------------------------
+        step("library downloads shot") {
+            ActivityScenario.launch(MainActivity::class.java).use { sc ->
+                sleepMs(3500)
+                sc.onActivity { act ->
+                    click(act, act.window.decorView.byId(R.id.nav_library))
+                }
+                sleepMs(2200)
+                sc.onActivity { act ->
+                    click(act, act.window.decorView.byId(R.id.chipDownloads))
+                }
+                sleepMs(2500)
+                shot("05-library-downloads")
             }
         }
 
@@ -126,10 +204,13 @@ class ScreenshotCaptureTest {
             ActivityScenario.launch<SearchActivity>(
                 Intent(ctx, SearchActivity::class.java)
                     .putExtra(SearchActivity.EXTRA_ROOT, downloadPath)
-            ).use {
-                sleepMs(1500)
-                onView(ViewMatchers.withId(R.id.etQuery)).perform(ViewActions.replaceText("guide"))
-                Espresso.closeSoftKeyboard()
+            ).use { sc ->
+                sleepMs(2500)
+                sc.onActivity { act ->
+                    val query = act.window.decorView.byId(R.id.etQuery)
+                    requireNotNull(query) { "etQuery not found" }
+                    if (query is android.widget.EditText) query.setText("guide")
+                }
                 sleepMs(2500)
                 shot("06-search")
             }

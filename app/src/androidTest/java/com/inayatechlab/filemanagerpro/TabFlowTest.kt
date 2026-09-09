@@ -2,6 +2,7 @@ package com.inayatechlab.filemanagerpro
 
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.scrollTo
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
@@ -33,7 +34,7 @@ class TabFlowTest {
     /** Opens the drawer and taps the given drawer row. */
     private fun clickDrawerRow(rowId: Int) {
         openDrawer()
-        onView(withId(rowId)).perform(click())
+        onView(withId(rowId)).perform(scrollTo(), click())
     }
 
     @Test

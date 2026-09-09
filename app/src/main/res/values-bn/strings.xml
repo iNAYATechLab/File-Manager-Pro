@@ -56,6 +56,13 @@
     <string name="folder_empty">এই ফোল্ডারটি খালি</string>
     <string name="search_no_results">কোনো ফলাফল পাওয়া যায়নি</string>
     <string name="search_hint">বর্তমান ফোল্ডারে খুঁজুন…</string>
+    <string name="search_scope_current">বর্তমান ফোল্ডার</string>
+    <string name="search_scope_whole">সম্পূর্ণ স্টোরেজ</string>
+    <string name="search_filter_all">সব ধরন</string>
+    <string name="search_filter_files">ফাইল</string>
+    <string name="search_filter_folders">ফোল্ডার</string>
+
+
     <string name="extracting">আনজিপ হচ্ছে…</string>
     <string name="compressing">কমপ্রেস হচ্ছে…</string>
     <string name="done">সম্পন্ন</string>
@@ -73,4 +80,58 @@
     <string name="cat_apk">অ্যাপ (APK)</string>
     <string name="cat_empty">এই ক্যাটাগরিতে কোনো ফাইল নেই</string>
     <string name="items_count">টি আইটেম</string>
+
+    <!-- Transfer (copy/move) with progress + conflicts -->
+    <string name="del_progress">ডিলিট হচ্ছে…</string>
+    <string name="xfer_copying">কপি হচ্ছে…</string>
+    <string name="xfer_moving">স্থানান্তর হচ্ছে…</string>
+    <string name="xfer_cancelled">কাজটি বাতিল হয়েছে</string>
+    <string name="xfer_paste_self">নিজের উৎস ফোল্ডারে পেস্ট করা যাবে না</string>
+    <string name="xfer_copied_fmt">%1$dটি আইটেম কপি হয়েছে</string>
+    <string name="xfer_moved_fmt">%1$dটি আইটেম স্থানান্তর হয়েছে</string>
+    <string name="xfer_skipped_fmt">%1$dটি আইটেম বাদ দেওয়া হয়েছে</string>
+    <string name="xfer_replaced_fmt">%1$dটি প্রতিস্থাপিত হয়েছে</string>
+    <string name="xfer_all_skipped">কিছুই স্থানান্তর হয়নি — সব আইটেম বাদ দেওয়া হয়েছে</string>
+    <string name="xfer_result_failed">%1$dটি আইটেম স্থানান্তর করা যায়নি</string>
+    <string name="xfer_conflict_title">ইতিমধ্যে আছে</string>
+    <string name="xfer_conflict_message">“%1$s” নামের একটি আইটেম ইতিমধ্যে এই ফোল্ডারে আছে।</string>
+    <string name="xfer_conflict_overwrite">প্রতিস্থাপন করুন</string>
+    <string name="xfer_conflict_skip">বাদ দিন</string>
+    <string name="xfer_conflict_keep_both">দুইটিই রাখুন</string>
+    <string name="xfer_conflict_apply_all">সব কনফ্লিক্টে প্রয়োগ করুন</string>
+
+    <!-- Multi-format extraction (tar/tar.gz/7z/rar) -->
+    <string name="arch_extract_done">%1$s-এ এক্সট্র্যাক্ট হয়েছে</string>
+    <string name="arch_extract_unsupported">এই আর্কাইভ ফরম্যাট সমর্থিত নয়</string>
+    <string name="arch_extract_rar5">RAR5 আর্কাইভ এখনো সমর্থিত নয় — অনুগ্রহ করে RAR4-এ রূপান্তর করুন</string>
+    <string name="arch_extract_encrypted">পাসওয়ার্ড-সুরক্ষিত আর্কাইভ সমর্থিত নয়</string>
+    <string name="arch_extract_corrupt">আর্কাইভটি ক্ষতিগ্রস্ত মনে হচ্ছে</string>
+    <string name="arch_extract_failed">এক্সট্র্যাক্ট করা ব্যর্থ হয়েছে</string>
+
+    <!-- Image viewer -->
+    <string name="action_rotate">৯০° ঘোরান</string>
+    <string name="action_exif">EXIF তথ্য</string>
+    <string name="action_wallpaper">ওয়ালপেপার করুন</string>
+    <string name="exif_title">EXIF তথ্য</string>
+    <string name="exif_name_fmt">নাম: %1$s</string>
+    <string name="exif_line_fmt">%1$s: %2$s</string>
+    <string name="exif_none">কোনো EXIF তথ্য পাওয়া যায়নি</string>
+    <string name="exif_taken">তোলার সময়</string>
+    <string name="exif_make">প্রস্তুতকারক</string>
+    <string name="exif_model">মডেল</string>
+    <string name="exif_lens">লেন্স</string>
+    <string name="exif_aperture">অ্যাপারচার</string>
+    <string name="exif_exposure">এক্সপোজার</string>
+    <string name="exif_iso">ISO</string>
+    <string name="exif_focal">ফোকাল দৈর্ঘ্য</string>
+    <string name="exif_flash">ফ্ল্যাশ</string>
+    <string name="exif_white_balance">হোয়াইট ব্যালেন্স</string>
+    <string name="exif_width">পিক্সেল প্রস্থ</string>
+    <string name="exif_height">পিক্সেল উচ্চতা</string>
+    <string name="exif_software">সফটওয়্যার</string>
+    <string name="exif_gps">GPS</string>
+    <string name="wallpaper_setting">ওয়ালপেপার সেট হচ্ছে…</string>
+    <string name="wallpaper_set_ok">ওয়ালপেপার সেট হয়েছে</string>
+    <string name="wallpaper_set_failed">ওয়ালপেপার সেট করা যায়নি</string>
+
 </resources>

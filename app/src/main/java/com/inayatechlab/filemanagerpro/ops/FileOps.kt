@@ -7,11 +7,25 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
-/** Result summary of a batch operation. */
-data class OpResult(val done: Int, val failed: Int, val errors: List<String>) {
+/** How to resolve a name conflict during copy/move. */
+enum class ConflictPolicy { OVERWRITE, SKIP, KEEP_BOTH }
+
+/**
+ * Result summary of a batch operation.
+ * [done] counts entries transferred successfully, [failed] errors,
+ * [skipped] conflicts resolved with SKIP, [replaced] conflicts overwritten.
+ * [cancelled] is true when the caller aborted the whole operation.
+ */
+data class OpResult(
+    val done: Int,
+    val failed: Int,
+    val errors: List<String>,
+    val skipped: Int = 0,
+    val replaced: Int = 0,
+    val cancelled: Boolean = false
+) {
     val ok: Boolean get() = failed == 0
     val message: String
         get() = if (errors.isEmpty()) "$done done" else errors.joinToString(separator = "\n", limit = 3)
@@ -23,13 +37,18 @@ object FileOps {
 
     /**
      * Copy or move [entries] into [destDir].
-     * [onProgress] is invoked on the IO dispatcher with (finished, total, currentLabel).
+     *
+     * When a destination entry with the same name exists, [conflictHandler] is
+     * invoked (on the IO dispatcher) with the entry name; it must return the
+     * chosen [ConflictPolicy], or null to abort the whole operation.
+     * [onProgress] is invoked on the IO dispatcher with (processed, total, currentLabel).
      */
     suspend fun copyOrMove(
         entries: List<FileEntry>,
         destDir: File,
         cut: Boolean,
-        onProgress: (done: Int, total: Int, label: String) -> Unit = { _, _, _ -> }
+        conflictHandler: suspend (name: String) -> ConflictPolicy? = { ConflictPolicy.KEEP_BOTH },
+        onProgress: suspend (done: Int, total: Int, label: String) -> Unit = { _, _, _ -> }
     ): OpResult = withContext(Dispatchers.IO) {
         require(destDir.isDirectory)
         if (!destDir.exists() || !destDir.canWrite()) {
@@ -37,28 +56,56 @@ object FileOps {
         }
         val total = entries.size
         var done = 0
+        var processed = 0
+        var skipped = 0
+        var replaced = 0
+        var cancelled = false
         val errors = mutableListOf<String>()
         for (e in entries) {
             val src = File(e.path)
-            onProgress(done, total, e.name)
+            processed++
+            onProgress(processed, total, e.name)
             try {
                 if (isInside(src, destDir)) {
                     errors.add("Cannot ${if (cut) "move" else "copy"} \"${e.name}\" into itself")
-                } else if (cut) {
-                    val target = uniqueTarget(destDir, src.name)
-                    if (!src.renameTo(target)) {
-                        copyRecursively(src, target)
-                        if (!deleteRecursively(src)) errors.add("Could not delete source: ${e.name}")
-                    }
                 } else {
-                    copyRecursively(src, uniqueTarget(destDir, src.name))
+                    var target = File(destDir, src.name)
+                    if (target.exists()) {
+                        val policy = conflictHandler(e.name)
+                        when (policy) {
+                            null -> {
+                                cancelled = true
+                                break
+                            }
+                            ConflictPolicy.SKIP -> {
+                                skipped++
+                                continue
+                            }
+                            ConflictPolicy.OVERWRITE -> {
+                                if (!deleteRecursively(target)) {
+                                    errors.add("${e.name}: could not replace existing file")
+                                    continue
+                                }
+                                replaced++
+                            }
+                            ConflictPolicy.KEEP_BOTH -> target = uniqueTarget(destDir, src.name)
+                        }
+                    }
+                    if (cut) {
+                        if (!src.renameTo(target)) {
+                            copyRecursively(src, target)
+                            if (!deleteRecursively(src)) errors.add("Could not delete source: ${e.name}")
+                        }
+                    } else {
+                        copyRecursively(src, target)
+                    }
+                    done++
                 }
             } catch (ex: Exception) {
                 errors.add("${e.name}: ${ex.message ?: "error"}")
             }
-            done++
         }
-        OpResult(done, errors.size, errors)
+        OpResult(done, errors.size, errors, skipped, replaced, cancelled)
     }
 
     suspend fun delete(entries: List<FileEntry>, onProgress: (Int, Int, String) -> Unit = { _, _, _ -> }): OpResult =
@@ -138,61 +185,9 @@ object FileOps {
         }
     }
 
-    /** Extract [zipFile] into a sibling folder named after the archive. */
+    /** Extract an archive into a sibling folder. Delegates to [Extractor]. */
     suspend fun extract(zipFile: File, onProgress: (Int, Int, String) -> Unit = { _, _, _ -> }): File =
-        withContext(Dispatchers.IO) {
-            val destDir = uniqueTarget(
-                zipFile.parentFile ?: File("/"),
-                zipFile.nameWithoutExtension
-            )
-            destDir.mkdirs()
-
-            val zipIn = ZipInputStream(FileInputStream(zipFile).buffered(1 shl 16))
-            var total = 0
-            try {
-                var temp = zipIn.nextEntry
-                while (temp != null) { total++; temp = zipIn.nextEntry }
-            } finally {
-                zipIn.close()
-            }
-            total = total.coerceAtLeast(1)
-
-            var done = 0
-            val errors = mutableListOf<String>()
-            ZipInputStream(FileInputStream(zipFile).buffered(1 shl 16)).use { zin ->
-                var entry = zin.nextEntry
-                while (entry != null) {
-                    onProgress(done, total, entry.name)
-                    try {
-                        extractEntry(zin, entry, destDir)
-                    } catch (ex: Exception) {
-                        errors.add("${entry.name}: ${ex.message ?: "error"}")
-                    }
-                    done++
-                    entry = zin.nextEntry
-                }
-            }
-            if (errors.isNotEmpty()) throw FileOpsException(errors.joinToString("\n", limit = 3))
-            destDir
-        }
-
-    private fun extractEntry(zin: ZipInputStream, entry: ZipEntry, destDir: File) {
-        val name = entry.name
-        val target = File(destDir, name.replace('/', File.separatorChar))
-        // Zip-slip protection
-        val canonical = target.canonicalPath
-        if (!canonical.startsWith(destDir.canonicalPath + File.separator)) {
-            throw FileOpsException("Unsafe entry path: $name")
-        }
-        if (entry.isDirectory) {
-            target.mkdirs()
-        } else {
-            target.parentFile?.mkdirs()
-            FileOutputStream(target).use { out ->
-                zin.copyTo(out, 1 shl 16)
-            }
-        }
-    }
+        Extractor.extract(zipFile, onProgress)
 
     /** Recursively count the size of a folder (files only). */
     suspend fun folderSize(file: File, onProgress: (Long) -> Unit = {}): Long = withContext(Dispatchers.IO) {

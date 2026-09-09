@@ -110,3 +110,103 @@ object FileOpsSafe {
         return com.inayatechlab.filemanagerpro.util.FormatUtils.formatSize(total)
     }
 }
+
+/**
+ * Determinate progress dialog used by transfer operations: a horizontal bar,
+ * a "done/total" counter and the name of the entry being processed, plus a
+ * Cancel action. All UI updates must go through [update]/[dismiss], which are
+ * thread-safe (they post to the main looper).
+ */
+class OpProgressDialog private constructor(
+    private val dialog: androidx.appcompat.app.AlertDialog,
+    private val bar: android.widget.ProgressBar,
+    private val tvItem: TextView,
+    private val tvCount: TextView,
+    private val onCancel: () -> Unit
+) {
+    /** Update progress from any thread. */
+    fun update(done: Int, total: Int, label: String) {
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            if (!dialog.isShowing) return@post
+            bar.max = total.coerceAtLeast(1)
+            bar.progress = done.coerceIn(0, bar.max)
+            tvCount.text = "$done/$total"
+            tvItem.text = label
+        }
+    }
+
+    /** Dismiss from any thread. */
+    fun dismiss() {
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            if (dialog.isShowing) dialog.dismiss()
+        }
+    }
+
+    /** User pressed Cancel or dismissed the dialog; cancels the operation. */
+    fun cancel() = onCancel()
+
+    companion object {
+        fun create(
+            context: Context,
+            title: String,
+            total: Int,
+            onCancel: () -> Unit = {}
+        ): OpProgressDialog {
+            val density = context.resources.displayMetrics.density
+            val pad = (20 * density).toInt()
+            val root = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(pad, 0, pad, 0)
+            }
+            val bar = android.widget.ProgressBar(
+                context, null, android.R.attr.progressBarStyleHorizontal
+            ).apply {
+                max = total.coerceAtLeast(1)
+                progress = 0
+            }
+            val countParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply { topMargin = (10 * density).toInt() }
+            val tvCount = TextView(context).apply {
+                textSize = 13f
+                setTextColor(
+                    androidx.core.content.ContextCompat.getColor(
+                        context, android.R.color.secondary_text_dark
+                    )
+                )
+            }
+            val itemParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply { topMargin = (4 * density).toInt() }
+            val tvItem = TextView(context).apply {
+                textSize = 13f
+                maxLines = 1
+                ellipsize = android.text.TextUtils.TruncateAt.MIDDLE
+                setTextColor(
+                    androidx.core.content.ContextCompat.getColor(
+                        context, android.R.color.secondary_text_dark
+                    )
+                )
+            }
+            root.addView(bar, LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+            ))
+            root.addView(tvCount, countParams)
+            root.addView(tvItem, itemParams)
+
+            val dialog = MaterialAlertDialogBuilder(context)
+                .setTitle(title)
+                .setView(root)
+                .setCancelable(true)
+                .setNegativeButton(R.string.action_cancel, null)
+                .create()
+            dialog.setOnShowListener {
+                dialog.getButton(android.app.AlertDialog.BUTTON_NEGATIVE)
+                    .setOnClickListener { onCancel() }
+            }
+            dialog.setOnCancelListener { onCancel() }
+            dialog.show()
+            return OpProgressDialog(dialog, bar, tvItem, tvCount, onCancel)
+        }
+    }
+}

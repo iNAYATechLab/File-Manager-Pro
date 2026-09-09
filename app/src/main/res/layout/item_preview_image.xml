@@ -21,12 +21,10 @@
             app:indicatorColor="?attr/colorPrimary"
             app:indicatorSize="44dp" />
 
-        <ImageView
+        <com.inayatechlab.filemanagerpro.preview.ZoomableImageView
             android:id="@+id/ivImage"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:adjustViewBounds="true"
-            android:contentDescription="@string/action_open"
-            android:scaleType="fitCenter" />
+            android:contentDescription="@string/action_open" />
     </FrameLayout>
 </com.google.android.material.card.MaterialCardView>

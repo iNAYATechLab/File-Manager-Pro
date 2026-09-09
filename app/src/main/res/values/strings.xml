@@ -56,6 +56,13 @@
     <string name="folder_empty">This folder is empty</string>
     <string name="search_no_results">No results found</string>
     <string name="search_hint">Search in current folder…</string>
+    <string name="search_scope_current">Current folder</string>
+    <string name="search_scope_whole">Whole storage</string>
+    <string name="search_filter_all">All types</string>
+    <string name="search_filter_files">Files</string>
+    <string name="search_filter_folders">Folders</string>
+
+
     <string name="extracting">Extracting…</string>
     <string name="compressing">Compressing…</string>
     <string name="done">Done</string>
@@ -73,4 +80,58 @@
     <string name="cat_apk">Apps (APK)</string>
     <string name="cat_empty">No files in this category</string>
     <string name="items_count">items</string>
+
+    <!-- Transfer (copy/move) with progress + conflicts -->
+    <string name="del_progress">Deleting…</string>
+    <string name="xfer_copying">Copying…</string>
+    <string name="xfer_moving">Moving…</string>
+    <string name="xfer_cancelled">Operation cancelled</string>
+    <string name="xfer_paste_self">Cannot paste into its own source folder</string>
+    <string name="xfer_copied_fmt">Copied %1$d item(s)</string>
+    <string name="xfer_moved_fmt">Moved %1$d item(s)</string>
+    <string name="xfer_skipped_fmt">%1$d item(s) skipped</string>
+    <string name="xfer_replaced_fmt">%1$d overwritten</string>
+    <string name="xfer_all_skipped">Nothing was transferred — all items were skipped</string>
+    <string name="xfer_result_failed">%1$d item(s) could not be transferred</string>
+    <string name="xfer_conflict_title">Already exists</string>
+    <string name="xfer_conflict_message">An item named “%1$s” already exists in this folder.</string>
+    <string name="xfer_conflict_overwrite">Overwrite</string>
+    <string name="xfer_conflict_skip">Skip</string>
+    <string name="xfer_conflict_keep_both">Keep both</string>
+    <string name="xfer_conflict_apply_all">Apply to all conflicts</string>
+
+    <!-- Multi-format extraction (tar/tar.gz/7z/rar) -->
+    <string name="arch_extract_done">Extracted to %1$s</string>
+    <string name="arch_extract_unsupported">This archive format is not supported</string>
+    <string name="arch_extract_rar5">RAR5 archives are not supported yet — please convert to RAR4</string>
+    <string name="arch_extract_encrypted">Password-protected archives are not supported</string>
+    <string name="arch_extract_corrupt">This archive appears to be damaged</string>
+    <string name="arch_extract_failed">Extraction failed</string>
+
+    <!-- Image viewer -->
+    <string name="action_rotate">Rotate 90°</string>
+    <string name="action_exif">EXIF details</string>
+    <string name="action_wallpaper">Set wallpaper</string>
+    <string name="exif_title">EXIF details</string>
+    <string name="exif_name_fmt">Name: %1$s</string>
+    <string name="exif_line_fmt">%1$s: %2$s</string>
+    <string name="exif_none">No EXIF data found</string>
+    <string name="exif_taken">Taken</string>
+    <string name="exif_make">Make</string>
+    <string name="exif_model">Model</string>
+    <string name="exif_lens">Lens</string>
+    <string name="exif_aperture">Aperture</string>
+    <string name="exif_exposure">Exposure</string>
+    <string name="exif_iso">ISO</string>
+    <string name="exif_focal">Focal length</string>
+    <string name="exif_flash">Flash</string>
+    <string name="exif_white_balance">White balance</string>
+    <string name="exif_width">Pixel width</string>
+    <string name="exif_height">Pixel height</string>
+    <string name="exif_software">Software</string>
+    <string name="exif_gps">GPS</string>
+    <string name="wallpaper_setting">Setting wallpaper…</string>
+    <string name="wallpaper_set_ok">Wallpaper set</string>
+    <string name="wallpaper_set_failed">Could not set wallpaper</string>
+
 </resources>

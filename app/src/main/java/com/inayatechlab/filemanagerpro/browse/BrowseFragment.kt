@@ -23,17 +23,24 @@ import com.inayatechlab.filemanagerpro.databinding.FragmentBrowseBinding
 import com.inayatechlab.filemanagerpro.model.ClipboardBus
 import com.inayatechlab.filemanagerpro.model.FileEntry
 import com.inayatechlab.filemanagerpro.model.PathCrumb
+import com.inayatechlab.filemanagerpro.ops.ConflictPolicy
+import com.inayatechlab.filemanagerpro.ops.Extractor
 import com.inayatechlab.filemanagerpro.ops.FileOps
 import com.inayatechlab.filemanagerpro.preview.PreviewActivity
 import com.inayatechlab.filemanagerpro.search.SearchActivity
 import com.inayatechlab.filemanagerpro.util.Dialogs
+import com.inayatechlab.filemanagerpro.util.OpProgressDialog
 import com.inayatechlab.filemanagerpro.util.FileCat
 import com.inayatechlab.filemanagerpro.util.OpenUtils
 import com.inayatechlab.filemanagerpro.util.StorageRoot
 import com.inayatechlab.filemanagerpro.util.StorageUtils
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.coroutines.resume
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -60,6 +67,8 @@ class BrowseFragment : Fragment() {
     private var adapter: FileAdapter? = null
     private var actionMode: ActionMode? = null
     private val loading = AtomicBoolean(false)
+    /** Active copy/move job so the user can cancel it from the progress dialog. */
+    private var transferJob: Job? = null
 
     private var sortMode = 0
     private var sortAsc = true
@@ -305,7 +314,9 @@ class BrowseFragment : Fragment() {
             mode.title = "$count ${getString(R.string.action_selected)}"
             menu.findItem(R.id.action_rename)?.isVisible = count == 1
             menu.findItem(R.id.action_extract)?.isVisible =
-                count == 1 && adapter?.selectedEntries()?.firstOrNull()?.extension == "zip"
+                count == 1 && Extractor.isSupportedName(
+                    adapter?.selectedEntries()?.firstOrNull()?.name.orEmpty()
+                )
             return true
         }
 
@@ -346,7 +357,7 @@ class BrowseFragment : Fragment() {
                     true
                 }
                 R.id.action_extract -> {
-                    extractZip(selected.first())
+                    extractArchive(selected.first())
                     mode.finish()
                     true
                 }
@@ -387,22 +398,107 @@ class BrowseFragment : Fragment() {
             src == dir || (src.isDirectory && dir.canonicalPath.startsWith(src.canonicalPath + File.separator))
         }
         if (intoSelf) {
-            snack("Cannot paste into its own source folder")
+            snack(getString(R.string.xfer_paste_self))
             return
         }
-        val cut = ClipboardBus.isCut
-        runOp(if (cut) "Moving…" else "Copying…") {
-            val r = FileOps.copyOrMove(items, dir, cut)
-            withContext(Dispatchers.Main) {
-                ClipboardBus.entries = emptyList()
-                ClipboardBus.isCut = false
-                syncMenu()
-                if (r.failed > 0) snack(r.errors.joinToString("\n").take(240))
-                else snack("Pasted ${r.done} item(s)")
-                reload()
+        runTransfer(items, dir, ClipboardBus.isCut)
+    }
+
+    /**
+     * Runs a copy/move with a cancellable, counter-based progress dialog.
+     * Name conflicts ask the user for overwrite / skip / keep-both.
+     */
+    private fun runTransfer(items: List<FileEntry>, destDir: File, cut: Boolean) {
+        val title = getString(if (cut) R.string.xfer_moving else R.string.xfer_copying)
+        val progress = OpProgressDialog.create(requireContext(), title, items.size) {
+            transferJob?.cancel()
+        }
+        var applyAll: ConflictPolicy? = null
+        transferJob = scope.launch {
+            try {
+                val r = FileOps.copyOrMove(
+                    items, destDir, cut,
+                    conflictHandler = { name ->
+                        // Runs on the IO dispatcher; resolve decisions on Main.
+                        withContext(Dispatchers.Main) {
+                            applyAll ?: askConflict(name).also { decision ->
+                                if (decision.second) applyAll = decision.first
+                            }.first
+                        }
+                    },
+                    onProgress = { done, total, label ->
+                        withContext(Dispatchers.Main) { progress.update(done, total, label) }
+                    }
+                )
+                withContext(Dispatchers.Main) {
+                    progress.dismiss()
+                    if (!r.cancelled) {
+                        ClipboardBus.entries = emptyList()
+                        ClipboardBus.isCut = false
+                        syncMenu()
+                    }
+                    if (r.cancelled) {
+                        snack(getString(R.string.xfer_cancelled))
+                    } else if (r.failed > 0) {
+                        snack(
+                            getString(R.string.xfer_result_failed, r.failed) +
+                                "\n" + r.errors.take(2).joinToString("\n")
+                        )
+                    } else if (r.done == 0 && r.skipped > 0) {
+                        snack(getString(R.string.xfer_all_skipped))
+                    } else {
+                        val base = if (cut) R.string.xfer_moved_fmt else R.string.xfer_copied_fmt
+                        var text = getString(base, r.done)
+                        if (r.skipped > 0) text += "  " + getString(R.string.xfer_skipped_fmt, r.skipped)
+                        if (r.replaced > 0) text += "  " + getString(R.string.xfer_replaced_fmt, r.replaced)
+                        snack(text)
+                    }
+                    reload()
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    snack(e.message ?: getString(R.string.error))
+                }
+            } finally {
+                progress.dismiss()
             }
         }
     }
+
+    /**
+     * Suspends while showing a conflict dialog. Returns the chosen policy and
+     * whether it should be applied to every remaining conflict. Returns a
+     * null policy — encoded as cancellation of the whole operation — when the
+     * user dismisses the dialog.
+     */
+    private suspend fun askConflict(fileName: String): Pair<ConflictPolicy, Boolean> =
+        suspendCancellableCoroutine { cont ->
+            val density = resources.displayMetrics.density
+            val cb = android.widget.CheckBox(this@BrowseFragment.requireContext()).apply {
+                text = getString(R.string.xfer_conflict_apply_all)
+                textSize = 14f
+                val pad = (8 * density).toInt()
+                setPadding(pad, pad / 2, pad, 0)
+            }
+            val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.xfer_conflict_title)
+                .setMessage(getString(R.string.xfer_conflict_message, fileName))
+                .setView(cb)
+                .setPositiveButton(R.string.xfer_conflict_overwrite) { _, _ ->
+                    cont.resume(ConflictPolicy.OVERWRITE to cb.isChecked)
+                }
+                .setNeutralButton(R.string.xfer_conflict_keep_both) { _, _ ->
+                    cont.resume(ConflictPolicy.KEEP_BOTH to cb.isChecked)
+                }
+                .setNegativeButton(R.string.xfer_conflict_skip) { _, _ ->
+                    cont.resume(ConflictPolicy.SKIP to cb.isChecked)
+                }
+                .setOnCancelListener { cont.resume(ConflictPolicy.SKIP to cb.isChecked) }
+                .show()
+            cont.invokeOnCancellation { dialog.dismiss() }
+        }
 
     private fun confirmAndDelete(selected: List<FileEntry>) {
         val sample = selected.take(3).joinToString { it.name }
@@ -454,12 +550,29 @@ class BrowseFragment : Fragment() {
         }
     }
 
-    private fun extractZip(entry: FileEntry) {
-        runOp("Extracting…") {
-            val dest = FileOps.extract(File(entry.path))
-            withContext(Dispatchers.Main) {
-                snack("Extracted to ${dest.name}")
-                reload()
+    /**
+     * Extracts any supported archive (zip/tar/tar.gz/tgz/7z/rar) into a
+     * sibling folder. Format-specific failures are shown in the UI language.
+     */
+    private fun extractArchive(entry: FileEntry) {
+        runOp(getString(R.string.extracting)) {
+            try {
+                val dest = Extractor.extract(File(entry.path))
+                withContext(Dispatchers.Main) {
+                    snack(getString(R.string.arch_extract_done, dest.name))
+                    reload()
+                }
+            } catch (e: Extractor.ExtractException) {
+                withContext(Dispatchers.Main) {
+                    val res = when (e.failure) {
+                        Extractor.Failure.UNSUPPORTED -> R.string.arch_extract_unsupported
+                        Extractor.Failure.RAR5 -> R.string.arch_extract_rar5
+                        Extractor.Failure.ENCRYPTED -> R.string.arch_extract_encrypted
+                        Extractor.Failure.CORRUPT -> R.string.arch_extract_corrupt
+                        null -> R.string.arch_extract_failed
+                    }
+                    snack(getString(res))
+                }
             }
         }
     }

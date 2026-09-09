@@ -50,7 +50,12 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // 1.0.0 hardening (#22): R8 minification + resource shrinking for
+            // the release artifact. Rules live in proguard-rules.pro; the CI
+            // pipeline assembles an (unsigned) release build on every PR so
+            // shrinker issues surface before a release.
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -91,6 +96,9 @@ dependencies {
 
     // Vault biometric unlock (BiometricPrompt)
     implementation("androidx.biometric:biometric:1.1.0")
+
+    // System splash screen (12+) with backport for older Android versions (#22)
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
     // Image loading for local files & previews
     implementation("io.coil-kt:coil:2.6.0")

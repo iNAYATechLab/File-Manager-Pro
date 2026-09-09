@@ -115,13 +115,11 @@
     <string name="ops_copied_clipboard">%1$d item(s) copied to clipboard</string>
     <string name="ops_cut_clipboard">%1$d item(s) cut to clipboard</string>
     <string name="ops_pasted">Pasted %1$d item(s)</string>
-    <string name="ops_deleted">Deleted %1$d item(s)</string>
     <string name="ops_paste_self">Cannot paste into its own source folder</string>
     <string name="ops_created">Created %1$s</string>
     <string name="ops_extracted_to">Extracted to %1$s</string>
     <string name="ops_copying">Copying…</string>
     <string name="ops_moving">Moving…</string>
-    <string name="ops_deleting">Deleting…</string>
     <string name="ops_error_invalid_name">Invalid name</string>
     <string name="ops_error_name_exists">A file/folder with this name already exists</string>
     <string name="ops_error_cannot_create">Could not create</string>
@@ -257,7 +255,6 @@ Add Android/data, Android/obb or another folder above.</string>
     <string name="saf_props_location_fmt">Location: %1$s</string>
 
     <!-- Transfer (copy/move) with progress + conflicts -->
-    <string name="del_progress">Deleting…</string>
     <string name="xfer_copying">Copying…</string>
     <string name="xfer_moving">Moving…</string>
     <string name="xfer_cancelled">Operation cancelled</string>
@@ -328,4 +325,28 @@ Add Android/data, Android/obb or another folder above.</string>
     <string name="txt_open_failed">Could not read this file</string>
     <string name="txt_meta_fmt">%1$s • %2$s</string>
     <string name="txt_showing_head">(showing the beginning of a large file)</string>
+    <!-- Trash / Recycle Bin -->
+    <string name="trash_chip">Trash</string>
+    <string name="trash_empty">Trash is empty. Deleted files and folders stay here so you can restore them.</string>
+    <string name="trash_confirm_title">Move to Trash?</string>
+    <string name="trash_confirm_message">The selected items will be moved to Trash. They stay on your device until you empty the Trash.</string>
+    <string name="trash_confirm_ok">Move to Trash</string>
+    <string name="trash_op_progress">Moving to Trash…</string>
+    <string name="trash_moved_fmt">%1$d item(s) moved to Trash</string>
+    <string name="trash_failed_fmt">Could not move “%1$s” to Trash</string>
+    <string name="trash_partial_fmt">%1$d moved, %2$d failed</string>
+    <string name="trash_restore">Restore</string>
+    <string name="trash_restored_fmt">Restored “%1$s”</string>
+    <string name="trash_restore_failed_fmt">Could not restore “%1$s”</string>
+    <string name="trash_purge">Delete forever</string>
+    <string name="trash_purge_confirm_title">Delete permanently?</string>
+    <string name="trash_purge_confirm_message">“%1$s” will be permanently deleted. This cannot be undone.</string>
+    <string name="trash_purged_fmt">“%1$s” deleted permanently</string>
+    <string name="trash_purge_failed_fmt">Could not delete “%1$s”</string>
+    <string name="trash_empty_btn">Empty Trash</string>
+    <string name="trash_empty_confirm_title">Empty Trash?</string>
+    <string name="trash_empty_confirm_message">All items in Trash will be permanently deleted. This cannot be undone.</string>
+    <string name="trash_empty_done">Trash emptied</string>
+    <string name="trash_empty_failed_fmt">%1$d item(s) could not be deleted</string>
+    <string name="trash_sub_fmt">%1$s • Trashed %2$s</string>
 </resources>

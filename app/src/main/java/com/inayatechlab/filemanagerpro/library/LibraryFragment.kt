@@ -19,6 +19,8 @@ import com.inayatechlab.filemanagerpro.browse.FileOpsComparator
 import com.inayatechlab.filemanagerpro.databinding.FragmentLibraryBinding
 import com.inayatechlab.filemanagerpro.model.FileEntry
 import com.inayatechlab.filemanagerpro.model.LibraryStore
+import com.inayatechlab.filemanagerpro.model.TrashStore
+import com.inayatechlab.filemanagerpro.ops.TrashOps
 import com.inayatechlab.filemanagerpro.preview.PreviewActivity
 import com.inayatechlab.filemanagerpro.textviewer.TextActivity
 import com.inayatechlab.filemanagerpro.util.Dialogs
@@ -33,9 +35,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * Quick access (core, beta scope): Favorites, Recent files and Downloads
- * in one place. Covers the master list's Quick Access / Recent Files /
- * Favorite Files & Folders / Downloads shortcut rows.
+ * Quick access (core, beta scope): Favorites, Recent files, Downloads and
+ * the Trash (recycle bin) in one place. Covers the master list's Quick
+ * Access / Recent Files / Favorite Files & Folders / Downloads shortcut /
+ * Trash rows.
  */
 class LibraryFragment : Fragment() {
 
@@ -46,7 +49,8 @@ class LibraryFragment : Fragment() {
     private enum class Section(@Suppress("unused") val chipId: Int, val emptyRes: Int) {
         FAVORITES(R.id.chipFavorites, R.string.lib_empty_favorites),
         RECENT(R.id.chipRecents, R.string.lib_empty_recent),
-        DOWNLOADS(R.id.chipDownloads, R.string.lib_empty_downloads)
+        DOWNLOADS(R.id.chipDownloads, R.string.lib_empty_downloads),
+        TRASH(R.id.chipTrash, R.string.trash_empty)
     }
 
     private var _binding: FragmentLibraryBinding? = null
@@ -54,7 +58,8 @@ class LibraryFragment : Fragment() {
     private val scope get() = viewLifecycleOwner.lifecycleScope
 
     private var current = Section.FAVORITES
-    private var adapter: FileAdapter? = null
+    private var fileAdapter: FileAdapter? = null
+    private var trashAdapter: TrashAdapter? = null
     private val loading = AtomicBoolean(false)
 
     private val storeDir: File get() = LibraryStore.storeDir(requireContext().filesDir)
@@ -67,15 +72,20 @@ class LibraryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
-        adapter = FileAdapter(isGrid = false, selectable = false).apply {
+        fileAdapter = FileAdapter(isGrid = false, selectable = false).apply {
             onItemClick = { openEntry(it) }
             onItemMenu = { showItemActions(it) }
         }
-        binding.recycler.adapter = adapter
+        trashAdapter = TrashAdapter().apply {
+            onItemClick = { showTrashItemActions(it) }
+        }
+        binding.recycler.adapter = fileAdapter
 
         binding.chipFavorites.setOnClickListener { select(Section.FAVORITES) }
         binding.chipRecents.setOnClickListener { select(Section.RECENT) }
         binding.chipDownloads.setOnClickListener { select(Section.DOWNLOADS) }
+        binding.chipTrash.setOnClickListener { select(Section.TRASH) }
+        binding.btnEmptyTrash.setOnClickListener { confirmEmptyTrash() }
         refreshChipState()
     }
 
@@ -112,6 +122,8 @@ class LibraryFragment : Fragment() {
         b.chipFavorites.isChecked = current == Section.FAVORITES
         b.chipRecents.isChecked = current == Section.RECENT
         b.chipDownloads.isChecked = current == Section.DOWNLOADS
+        b.chipTrash.isChecked = current == Section.TRASH
+        b.btnEmptyTrash.isVisible = current == Section.TRASH
     }
 
     private fun load() {
@@ -131,13 +143,22 @@ class LibraryFragment : Fragment() {
         scope.launch {
             try {
                 val section = current
+                val ctx = requireContext()
                 val dir = storeDir
-                val rows = withContext(Dispatchers.IO) { rowsFor(section, dir) }
+                val rows = withContext(Dispatchers.IO) { rowsFor(section, ctx, dir) }
                 val bb = _binding
                 if (bb == null) return@launch
                 bb.progress.isVisible = false
-                adapter?.entries = rows.toMutableList()
-                adapter?.notifyDataSetChanged()
+                when (section) {
+                    Section.TRASH -> {
+                        bb.recycler.adapter = trashAdapter
+                        trashAdapter?.items = (rows as List<TrashStore.Item>).toMutableList()
+                    }
+                    else -> {
+                        bb.recycler.adapter = fileAdapter
+                        fileAdapter?.entries = (rows as List<FileEntry>).toMutableList()
+                    }
+                }
                 bb.tvEmpty.isVisible = rows.isEmpty()
                 bb.tvEmpty.text = getString(section.emptyRes)
             } finally {
@@ -146,24 +167,29 @@ class LibraryFragment : Fragment() {
         }
     }
 
-    /** Builds the FileEntry list for a section (IO thread). */
-    private fun rowsFor(section: Section, dir: File): List<FileEntry> {
-        val out = mutableListOf<FileEntry>()
-        when (section) {
+    /** Builds the row list for a section (IO thread). */
+    @Suppress("UNCHECKED_CAST")
+    private suspend fun rowsFor(section: Section, ctx: android.content.Context, dir: File): List<Any> {
+        val out = when (section) {
             Section.FAVORITES -> {
+                val rows = mutableListOf<FileEntry>()
                 for (item in LibraryStore.favorites(dir)) {
                     val f = File(item.path)
                     val ok = if (item.isDir) f.isDirectory else f.isFile
-                    if (ok) out.add(LibraryStore.toFileEntry(item))
+                    if (ok) rows.add(LibraryStore.toFileEntry(item))
                 }
+                rows
             }
             Section.RECENT -> {
+                val rows = mutableListOf<FileEntry>()
                 for (item in LibraryStore.recents(dir)) {
                     val f = File(item.path)
-                    if (f.isFile) out.add(LibraryStore.toFileEntry(item))
+                    if (f.isFile) rows.add(LibraryStore.toFileEntry(item))
                 }
+                rows
             }
             Section.DOWNLOADS -> {
+                val rows = mutableListOf<FileEntry>()
                 val folders = mutableListOf<File>()
                 folders.add(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS))
                 StorageUtils.roots().forEach { root ->
@@ -178,14 +204,16 @@ class LibraryFragment : Fragment() {
                         .take(60)
                         .forEach { f ->
                             if (seen.add(f.path)) {
-                                out.add(FileEntry(f.name, f.path, false, f.length(), f.lastModified()))
+                                rows.add(FileEntry(f.name, f.path, false, f.length(), f.lastModified()))
                             }
                         }
                 }
-                out.sortWith(FileOpsComparator.comparator(1, false))
+                rows.sortWith(FileOpsComparator.comparator(1, false))
+                rows
             }
+            Section.TRASH -> TrashOps.items(ctx)
         }
-        return out
+        return out as List<Any>
     }
 
     // ---------------------------------------------------------------- opening
@@ -202,7 +230,7 @@ class LibraryFragment : Fragment() {
         val ctx = requireContext()
         LibraryStore.addRecent(storeDir, entry)
         if (FileCat.of(entry) == FileCat.IMAGE) {
-            val images = (adapter?.entries ?: emptyList())
+            val images = (fileAdapter?.entries ?: emptyList())
                 .filter { FileCat.of(it) == FileCat.IMAGE }
                 .map { it.path }
             val index = images.indexOf(entry.path).coerceAtLeast(0)
@@ -218,7 +246,7 @@ class LibraryFragment : Fragment() {
         }
     }
 
-    // ---------------------------------------------------------------- actions
+    // ---------------------------------------------------------------- file actions
 
     private fun showItemActions(entry: FileEntry) {
         val ctx = requireContext()
@@ -234,6 +262,7 @@ class LibraryFragment : Fragment() {
             Section.DOWNLOADS -> {
                 actions += getString(R.string.action_add_favorite)
             }
+            Section.TRASH -> Unit
         }
         actions += getString(R.string.action_share)
         actions += getString(R.string.action_properties)
@@ -256,6 +285,7 @@ class LibraryFragment : Fragment() {
                             Section.FAVORITES -> which - 1
                             Section.RECENT -> which - 2
                             Section.DOWNLOADS -> which - 1
+                            Section.TRASH -> which - 1
                         }
                         if (relWhich == 0) {
                             if (!OpenUtils.share(ctx, listOf(entry))) snack(getString(R.string.no_app_found))
@@ -263,6 +293,72 @@ class LibraryFragment : Fragment() {
                             Dialogs.properties(ctx, entry, scope)
                         }
                     }
+                }
+            }
+            .show()
+    }
+
+    // ---------------------------------------------------------------- trash actions
+
+    private fun showTrashItemActions(item: TrashStore.Item) {
+        val ctx = requireContext()
+        MaterialAlertDialogBuilder(ctx)
+            .setTitle(item.name)
+            .setItems(
+                arrayOf(getString(R.string.trash_restore), getString(R.string.trash_purge))
+            ) { _, which ->
+                when (which) {
+                    0 -> confirmRestore(item)
+                    1 -> confirmPurge(item)
+                }
+            }
+            .show()
+    }
+
+    private fun confirmRestore(item: TrashStore.Item) {
+        scope.launch {
+            val ok = TrashOps.restore(requireContext(), item)
+            if (ok) {
+                snack(getString(R.string.trash_restored_fmt, item.name))
+                load()
+            } else {
+                snack(getString(R.string.trash_restore_failed_fmt, item.name))
+            }
+        }
+    }
+
+    private fun confirmPurge(item: TrashStore.Item) {
+        val ctx = requireContext()
+        MaterialAlertDialogBuilder(ctx)
+            .setTitle(R.string.trash_purge_confirm_title)
+            .setMessage(getString(R.string.trash_purge_confirm_message, item.name))
+            .setNegativeButton(R.string.action_cancel, null)
+            .setPositiveButton(R.string.trash_purge) { _, _ ->
+                scope.launch {
+                    val ok = TrashOps.purge(ctx, item)
+                    if (ok) {
+                        snack(getString(R.string.trash_purged_fmt, item.name))
+                        load()
+                    } else {
+                        snack(getString(R.string.trash_purge_failed_fmt, item.name))
+                    }
+                }
+            }
+            .show()
+    }
+
+    private fun confirmEmptyTrash() {
+        val ctx = requireContext()
+        MaterialAlertDialogBuilder(ctx)
+            .setTitle(R.string.trash_empty_confirm_title)
+            .setMessage(R.string.trash_empty_confirm_message)
+            .setNegativeButton(R.string.action_cancel, null)
+            .setPositiveButton(R.string.trash_empty_btn) { _, _ ->
+                scope.launch {
+                    val failed = TrashOps.empty(ctx)
+                    if (failed == 0) snack(getString(R.string.trash_empty_done))
+                    else snack(getString(R.string.trash_empty_failed_fmt, failed))
+                    load()
                 }
             }
             .show()

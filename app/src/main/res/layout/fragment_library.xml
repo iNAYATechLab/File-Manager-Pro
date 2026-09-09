@@ -47,8 +47,33 @@
                 android:text="@string/lib_chip_downloads"
                 app:checkedIconVisible="false"
                 app:chipIcon="@drawable/ic_download" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipTrash"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@string/trash_chip"
+                app:checkedIconVisible="false"
+                app:chipIcon="@drawable/ic_delete" />
         </LinearLayout>
     </HorizontalScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnEmptyTrash"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="2dp"
+        android:minHeight="32dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:text="@string/trash_empty_btn"
+        app:icon="@drawable/ic_delete"
+        app:iconGravity="textStart"
+        android:visibility="gone" />
 
     <FrameLayout
         android:layout_width="match_parent"

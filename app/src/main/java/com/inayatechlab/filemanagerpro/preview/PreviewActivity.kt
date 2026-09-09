@@ -16,7 +16,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.inayatechlab.filemanagerpro.R
 import com.inayatechlab.filemanagerpro.databinding.ActivityPreviewBinding
 import com.inayatechlab.filemanagerpro.model.FileEntry
-import com.inayatechlab.filemanagerpro.ops.FileOps
+import com.inayatechlab.filemanagerpro.ops.TrashOps
 import com.inayatechlab.filemanagerpro.util.Dialogs
 import com.inayatechlab.filemanagerpro.util.OpenUtils
 import java.io.File
@@ -250,10 +250,10 @@ class PreviewActivity : AppCompatActivity() {
         if (images.isEmpty()) return
         val entry = currentEntry()
         MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.dialog_delete_title)
-            .setMessage(entry.name)
+            .setTitle(R.string.trash_confirm_title)
+            .setMessage(getString(R.string.trash_confirm_message) + "\n\n" + entry.name)
             .setNegativeButton(R.string.action_cancel, null)
-            .setPositiveButton(R.string.action_delete_confirm) { _, _ ->
+            .setPositiveButton(R.string.trash_confirm_ok) { _, _ ->
                 deleteCurrent()
             }
             .show()
@@ -262,9 +262,9 @@ class PreviewActivity : AppCompatActivity() {
     private fun deleteCurrent() {
         val entry = currentEntry()
         val path = entry.path
-        val dlg = Dialogs.showProgress(this, getString(R.string.del_progress))
+        val dlg = Dialogs.showProgress(this, getString(R.string.trash_op_progress))
         scope.launch {
-            val result = FileOps.delete(listOf(entry))
+            val result = TrashOps.move(this@PreviewActivity, listOf(entry))
             dlg.dismiss()
             if (result.failed == 0) {
                 adapter.rotations.remove(path)

@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.0](https://github.com/iNAYATechLab/File-Manager-Pro/compare/v0.2.0...v0.3.0) (2026-09-09)
+
+
+### Features
+
+* **saf:** browse protected folders via Storage Access Framework ([#21](https://github.com/iNAYATechLab/File-Manager-Pro/issues/21)) ([fbe146a](https://github.com/iNAYATechLab/File-Manager-Pro/commit/fbe146a35d2c65071d1e945a91acbb6ab3467851))
+* **search/ops/preview:** search filters & scope, transfer progress+conflicts, multi-format extraction, zoomable viewer, Espresso smoke test ([de6a950](https://github.com/iNAYATechLab/File-Manager-Pro/commit/de6a950b98c22e7b9221cb7643a0d53ff43237a2)), closes [#15](https://github.com/iNAYATechLab/File-Manager-Pro/issues/15) [#16](https://github.com/iNAYATechLab/File-Manager-Pro/issues/16) [#17](https://github.com/iNAYATechLab/File-Manager-Pro/issues/17) [#18](https://github.com/iNAYATechLab/File-Manager-Pro/issues/18) [#19](https://github.com/iNAYATechLab/File-Manager-Pro/issues/19)
+* Settings (sort, language, about) + hidden toggle + UI-text localization ([#12](https://github.com/iNAYATechLab/File-Manager-Pro/issues/12)–[#14](https://github.com/iNAYATechLab/File-Manager-Pro/issues/14)) ([#26](https://github.com/iNAYATechLab/File-Manager-Pro/issues/26)) ([7697870](https://github.com/iNAYATechLab/File-Manager-Pro/commit/76978707fb2b99abbbf6a1c951125a8cf8207324))
+* **vault:** encrypted private vault with biometric unlock ([#20](https://github.com/iNAYATechLab/File-Manager-Pro/issues/20)) ([07e6ac5](https://github.com/iNAYATechLab/File-Manager-Pro/commit/07e6ac503912b2b931d5aa380d6f02c4293cd42f))
+
 ## [0.2.0](https://github.com/iNAYATechLab/File-Manager-Pro/compare/v0.1.3...v0.2.0) (2026-09-08)
 
 

@@ -130,8 +130,13 @@ object TrashStore {
     // ---------------------------------------------------------------- io
 
     private fun newId(path: String): String {
+        // Path + timestamp + randomness: two trashes of the same path within
+        // the same millisecond must still get distinct ids.
         val digest = MessageDigest.getInstance("SHA-1")
-            .digest(path.toByteArray(Charsets.UTF_8))
+            .digest(
+                (path + "#" + java.lang.Long.toHexString(System.currentTimeMillis()) + "#" +
+                    kotlin.random.Random.nextLong()).toByteArray(Charsets.UTF_8)
+            )
             .take(8)
             .joinToString("") { "%02x".format(it) }
         val ts = java.lang.Long.toHexString(System.currentTimeMillis())

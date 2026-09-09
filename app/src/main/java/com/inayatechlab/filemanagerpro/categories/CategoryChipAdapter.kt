@@ -20,6 +20,16 @@ class CategoryChipAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder =
         Holder(ItemCategoryBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
+    /** Programmatic selection (drawer deep links). */
+    fun select(position: Int) {
+        if (position == selected || position !in cats.indices) return
+        val old = selected
+        selected = position
+        notifyItemChanged(old)
+        notifyItemChanged(position)
+        onSelect(cats[position])
+    }
+
     override fun getItemCount(): Int = cats.size
 
     override fun onBindViewHolder(holder: Holder, position: Int) {

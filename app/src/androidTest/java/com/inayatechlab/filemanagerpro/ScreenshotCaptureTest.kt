@@ -176,7 +176,7 @@ class ScreenshotCaptureTest {
             ActivityScenario.launch(MainActivity::class.java).use { sc ->
                 sleepMs(3500)
                 sc.onActivity { act ->
-                    click(act, act.window.decorView.byId(R.id.nav_categories))
+                    click(act, act.window.decorView.byId(R.id.drowImages))
                 }
                 sleepMs(2500)
                 shot("04-categories")
@@ -188,7 +188,7 @@ class ScreenshotCaptureTest {
             ActivityScenario.launch(MainActivity::class.java).use { sc ->
                 sleepMs(3500)
                 sc.onActivity { act ->
-                    click(act, act.window.decorView.byId(R.id.nav_library))
+                    click(act, act.window.decorView.byId(R.id.drowFavorites))
                 }
                 sleepMs(2200)
                 sc.onActivity { act ->

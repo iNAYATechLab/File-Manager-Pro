@@ -49,6 +49,8 @@ class CategoriesFragment : Fragment() {
     private var adapter: FileAdapter? = null
     private var currentCat = MediaCat.IMAGES
     private var chipAdapter: CategoryChipAdapter? = null
+    /** Category requested before the view existed (drawer deep link). */
+    private var pendingCat: MediaCat? = null
     private var scanJob: Job? = null
     private val scanning = AtomicBoolean(false)
 
@@ -65,6 +67,8 @@ class CategoriesFragment : Fragment() {
             loadCategory()
         }
         binding.chipRecycler.adapter = chipAdapter
+        pendingCat?.let { applyCategory(it) }
+        pendingCat = null
 
         adapter = FileAdapter(isGrid = false, selectable = false).apply {
             onItemClick = { openEntry(it) }
@@ -100,6 +104,28 @@ class CategoriesFragment : Fragment() {
         super.onDestroyView()
     }
 
+    /** Deep link from the drawer: jump to a specific category. */
+    fun selectCategory(cat: MediaCat) {
+        if (_binding == null) {
+            pendingCat = cat
+            return
+        }
+        applyCategory(cat)
+    }
+
+    private fun applyCategory(cat: MediaCat) {
+        currentCat = cat
+        val idx = MediaCat.values().indexOf(cat)
+        if (idx >= 0) chipAdapter?.select(idx)
+        if (scanning.getAndSet(true)) {
+            // An older scan may still be finishing for a different category:
+            // cancel it and release the flag so a fresh scan starts now.
+            scanJob?.cancel()
+            scanning.set(false)
+        }
+        loadCategory()
+    }
+
     private fun loadCategory() {
         val b = _binding ?: return
         val ctx = requireContext()
@@ -128,6 +154,7 @@ class CategoriesFragment : Fragment() {
                 }
                 val b1 = _binding
                 if (b1 == null) return@launch
+                if (cat != currentCat) return@launch // stale scan for a previous category
                 b1.progress.isVisible = false
                 adapter?.entries = result.toMutableList()
                 b1.tvEmpty.isVisible = result.isEmpty()

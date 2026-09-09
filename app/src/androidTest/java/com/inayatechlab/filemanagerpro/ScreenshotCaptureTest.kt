@@ -116,7 +116,11 @@ class ScreenshotCaptureTest {
 
     private fun click(activity: Activity, target: View?) {
         requireNotNull(target) { "target view not found in ${activity.javaClass.simpleName}" }
-        target.performClick()
+        // Ascend to the first clickable ancestor: row listeners live on the
+        // item root, not on the inner text view Espresso-style matchers see.
+        var v: View = target
+        while (!v.isClickable && v.parent is View) v = v.parent as View
+        v.performClick()
     }
 
     @Test

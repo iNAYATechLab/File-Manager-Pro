@@ -113,7 +113,7 @@
                         android:background="@drawable/bg_logo_tile"
                         android:contentDescription="@string/app_name"
                         android:padding="10dp"
-                        android:src="@mipmap/ic_launcher_foreground"
+                        android:src="@drawable/ic_folder"
                         app:tint="@android:color/white" />
 
                     <LinearLayout

@@ -33,7 +33,10 @@ class ScreenshotCaptureTest {
 
     private val ctx: Context = ApplicationProvider.getApplicationContext()
     private val pkg = ctx.packageName
+    // Written twice: app external files (normal adb pull) and internal cache
+    // (always reachable via `run-as` if the FUSE view of Android/data hides it).
     private val outDir: File = File(ctx.getExternalFilesDir(null), "screenshots")
+    private val cacheDir: File = File(ctx.cacheDir, "screenshots")
 
     private fun grant() {
         val ui = InstrumentationRegistry.getInstrumentation().uiAutomation
@@ -48,6 +51,10 @@ class ScreenshotCaptureTest {
         outDir.mkdirs()
         val bmp: Bitmap = InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
         FileOutputStream(File(outDir, "$name.png")).use { out ->
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, out)
+        }
+        cacheDir.mkdirs()
+        FileOutputStream(File(cacheDir, "$name.png")).use { out ->
             bmp.compress(Bitmap.CompressFormat.PNG, 100, out)
         }
         bmp.recycle()

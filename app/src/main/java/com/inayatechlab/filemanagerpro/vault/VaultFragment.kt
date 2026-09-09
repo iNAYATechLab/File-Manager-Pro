@@ -19,7 +19,9 @@ import com.inayatechlab.filemanagerpro.R
 import com.inayatechlab.filemanagerpro.databinding.FragmentVaultBinding
 import com.inayatechlab.filemanagerpro.preview.PreviewActivity
 import com.inayatechlab.filemanagerpro.util.Dialogs
+import com.inayatechlab.filemanagerpro.textviewer.TextActivity
 import com.inayatechlab.filemanagerpro.util.FormatUtils
+import com.inayatechlab.filemanagerpro.util.TextFiles
 import com.inayatechlab.filemanagerpro.util.OpenUtils
 import com.inayatechlab.filemanagerpro.util.StorageUtils
 import java.io.File
@@ -417,6 +419,8 @@ class VaultFragment : Fragment() {
                         .putStringArrayListExtra(PreviewActivity.EXTRA_PATHS, arrayListOf(f.path))
                         .putExtra(PreviewActivity.EXTRA_INDEX, 0)
                 )
+            } else if (TextFiles.isTextFile(f.name)) {
+                TextActivity.start(ctx, f)
             } else if (!OpenUtils.openExternal(ctx, f)) {
                 snack(getString(R.string.no_app_found))
             }

@@ -23,6 +23,7 @@ import com.inayatechlab.filemanagerpro.R
 import com.inayatechlab.filemanagerpro.databinding.FragmentBrowseBinding
 import com.inayatechlab.filemanagerpro.model.ClipboardBus
 import com.inayatechlab.filemanagerpro.model.FileEntry
+import com.inayatechlab.filemanagerpro.model.LibraryStore
 import com.inayatechlab.filemanagerpro.model.PathCrumb
 import com.inayatechlab.filemanagerpro.ops.ConflictPolicy
 import com.inayatechlab.filemanagerpro.ops.Extractor
@@ -35,11 +36,13 @@ import com.inayatechlab.filemanagerpro.preview.PreviewActivity
 import com.inayatechlab.filemanagerpro.saf.SafBrowserActivity
 import com.inayatechlab.filemanagerpro.saf.SafGrants
 import com.inayatechlab.filemanagerpro.search.SearchActivity
+import com.inayatechlab.filemanagerpro.textviewer.TextActivity
 import com.inayatechlab.filemanagerpro.settings.SettingsActivity
 import com.inayatechlab.filemanagerpro.util.Dialogs
 import com.inayatechlab.filemanagerpro.util.OpProgressDialog
 import com.inayatechlab.filemanagerpro.util.FileCat
 import com.inayatechlab.filemanagerpro.util.OpenUtils
+import com.inayatechlab.filemanagerpro.util.TextFiles
 import com.inayatechlab.filemanagerpro.util.SettingsStore
 import com.inayatechlab.filemanagerpro.util.StorageRoot
 import com.inayatechlab.filemanagerpro.util.StorageUtils
@@ -403,6 +406,11 @@ class BrowseFragment : Fragment() {
                 }
                 R.id.action_vault -> {
                     addSelectionToVault(selected)
+                    mode.finish()
+                    true
+                }
+                R.id.action_favorite -> {
+                    addSelectionToFavorites(selected)
                     mode.finish()
                     true
                 }
@@ -919,6 +927,7 @@ class BrowseFragment : Fragment() {
             navigateInto(entry.file)
             return
         }
+        LibraryStore.addRecent(LibraryStore.storeDir(requireContext().filesDir), entry)
         if (FileCat.of(entry) == FileCat.IMAGE) {
             val images = (adapter?.entries ?: emptyList())
                 .filter { FileCat.of(it) == FileCat.IMAGE }
@@ -929,9 +938,19 @@ class BrowseFragment : Fragment() {
                     .putStringArrayListExtra(PreviewActivity.EXTRA_PATHS, ArrayList(images))
                     .putExtra(PreviewActivity.EXTRA_INDEX, index)
             )
+        } else if (TextFiles.isTextFile(entry.name)) {
+            TextActivity.start(requireContext(), entry.file)
         } else if (!OpenUtils.openExternal(requireContext(), entry.file)) {
             snack(getString(R.string.no_app_found))
         }
+    }
+
+    /** Adds the selected items to the favorites list. */
+    private fun addSelectionToFavorites(selected: List<FileEntry>) {
+        if (selected.isEmpty()) return
+        val storeDir = LibraryStore.storeDir(requireContext().filesDir)
+        selected.forEach { LibraryStore.addFavorite(storeDir, it) }
+        snack(getString(R.string.lib_fav_added_fmt, selected.size))
     }
 
     private fun snack(text: String) {

@@ -148,6 +148,8 @@ class SearchActivity : AppCompatActivity() {
                     )
                     .putExtra(com.inayatechlab.filemanagerpro.preview.PreviewActivity.EXTRA_INDEX, index)
             )
+        } else if (com.inayatechlab.filemanagerpro.util.TextFiles.isTextFile(entry.name)) {
+            com.inayatechlab.filemanagerpro.textviewer.TextActivity.start(this, entry.file)
         } else if (!OpenUtils.openExternal(this, entry.file)) {
             binding.tvEmpty.isVisible = true
             binding.tvEmpty.text = getString(R.string.no_app_found)

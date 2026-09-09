@@ -18,12 +18,15 @@ import com.inayatechlab.filemanagerpro.browse.FileAdapter
 import com.inayatechlab.filemanagerpro.browse.FileOpsComparator
 import com.inayatechlab.filemanagerpro.databinding.FragmentCategoriesBinding
 import com.inayatechlab.filemanagerpro.model.FileEntry
+import com.inayatechlab.filemanagerpro.model.LibraryStore
 import com.inayatechlab.filemanagerpro.ops.FileOps
 import com.inayatechlab.filemanagerpro.preview.PreviewActivity
 import com.inayatechlab.filemanagerpro.util.Dialogs
 import com.inayatechlab.filemanagerpro.util.FileCat
 import com.inayatechlab.filemanagerpro.util.MediaCat
+import com.inayatechlab.filemanagerpro.textviewer.TextActivity
 import com.inayatechlab.filemanagerpro.util.OpenUtils
+import com.inayatechlab.filemanagerpro.util.TextFiles
 import com.inayatechlab.filemanagerpro.util.Scanner
 import com.inayatechlab.filemanagerpro.util.StorageUtils
 import java.util.concurrent.atomic.AtomicBoolean
@@ -140,6 +143,7 @@ class CategoriesFragment : Fragment() {
 
     private fun openEntry(entry: FileEntry) {
         if (entry.isDir) return // categories only list files
+        LibraryStore.addRecent(LibraryStore.storeDir(requireContext().filesDir), entry)
         if (FileCat.of(entry) == FileCat.IMAGE) {
             val images = (adapter?.entries ?: emptyList())
                 .filter { FileCat.of(it) == FileCat.IMAGE }
@@ -150,6 +154,8 @@ class CategoriesFragment : Fragment() {
                     .putStringArrayListExtra(PreviewActivity.EXTRA_PATHS, ArrayList(images))
                     .putExtra(PreviewActivity.EXTRA_INDEX, index)
             )
+        } else if (TextFiles.isTextFile(entry.name)) {
+            TextActivity.start(requireContext(), entry.file)
         } else if (!OpenUtils.openExternal(requireContext(), entry.file)) {
             snack(getString(R.string.no_app_found))
         }

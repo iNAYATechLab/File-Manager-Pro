@@ -15,10 +15,16 @@ object SettingsStore {
     const val SORT_DATE = 1
     const val SORT_SIZE = 2
     const val SORT_TYPE = 3
+    const val SORT_EXT = 4
+    const val SORT_CREATED = 5
 
     fun sortMode(context: Context): Int =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             .getInt("sort_mode", SORT_NAME)
+
+    fun foldersFirst(context: Context): Boolean =
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getBoolean("folders_first", true)
 
     fun sortAscending(context: Context): Boolean =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -38,6 +44,9 @@ object SettingsStore {
 
     fun setSortMode(context: Context, mode: Int) =
         edit(context).putInt("sort_mode", mode).apply()
+
+    fun setFoldersFirst(context: Context, foldersFirst: Boolean) =
+        edit(context).putBoolean("folders_first", foldersFirst).apply()
 
     fun setSortAscending(context: Context, asc: Boolean) =
         edit(context).putBoolean("sort_asc", asc).apply()

@@ -58,6 +58,16 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_open_with"
+        android:title="@string/action_open_with"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_select_type"
+        android:title="@string/action_select_type"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_share"
         android:title="@string/action_share"
         app:showAsAction="never" />

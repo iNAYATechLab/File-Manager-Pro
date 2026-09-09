@@ -349,4 +349,13 @@ Add Android/data, Android/obb or another folder above.</string>
     <string name="trash_empty_done">Trash emptied</string>
     <string name="trash_empty_failed_fmt">%1$d item(s) could not be deleted</string>
     <string name="trash_sub_fmt">%1$s • Trashed %2$s</string>
+    <!-- Selection helpers & open with -->
+    <string name="action_select_type">Select by type</string>
+    <string name="action_open_with">Open with…</string>
+    <string name="select_files">Files</string>
+    <string name="select_folders">Folders</string>
+    <!-- Sorting extras -->
+    <string name="action_sort_ext">Extension</string>
+    <string name="action_sort_created">Created</string>
+    <string name="sort_folders_first">Folders first</string>
 </resources>

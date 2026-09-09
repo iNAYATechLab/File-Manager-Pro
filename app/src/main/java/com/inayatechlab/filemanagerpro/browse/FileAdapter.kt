@@ -82,6 +82,20 @@ class FileAdapter(
         onSelectionChanged?.invoke()
     }
 
+    /** Selects (or unselects, when all matches are selected) entries matching [pred]. */
+    fun selectAllWhere(pred: (FileEntry) -> Boolean) {
+        val matching = entries.filter(pred)
+        if (matching.isEmpty()) return
+        val paths = matching.map { it.path }
+        if (paths.all { it in selected }) {
+            selected.removeAll(paths.toSet())
+        } else {
+            selected.addAll(paths)
+        }
+        notifyDataSetChanged()
+        onSelectionChanged?.invoke()
+    }
+
     fun selectedEntries(): List<FileEntry> =
         entries.filter { it.path in selected }
 

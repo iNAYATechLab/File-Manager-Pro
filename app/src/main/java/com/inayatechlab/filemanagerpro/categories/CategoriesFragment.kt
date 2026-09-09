@@ -162,18 +162,24 @@ class CategoriesFragment : Fragment() {
     }
 
     private fun showItemActions(entry: FileEntry) {
-        val options = arrayOf(
+        val actions = mutableListOf(
             getString(R.string.action_share),
-            getString(R.string.action_properties),
-            getString(R.string.action_delete)
+            getString(R.string.action_properties)
         )
+        if (!entry.isDir) actions += getString(R.string.action_open_with)
+        actions += getString(R.string.action_delete)
+        val openWithIndex = if (entry.isDir) -1 else 2
+        val deleteIndex = actions.lastIndex
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(entry.name)
-            .setItems(options) { _, which ->
+            .setItems(actions.toTypedArray()) { _, which ->
                 when (which) {
                     0 -> if (!OpenUtils.share(requireContext(), listOf(entry))) snack(getString(R.string.no_app_found))
                     1 -> Dialogs.properties(requireContext(), entry, scope)
-                    2 -> Dialogs.confirm(
+                    openWithIndex -> if (!OpenUtils.openWith(requireContext(), entry.file)) {
+                        snack(getString(R.string.no_app_found))
+                    }
+                    deleteIndex -> Dialogs.confirm(
                         requireContext(),
                         getString(R.string.trash_confirm_title),
                         getString(R.string.trash_confirm_message) + "\n\n" + entry.name,

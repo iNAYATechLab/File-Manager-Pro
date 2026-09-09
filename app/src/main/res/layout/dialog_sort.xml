@@ -43,6 +43,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/action_sort_type" />
+
+        <RadioButton
+            android:id="@+id/rbExt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/action_sort_ext" />
+
+        <RadioButton
+            android:id="@+id/rbCreated"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/action_sort_created" />
     </RadioGroup>
 
     <RadioGroup
@@ -93,4 +105,11 @@
             android:layout_weight="1"
             android:text="@string/action_view_grid" />
     </RadioGroup>
+
+    <CheckBox
+        android:id="@+id/chkFoldersFirst"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/sort_folders_first" />
 </LinearLayout>

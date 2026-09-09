@@ -51,6 +51,22 @@ object OpenUtils {
         }
     }
 
+    /** Lets the user pick any app for this file (explicit chooser). */
+    fun openWith(context: Context, file: File): Boolean {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uriFor(context, file), mimeFor(file))
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        val chooser = Intent.createChooser(
+            intent,
+            context.getString(com.inayatechlab.filemanagerpro.R.string.action_open_with)
+        )
+        return runCatching {
+            context.startActivity(chooser)
+            true
+        }.getOrDefault(false)
+    }
+
     fun share(context: Context, files: List<FileEntry>): Boolean {
         if (files.isEmpty()) return false
         val uris = files.map { uriFor(context, File(it.path)) }

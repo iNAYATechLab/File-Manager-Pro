@@ -1,25 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Brand palette -->
-    <color name="brand_primary">#1565C0</color>
-    <color name="brand_primary_dark">#0D47A1</color>
-    <color name="brand_secondary">#00838F</color>
-    <color name="brand_accent">#FFB300</color>
+    <!-- Design tokens - light palette (UI/Design mockup, values/)
+         Mockup mapping: bg, surface, surface2, chipbg, ink, ink2, muted,
+         accent, accent-dark, accent-soft, line.
+         values-night/colors.xml carries the dark twin of every token. -->
 
-    <!-- File type icon colors -->
-    <color name="file_folder">#FFB300</color>
-    <color name="file_image">#43A047</color>
-    <color name="file_audio">#8E24AA</color>
-    <color name="file_video">#E53935</color>
-    <color name="file_archive">#6D4C41</color>
-    <color name="file_pdf">#D84315</color>
-    <color name="file_doc">#1E88E5</color>
-    <color name="file_text">#546E7A</color>
-    <color name="file_apk">#00ACC1</color>
-    <color name="file_generic">#757575</color>
+    <!-- Brand palette (kept for compatibility; values follow ui_accent) -->
+    <color name="brand_primary">#2563EB</color>
+    <color name="brand_primary_dark">#1D4FD8</color>
+    <color name="brand_secondary">#1D4FD8</color>
+    <color name="brand_accent">#F3A83B</color>
+
+    <!-- UI surface tokens -->
+    <color name="ui_bg">#F2F4F8</color>
+    <color name="ui_surface">#FFFFFF</color>
+    <color name="ui_surface2">#F7F9FC</color>
+    <color name="ui_chip_bg">#EEF1F7</color>
+
+    <!-- Text/ink tokens -->
+    <color name="ui_ink">#1A1D24</color>
+    <color name="ui_ink2">#3D4450</color>
+    <color name="ui_muted">#8A919F</color>
+
+    <!-- Accent tokens -->
+    <color name="ui_accent">#2563EB</color>
+    <color name="ui_accent_dark">#1D4FD8</color>
+    <color name="ui_accent_soft">#E8EFFF</color>
+
+    <!-- Hairline/outline -->
+    <color name="ui_line">#E6E9EF</color>
+
+    <!-- File type icon colors (mockup folder/pdf/doc/...) -->
+    <color name="file_folder">#F3A83B</color>
+    <color name="file_image">#9A63D6</color>
+    <color name="file_audio">#F08C45</color>
+    <color name="file_video">#E261A0</color>
+    <color name="file_archive">#DCA236</color>
+    <color name="file_pdf">#E05543</color>
+    <color name="file_doc">#3F7FE6</color>
+    <color name="file_text">#7E8694</color>
+    <color name="file_apk">#4B72E0</color>
+    <color name="file_generic">#7E8694</color>
 
     <!-- UI helpers -->
     <color name="selection_tint">#331F6FEB</color>
     <color name="scrim_light">#66FFFFFF</color>
-    <color name="launcher_background">#1565C0</color>
+    <color name="launcher_background">#2563EB</color>
 </resources>

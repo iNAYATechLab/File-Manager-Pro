@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Design tokens - dark palette (UI/Design mockup, values-night/)
+         Dark twin of values/colors.xml; every token is overridden so the
+         same @color references flip with the system night mode. -->
+
+    <!-- Brand palette (values follow ui_accent) -->
+    <color name="brand_primary">#7AA2FF</color>
+    <color name="brand_primary_dark">#5B8CFF</color>
+    <color name="brand_secondary">#5B8CFF</color>
+    <color name="brand_accent">#FFCF6E</color>
+
+    <!-- UI surface tokens -->
+    <color name="ui_bg">#0F1217</color>
+    <color name="ui_surface">#171B23</color>
+    <color name="ui_surface2">#1E232D</color>
+    <color name="ui_chip_bg">#262C38</color>
+
+    <!-- Text/ink tokens -->
+    <color name="ui_ink">#E8EBF1</color>
+    <color name="ui_ink2">#B6BDC9</color>
+    <color name="ui_muted">#7D8594</color>
+
+    <!-- Accent tokens -->
+    <color name="ui_accent">#7AA2FF</color>
+    <color name="ui_accent_dark">#5B8CFF</color>
+    <color name="ui_accent_soft">#1B2A49</color>
+
+    <!-- Hairline/outline -->
+    <color name="ui_line">#262C37</color>
+
+    <!-- File type icon colors (mockup dark set) -->
+    <color name="file_folder">#FFCF6E</color>
+    <color name="file_image">#C7A2FF</color>
+    <color name="file_audio">#FFB27E</color>
+    <color name="file_video">#FF9CC9</color>
+    <color name="file_archive">#F0CB6E</color>
+    <color name="file_pdf">#FF8A7D</color>
+    <color name="file_doc">#8AB6FF</color>
+    <color name="file_text">#A7AEBD</color>
+    <color name="file_apk">#93B3FF</color>
+    <color name="file_generic">#A7AEBD</color>
+
+    <!-- UI helpers -->
+    <color name="selection_tint">#337AA2FF</color>
+    <color name="scrim_light">#26FFFFFF</color>
+    <color name="launcher_background">#2563EB</color>
+</resources>

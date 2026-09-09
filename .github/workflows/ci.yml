@@ -175,7 +175,21 @@ jobs:
       - name: Pull screenshots
         run: |
           mkdir -p artifacts
-          adb pull /sdcard/Android/data/com.inayatechlab.filemanagerpro/files/screenshots ./artifacts/ || true
+          for i in 1 2 3 4 5 6; do
+            state=$(adb get-state 2>/dev/null || echo offline)
+            if [ "$state" = "device" ]; then
+              if adb pull /sdcard/Android/data/com.inayatechlab.filemanagerpro/files/screenshots ./artifacts/; then
+                echo "PULL OK"
+                break
+              fi
+            else
+              adb reconnect offline || true
+              adb kill-server || true
+              adb start-server || true
+              adb wait-for-device || true
+            fi
+            sleep 15
+          done
           ls -laR artifacts
 
       - name: Upload screenshot artifact

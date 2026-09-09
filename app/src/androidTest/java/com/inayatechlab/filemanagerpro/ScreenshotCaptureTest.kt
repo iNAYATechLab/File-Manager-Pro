@@ -25,17 +25,19 @@ import org.junit.runners.JUnit4
 /**
  * Captures real emulator screenshots (not mockups) of the main app pages.
  *
- * Run from CI on an API 29 emulator with demo files pre-pushed to
- * /sdcard/Download (see .github/workflows/screenshots.yml). PNGs are written
- * to the app's external files dir so the workflow can `adb pull` them.
+ * Seed fixtures are pushed to /sdcard/Download by the "App screenshots"
+ * CI job before this test runs (see .github/workflows/ci.yml). PNGs are
+ * written to the app's external files dir, internal cache, and published
+ * through MediaStore to Pictures/FMP-Screenshots so the workflow can
+ * `adb pull` them (FUSE hides Android/data from the shell on API 29).
  */
 @RunWith(JUnit4::class)
 class ScreenshotCaptureTest {
 
     private val ctx: Context = ApplicationProvider.getApplicationContext()
     private val pkg = ctx.packageName
-    // Written twice: app external files (normal adb pull) and internal cache
-    // (always reachable via `run-as` if the FUSE view of Android/data hides it).
+    // Written thrice: app external files (convention), internal cache, and
+    // MediaStore Pictures (shell-readable public path).
     private val outDir: File = File(ctx.getExternalFilesDir(null), "screenshots")
     private val cacheDir: File = File(ctx.cacheDir, "screenshots")
 
@@ -73,7 +75,7 @@ class ScreenshotCaptureTest {
             }
         }.onFailure { android.util.Log.e("Screenshots", "MediaStore publish failed: $name", it) }
         bmp.recycle()
-        android.util.Log.i("Screenshots", "saved $name.png -> ${outDir.absolutePath}")
+        android.util.Log.i("Screenshots", "saved $name.png")
     }
 
     private fun sleepMs(ms: Long) = Thread.sleep(ms)
@@ -88,49 +90,68 @@ class ScreenshotCaptureTest {
         }
     }
 
+    /** Slow emulators can delay window focus; retry espresso interactions. */
+    private fun retryEspresso(name: String, block: () -> Unit) {
+        var last: Throwable? = null
+        repeat(5) {
+            try {
+                block()
+                return
+            } catch (t: Throwable) {
+                last = t
+                sleepMs(2500)
+            }
+        }
+        throw last ?: RuntimeException("interaction failed: $name")
+    }
+
     @Test
     fun captureAllPages() {
-        android.util.Log.i("Screenshots", "pkg=$pkg outDir=${outDir.absolutePath} cacheDir=${cacheDir.absolutePath}")
         // Only runs when the screenshots workflow passes the flag; the normal
         // CI emulator suite must stay fast and seed-free.
         val args = InstrumentationRegistry.getArguments()
         Assume.assumeTrue(
-            "capture disabled outside .github/workflows/screenshots.yml",
+            "capture disabled outside the app-screenshots CI job",
             args.getString("screenshots") == "true"
         )
         grant()
+        android.util.Log.i(
+            "Screenshots",
+            "pkg=$pkg outDir=${outDir.absolutePath} cacheDir=${cacheDir.absolutePath}"
+        )
+        val downloadPath = "/storage/emulated/0/Download"
 
         // ---- 1. Storage home (quick access chips + volume cards) ------------
-        ActivityScenario.launch(MainActivity::class.java).use {
-            sleepMs(4000)
-            shot("01-storage-home")
+        step("storage home shot") {
+            ActivityScenario.launch(MainActivity::class.java).use {
+                sleepMs(4500)
+                shot("01-storage-home")
+            }
         }
 
-        // ---- 2/3/5. Browse Downloads folder, text viewer, library -----------
-        val downloadPath = "/storage/emulated/0/Download"
-        ActivityScenario.launch<MainActivity>(
-            Intent(ctx, MainActivity::class.java)
-                .putExtra(MainActivity.EXTRA_OPEN_PATH, downloadPath)
-        ).use {
-            sleepMs(3500)
-            shot("02-folder-downloads")
+        // ---- 2. Downloads folder (opened through the deep-link extra) -------
+        step("downloads folder shot") {
+            ActivityScenario.launch<MainActivity>(
+                Intent(ctx, MainActivity::class.java)
+                    .putExtra(MainActivity.EXTRA_OPEN_PATH, downloadPath)
+            ).use {
+                sleepMs(3500)
+                shot("02-folder-downloads")
+            }
+        }
 
-            // tap the guide.md row -> in-app text viewer
-            step("text viewer shot") {
-                onView(ViewMatchers.withText("guide.md")).perform(ViewActions.click())
+        // ---- 3. Text viewer on guide.md -------------------------------------
+        step("text viewer shot") {
+            ActivityScenario.launch<MainActivity>(
+                Intent(ctx, MainActivity::class.java)
+                    .putExtra(MainActivity.EXTRA_OPEN_PATH, downloadPath)
+            ).use {
+                sleepMs(3000)
+                retryEspresso("tap guide.md row") {
+                    onView(ViewMatchers.withText("guide.md")).perform(ViewActions.click())
+                }
                 sleepMs(2500)
                 shot("03-text-viewer")
-                Espresso.pressBack()
-                sleepMs(1200)
-            }
-
-            step("library downloads shot") {
-                onView(ViewMatchers.withId(R.id.nav_library)).perform(ViewActions.click())
-                sleepMs(1800)
-                onView(ViewMatchers.withId(R.id.chipDownloads)).perform(ViewActions.click())
-                sleepMs(2200)
-                shot("05-library-downloads")
-                onView(ViewMatchers.withId(R.id.nav_storage)).perform(ViewActions.click())
             }
         }
 
@@ -138,9 +159,27 @@ class ScreenshotCaptureTest {
         step("categories shot") {
             ActivityScenario.launch(MainActivity::class.java).use {
                 sleepMs(3000)
-                onView(ViewMatchers.withId(R.id.nav_categories)).perform(ViewActions.click())
+                retryEspresso("open categories tab") {
+                    onView(ViewMatchers.withId(R.id.nav_categories)).perform(ViewActions.click())
+                }
                 sleepMs(2500)
                 shot("04-categories")
+            }
+        }
+
+        // ---- 5. Library tab + Downloads quick-access chip -------------------
+        step("library downloads shot") {
+            ActivityScenario.launch(MainActivity::class.java).use {
+                sleepMs(3000)
+                retryEspresso("open library tab") {
+                    onView(ViewMatchers.withId(R.id.nav_library)).perform(ViewActions.click())
+                }
+                sleepMs(1800)
+                retryEspresso("tap Downloads chip") {
+                    onView(ViewMatchers.withId(R.id.chipDownloads)).perform(ViewActions.click())
+                }
+                sleepMs(2200)
+                shot("05-library-downloads")
             }
         }
 
@@ -150,9 +189,12 @@ class ScreenshotCaptureTest {
                 Intent(ctx, SearchActivity::class.java)
                     .putExtra(SearchActivity.EXTRA_ROOT, downloadPath)
             ).use {
-                sleepMs(1500)
-                onView(ViewMatchers.withId(R.id.etQuery)).perform(ViewActions.replaceText("guide"))
-                Espresso.closeSoftKeyboard()
+                sleepMs(2000)
+                retryEspresso("type in query box") {
+                    onView(ViewMatchers.withId(R.id.etQuery)).perform(ViewActions.replaceText("guide"))
+                }
+                sleepMs(1200)
+                runCatching { Espresso.closeSoftKeyboard() }
                 sleepMs(2500)
                 shot("06-search")
             }

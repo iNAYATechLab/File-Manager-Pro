@@ -9,10 +9,22 @@
         app:showAsAction="always" />
 
     <item
+        android:id="@+id/action_new_file"
+        android:icon="@drawable/ic_new_file"
+        android:title="@string/dialog_new_file_title"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_new_folder"
         android:icon="@drawable/ic_new_folder"
         android:title="@string/action_new_folder"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/action_settings"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_select_all"
@@ -30,6 +42,12 @@
         android:id="@+id/action_sort"
         android:title="@string/action_sort"
         android:icon="@drawable/ic_sort"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_hidden"
+        android:title="@string/hidden_show"
+        android:checkable="true"
         app:showAsAction="never" />
 
     <item

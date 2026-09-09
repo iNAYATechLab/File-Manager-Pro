@@ -38,6 +38,11 @@
             android:launchMode="singleTop" />
 
         <activity
+            android:name=".settings.SettingsActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop">

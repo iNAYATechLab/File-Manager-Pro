@@ -33,6 +33,8 @@
     <string name="action_selected">নির্বাচিত</string>
     <string name="action_select_all">সব নির্বাচন</string>
     <string name="action_refresh">রিফ্রেশ</string>
+    <string name="action_settings">সেটিংস</string>
+
 
     <!-- Dialogs -->
     <string name="dialog_new_folder_title">নতুন ফোল্ডার তৈরি করুন</string>
@@ -52,7 +54,82 @@
     <string name="storage_summary">ব্যবহৃত %1$s • খালি %2$s • মোট %3$s</string>
     <string name="storage_empty">কোনো স্টোরেজ ভলিউম পাওয়া যায়নি</string>
 
-    <!-- Placeholders &amp; messages -->
+    <!-- Settings -->
+    <string name="settings_section_browser">ফাইল ব্রাউজার</string>
+    <string name="settings_show_hidden_files">লুকানো ফাইল দেখান</string>
+    <string name="settings_show_hidden_summary">ডট-ফাইল ও ডট-ফোল্ডার (.hidden) তালিকায় দেখাবে</string>
+    <string name="settings_grid_default">ফোল্ডার গ্রিড ভিউতে খুলুন</string>
+    <string name="settings_grid_default_summary">লিস্টের বদলে ফোল্ডারের ডিফল্ট ভিউ গ্রিড হবে</string>
+    <string name="settings_confirm_delete">ডিলিটের আগে নিশ্চিত হোন</string>
+    <string name="settings_confirm_delete_summary">কিছু ডিলিটের আগে নিশ্চিতকরণ জিজ্ঞেস করবে</string>
+    <string name="settings_section_about">সম্পর্কে</string>
+    <string name="settings_version_value">ভার্সন %1$s</string>
+
+    <!-- New file -->
+    <string name="dialog_new_file_title">নতুন ফাইল তৈরি করুন</string>
+    <string name="hint_new_file_name">ফাইলের নাম (এক্সটেনশনসহ)</string>
+
+    <!-- Hidden files toggle -->
+    <string name="hidden_show">লুকানো ফাইল দেখান</string>
+    <string name="hidden_hide">লুকানো ফাইল লুকান</string>
+    <string name="hidden_now_visible">লুকানো ফাইল এখন দেখা যাচ্ছে</string>
+    <string name="hidden_now_hidden">লুকানো ফাইল আবার লুকানো হয়েছে</string>
+    <string name="hidden_files_visible">এই ফোল্ডারে লুকানো ফাইল আছে</string>
+    <string name="hidden_toggle_hide">লুকান</string>
+
+    <!-- Category labels (localized) -->
+    <string name="label_folder">ফোল্ডার</string>
+    <string name="label_image">ছবি</string>
+    <string name="label_video">ভিডিও</string>
+    <string name="label_audio">অডিও</string>
+    <string name="label_archive">আর্কাইভ</string>
+    <string name="label_pdf">PDF</string>
+    <string name="label_doc">ডকুমেন্ট</string>
+    <string name="label_text">টেক্সট</string>
+    <string name="label_apk">অ্যাপ</string>
+    <string name="label_generic">ফাইল</string>
+
+    <!-- Properties dialog -->
+    <string name="props_name_fmt">নাম: %1$s</string>
+    <string name="props_type_fmt">ধরন: %1$s</string>
+    <string name="props_type_file_fmt">%1$s (%2$s)</string>
+    <string name="props_location_fmt">অবস্থান: %1$s</string>
+    <string name="props_size_fmt">আকার: %1$s</string>
+    <string name="props_modified_fmt">পরিবর্তিত: %1$s</string>
+    <string name="props_content_size_fmt">কন্টেন্ট-আকার: %1$s</string>
+
+    <!-- Settings: sort / language / about -->
+    <string name="settings_default_sort">ডিফল্ট সাজানো</string>
+    <string name="sort_mode_name_asc">নাম (ক–জ)</string>
+    <string name="sort_mode_name_desc">নাম (জ–ক)</string>
+    <string name="sort_mode_date_newest">তারিখ (নতুন আগে)</string>
+    <string name="sort_mode_date_oldest">তারিখ (পুরোনো আগে)</string>
+    <string name="sort_mode_size_largest">আকার (বড় আগে)</string>
+    <string name="sort_mode_size_smallest">আকার (ছোট আগে)</string>
+    <string name="sort_mode_type">ধরন</string>
+    <string name="settings_section_language">ভাষা</string>
+    <string name="settings_language_note">অ্যাপটি সিস্টেমের ভাষা অনুসরণ করে। বাংলা ও ইংরেজি সমর্থিত; বাকি স্ট্রিংগুলো ধাপে ধাপে অনুবাদ হচ্ছে।</string>
+    <string name="settings_about_text">দ্রুত ও হালকা ফাইল ম্যানেজার — স্টোরেজ ওভারভিউ, ক্যাটাগরি, পছন্দ, সম্প্রতি, লুকানো-ফাইল সাপোর্ট ও আর্কাইভ টুলসহ।</string>
+
+    <!-- Operation feedback (UI level) -->
+    <string name="ops_copied_clipboard">%1$dটি আইটেম ক্লিপবোর্ডে কপি হয়েছে</string>
+    <string name="ops_cut_clipboard">%1$dটি আইটেম ক্লিপবোর্ডে কাট হয়েছে</string>
+    <string name="ops_pasted">%1$dটি আইটেম পেস্ট হয়েছে</string>
+    <string name="ops_deleted">%1$dটি আইটেম ডিলিট হয়েছে</string>
+    <string name="ops_paste_self">নিজের উৎস ফোল্ডারে পেস্ট করা যাবে না</string>
+    <string name="ops_created">%1$s তৈরি হয়েছে</string>
+    <string name="ops_extracted_to">%1$s-এ আনজিপ সম্পন্ন</string>
+    <string name="ops_copying">কপি হচ্ছে…</string>
+    <string name="ops_moving">স্থানান্তর হচ্ছে…</string>
+    <string name="ops_deleting">ডিলিট হচ্ছে…</string>
+    <string name="ops_error_invalid_name">অবৈধ নাম</string>
+    <string name="ops_error_name_exists">এই নামে ইতিমধ্যে একটি ফাইল/ফোল্ডার আছে</string>
+    <string name="ops_error_cannot_create">তৈরি করা যায়নি</string>
+    <string name="ops_error_rename_failed">নাম পরিবর্তন ব্যর্থ হয়েছে</string>
+    <string name="ops_and_more">+আরও %1$dটি</string>
+
+
+    <!-- Placeholders & messages -->
     <string name="folder_empty">এই ফোল্ডারটি খালি</string>
     <string name="search_no_results">কোনো ফলাফল পাওয়া যায়নি</string>
     <string name="search_hint">বর্তমান ফোল্ডারে খুঁজুন…</string>

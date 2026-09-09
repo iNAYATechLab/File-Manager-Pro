@@ -31,9 +31,11 @@ import com.inayatechlab.filemanagerpro.vault.VaultSessionManager
 import com.inayatechlab.filemanagerpro.vault.VaultUnlock
 import com.inayatechlab.filemanagerpro.preview.PreviewActivity
 import com.inayatechlab.filemanagerpro.search.SearchActivity
+import com.inayatechlab.filemanagerpro.settings.SettingsActivity
 import com.inayatechlab.filemanagerpro.util.Dialogs
 import com.inayatechlab.filemanagerpro.util.FileCat
 import com.inayatechlab.filemanagerpro.util.OpenUtils
+import com.inayatechlab.filemanagerpro.util.SettingsStore
 import com.inayatechlab.filemanagerpro.util.StorageRoot
 import com.inayatechlab.filemanagerpro.util.StorageUtils
 import java.io.File
@@ -45,10 +47,6 @@ import kotlinx.coroutines.withContext
 class BrowseFragment : Fragment() {
 
     companion object {
-        private const val PREFS = "fm_settings"
-        private const val KEY_SORT = "sort_mode" // 0 name, 1 date, 2 size, 3 type
-        private const val KEY_SORT_ASC = "sort_asc"
-        private const val KEY_GRID = "grid_view"
         fun newInstance() = BrowseFragment()
     }
 
@@ -56,7 +54,6 @@ class BrowseFragment : Fragment() {
     private val binding get() = _binding!!
     private val scope get() = viewLifecycleOwner.lifecycleScope
 
-    private lateinit var prefs: android.content.SharedPreferences
     private var dir: File = StorageUtils.primaryRoot()
     private var baseDir: File = StorageUtils.primaryRoot()
     private var baseLabel: String = "Internal storage"
@@ -69,6 +66,8 @@ class BrowseFragment : Fragment() {
     private var sortMode = 0
     private var sortAsc = true
     private var isGrid = false
+    /** Folder (canonical path) for which the hidden-files snackbar was already shown. */
+    private var hiddenNoticeShownFor: String? = null
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -85,10 +84,7 @@ class BrowseFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        prefs = requireContext().getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE)
-        sortMode = prefs.getInt(KEY_SORT, 0)
-        sortAsc = prefs.getBoolean(KEY_SORT_ASC, true)
-        isGrid = prefs.getBoolean(KEY_GRID, false)
+        readPrefs()
 
         binding.swipe.setOnRefreshListener { reload() }
         binding.tvEmpty.setOnClickListener {
@@ -102,6 +98,7 @@ class BrowseFragment : Fragment() {
         super.onResume()
         if (isHidden) return // hidden fragments still receive onResume
         (activity as? MainActivity)?.showCrumbBarVisible(true)
+        readPrefs()
         syncMenu()
         reload()
     }
@@ -209,9 +206,11 @@ class BrowseFragment : Fragment() {
             act.setUpButton(false) {}
             act.currentMenu()?.let { menu ->
                 menu.findItem(R.id.action_search)?.isVisible = false
+                menu.findItem(R.id.action_new_file)?.isVisible = false
                 menu.findItem(R.id.action_new_folder)?.isVisible = false
                 menu.findItem(R.id.action_paste)?.isVisible = false
                 menu.findItem(R.id.action_sort)?.isVisible = false
+                menu.findItem(R.id.action_hidden)?.isVisible = false
                 menu.findItem(R.id.action_select_all)?.isVisible = false
             }
             return
@@ -229,6 +228,11 @@ class BrowseFragment : Fragment() {
         act.setAppTitle(if (isAtRoot()) baseLabel else dir.name)
 
         act.currentMenu()?.findItem(R.id.action_paste)?.isVisible = ClipboardBus.isActive
+        act.currentMenu()?.findItem(R.id.action_hidden)?.let {
+            val show = SettingsStore.showHiddenFiles(requireContext())
+            it.isChecked = show
+            it.title = getString(if (show) R.string.hidden_hide else R.string.hidden_show)
+        }
     }
 
     private fun onMenuItem(item: MenuItem): Boolean {
@@ -248,9 +252,40 @@ class BrowseFragment : Fragment() {
                 ) { name ->
                     scope.launch {
                         val err = FileOps.createFolder(dir, name)
-                        if (err == null) reload() else snack(err)
+                        if (err == null) reload() else snack(localizeOpError(err))
                     }
                 }
+                true
+            }
+            R.id.action_new_file -> {
+                Dialogs.promptText(
+                    requireContext(),
+                    getString(R.string.dialog_new_file_title),
+                    "", getString(R.string.hint_new_file_name), getString(R.string.action_ok)
+                ) { name ->
+                    scope.launch {
+                        val err = FileOps.createFile(dir, name)
+                        if (err == null) {
+                            snack(getString(R.string.ops_created, name.trim()))
+                            reload()
+                        } else {
+                            snack(localizeOpError(err))
+                        }
+                    }
+                }
+                true
+            }
+            R.id.action_settings -> {
+                startActivity(Intent(requireContext(), SettingsActivity::class.java))
+                true
+            }
+            R.id.action_hidden -> {
+                val show = !SettingsStore.showHiddenFiles(requireContext())
+                SettingsStore.setShowHiddenFiles(requireContext(), show)
+                hiddenNoticeShownFor = null
+                snack(getString(if (show) R.string.hidden_now_visible else R.string.hidden_now_hidden))
+                syncMenu()
+                reload()
                 true
             }
             R.id.action_select_all -> {
@@ -267,11 +302,9 @@ class BrowseFragment : Fragment() {
                     sortMode = mode
                     sortAsc = asc
                     isGrid = grid
-                    prefs.edit()
-                        .putInt(KEY_SORT, mode)
-                        .putBoolean(KEY_SORT_ASC, asc)
-                        .putBoolean(KEY_GRID, grid)
-                        .apply()
+                    SettingsStore.setSortMode(requireContext(), mode)
+                    SettingsStore.setSortAscending(requireContext(), asc)
+                    SettingsStore.setGridView(requireContext(), grid)
                     reload()
                 }
                 true
@@ -385,7 +418,8 @@ class BrowseFragment : Fragment() {
     private fun stageClipboard(items: List<FileEntry>, cut: Boolean) {
         ClipboardBus.entries = items
         ClipboardBus.isCut = cut
-        snack("${items.size} item(s) ${if (cut) "cut" else "copied"} to clipboard")
+        val res = if (cut) R.string.ops_cut_clipboard else R.string.ops_copied_clipboard
+        snack(getString(res, items.size))
         syncMenu()
     }
 
@@ -397,40 +431,52 @@ class BrowseFragment : Fragment() {
             src == dir || (src.isDirectory && dir.canonicalPath.startsWith(src.canonicalPath + File.separator))
         }
         if (intoSelf) {
-            snack("Cannot paste into its own source folder")
+            snack(getString(R.string.ops_paste_self))
             return
         }
         val cut = ClipboardBus.isCut
-        runOp(if (cut) "Moving…" else "Copying…") {
+        runOp(getString(if (cut) R.string.ops_moving else R.string.ops_copying)) {
             val r = FileOps.copyOrMove(items, dir, cut)
             withContext(Dispatchers.Main) {
                 ClipboardBus.entries = emptyList()
                 ClipboardBus.isCut = false
                 syncMenu()
                 if (r.failed > 0) snack(r.errors.joinToString("\n").take(240))
-                else snack("Pasted ${r.done} item(s)")
+                else snack(getString(R.string.ops_pasted, r.done))
                 reload()
             }
         }
     }
 
     private fun confirmAndDelete(selected: List<FileEntry>) {
+        if (!SettingsStore.confirmDelete(requireContext())) {
+            doDelete(selected)
+            return
+        }
         val sample = selected.take(3).joinToString { it.name }
-        val more = if (selected.size > 3) "\n+${selected.size - 3} more" else ""
+        val more = if (selected.size > 3) {
+            "\n" + getString(R.string.ops_and_more, selected.size - 3)
+        } else {
+            ""
+        }
         Dialogs.confirm(
             requireContext(),
             getString(R.string.dialog_delete_title),
             getString(R.string.dialog_delete_message) + "\n\n$sample$more",
             getString(R.string.action_delete_confirm)
         ) {
-            runOp("Deleting…") {
-                val r = FileOps.delete(selected)
-                withContext(Dispatchers.Main) {
-                    exitSelectionMode()
-                    if (r.failed > 0) snack(r.errors.joinToString("\n").take(240))
-                    else snack("Deleted ${r.done} item(s)")
-                    reload()
-                }
+            doDelete(selected)
+        }
+    }
+
+    private fun doDelete(selected: List<FileEntry>) {
+        runOp(getString(R.string.ops_deleting)) {
+            val r = FileOps.delete(selected)
+            withContext(Dispatchers.Main) {
+                exitSelectionMode()
+                if (r.failed > 0) snack(r.errors.joinToString("\n").take(240))
+                else snack(getString(R.string.ops_deleted, r.done))
+                reload()
             }
         }
     }
@@ -444,7 +490,7 @@ class BrowseFragment : Fragment() {
             scope.launch {
                 val err = FileOps.rename(dir, entry.name, newName)
                 withContext(Dispatchers.Main) {
-                    if (err != null) snack(err)
+                    if (err != null) snack(localizeOpError(err))
                     else {
                         exitSelectionMode()
                         reload()
@@ -455,20 +501,20 @@ class BrowseFragment : Fragment() {
     }
 
     private fun compress(selected: List<FileEntry>) {
-        runOp("Compressing…") {
+        runOp(getString(R.string.compressing)) {
             val created = FileOps.zip(selected)
             withContext(Dispatchers.Main) {
-                snack("Created ${created.name}")
+                snack(getString(R.string.ops_created, created.name))
                 reload()
             }
         }
     }
 
     private fun extractZip(entry: FileEntry) {
-        runOp("Extracting…") {
+        runOp(getString(R.string.extracting)) {
             val dest = FileOps.extract(File(entry.path))
             withContext(Dispatchers.Main) {
-                snack("Extracted to ${dest.name}")
+                snack(getString(R.string.ops_extracted_to, dest.name))
                 reload()
             }
         }
@@ -665,12 +711,13 @@ class BrowseFragment : Fragment() {
         val mode = sortMode
         val asc = sortAsc
         val grid = isGrid
+        val showHidden = SettingsStore.showHiddenFiles(requireContext())
         scope.launch {
             val entries = withContext(Dispatchers.IO) {
                 val files = listDir.listFiles() ?: return@withContext emptyList<FileEntry>()
                 files
                     .asSequence()
-                    .filter { !it.name.startsWith(".") }
+                    .filter { showHidden || !it.name.startsWith(".") }
                     .map { f ->
                         if (f.isDirectory) {
                             FileEntry(f.name, f.canonicalPath, true, lastModified = f.lastModified())
@@ -709,6 +756,27 @@ class BrowseFragment : Fragment() {
             b.swipe.isRefreshing = false
             loading.set(false)
             syncMenu()
+            if (showHidden) {
+                val hasHidden = entries.any { it.name.startsWith(".") }
+                if (hasHidden && hiddenNoticeShownFor != listDir.canonicalPath) {
+                    hiddenNoticeShownFor = listDir.canonicalPath
+                    showHiddenNotice()
+                }
+            }
+        }
+    }
+
+    /** Snackbar that tells the user hidden files are on screen + one-tap hide action. */
+    private fun showHiddenNotice() {
+        view?.let {
+            Snackbar.make(it, getString(R.string.hidden_files_visible), Snackbar.LENGTH_LONG)
+                .setAction(getString(R.string.hidden_toggle_hide)) {
+                    SettingsStore.setShowHiddenFiles(requireContext(), false)
+                    hiddenNoticeShownFor = null
+                    syncMenu()
+                    reload()
+                }
+                .show()
         }
     }
 
@@ -742,6 +810,23 @@ class BrowseFragment : Fragment() {
 
     private fun snack(text: String) {
         view?.let { Snackbar.make(it, text, Snackbar.LENGTH_LONG).show() }
+    }
+
+    /** Translate FileOps error keys to the current UI language (fallback: raw message). */
+    private fun localizeOpError(err: String): String = when (err) {
+        "Invalid name" -> getString(R.string.ops_error_invalid_name)
+        "A folder with this name already exists" -> getString(R.string.ops_error_name_exists)
+        "A file with this name already exists" -> getString(R.string.ops_error_name_exists)
+        "Could not create folder" -> getString(R.string.ops_error_cannot_create)
+        "Could not create file" -> getString(R.string.ops_error_cannot_create)
+        "Rename failed" -> getString(R.string.ops_error_rename_failed)
+        else -> err
+    }
+
+    private fun readPrefs() {
+        sortMode = SettingsStore.sortMode(requireContext())
+        sortAsc = SettingsStore.sortAscending(requireContext())
+        isGrid = SettingsStore.gridView(requireContext())
     }
 }
 

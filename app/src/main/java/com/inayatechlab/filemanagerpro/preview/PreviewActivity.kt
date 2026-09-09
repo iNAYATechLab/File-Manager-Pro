@@ -1,11 +1,18 @@
 package com.inayatechlab.filemanagerpro.preview
 
+import android.app.WallpaperManager
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.inayatechlab.filemanagerpro.R
 import com.inayatechlab.filemanagerpro.databinding.ActivityPreviewBinding
 import com.inayatechlab.filemanagerpro.model.FileEntry
@@ -13,11 +20,14 @@ import com.inayatechlab.filemanagerpro.ops.FileOps
 import com.inayatechlab.filemanagerpro.util.Dialogs
 import com.inayatechlab.filemanagerpro.util.OpenUtils
 import java.io.File
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
- * Full-screen image viewer. Shows one image at a time; swipe left/right to move
- * through the sibling images that were passed in [EXTRA_PATHS].
+ * Full-screen image viewer with swipe paging, pinch zoom / double-tap zoom,
+ * 90-degree rotation (session state), an EXIF details panel and a
+ * set-as-wallpaper action. Deletion removes the image from the pager.
  */
 class PreviewActivity : AppCompatActivity() {
 
@@ -64,9 +74,16 @@ class PreviewActivity : AppCompatActivity() {
         updateTitle()
     }
 
+    private fun currentFile(): File? = images.getOrNull(current)
+
     private fun currentEntry(): FileEntry {
         val f = images[current]
         return FileEntry(f.name, f.canonicalPath, false, f.length(), f.lastModified())
+    }
+
+    private fun currentRotation(): Float {
+        val f = currentFile() ?: return 0f
+        return adapter.rotations[f.path] ?: 0f
     }
 
     private fun updateTitle() {
@@ -80,9 +97,7 @@ class PreviewActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.action_share -> {
                 if (!OpenUtils.share(this, listOf(currentEntry()))) {
-                    com.google.android.material.snackbar.Snackbar
-                        .make(binding.root, getString(R.string.no_app_found), com.google.android.material.snackbar.Snackbar.LENGTH_SHORT)
-                        .show()
+                    snack(getString(R.string.no_app_found))
                 }
                 true
             }
@@ -94,9 +109,142 @@ class PreviewActivity : AppCompatActivity() {
                 Dialogs.properties(this, currentEntry(), scope)
                 true
             }
+            R.id.action_rotate -> {
+                rotateCurrent()
+                true
+            }
+            R.id.action_exif -> {
+                showExifDialog()
+                true
+            }
+            R.id.action_wallpaper -> {
+                setWallpaper()
+                true
+            }
             else -> false
         }
     }
+
+    // ------------------------------------------------------------ rotate
+
+    private fun rotateCurrent() {
+        val f = currentFile() ?: return
+        val path = f.path
+        val next = ((adapter.rotations[path] ?: 0f) + 90f) % 360f
+        adapter.rotations[path] = next
+        val pageView = binding.pager.findViewWithTag(path) as? android.view.View ?: return
+        val image = pageView.findViewById<android.view.View>(R.id.ivImage) ?: return
+        image.rotation = next
+    }
+
+    // ------------------------------------------------------------ EXIF
+
+    private fun showExifDialog() {
+        val f = currentFile() ?: return
+        val lines = mutableListOf<String>()
+        lines += getString(R.string.exif_name_fmt, f.name)
+        try {
+            val exif = ExifInterface(f)
+            fun add(tag: String, label: String) {
+                exif.getAttribute(tag)?.takeIf { it.isNotBlank() && it != "0" }?.let {
+                    lines += getString(R.string.exif_line_fmt, label, it)
+                }
+            }
+            add(ExifInterface.TAG_DATETIME_ORIGINAL, getString(R.string.exif_taken))
+            add(ExifInterface.TAG_MAKE, getString(R.string.exif_make))
+            add(ExifInterface.TAG_MODEL, getString(R.string.exif_model))
+            add(ExifInterface.TAG_LENS_MODEL, getString(R.string.exif_lens))
+            add(ExifInterface.TAG_F_NUMBER, getString(R.string.exif_aperture))
+            add(ExifInterface.TAG_EXPOSURE_TIME, getString(R.string.exif_exposure))
+            add(ExifInterface.TAG_ISO_SPEED_RATINGS, getString(R.string.exif_iso))
+            add(ExifInterface.TAG_FOCAL_LENGTH, getString(R.string.exif_focal))
+            add(ExifInterface.TAG_FLASH, getString(R.string.exif_flash))
+            add(ExifInterface.TAG_WHITE_BALANCE, getString(R.string.exif_white_balance))
+            add(ExifInterface.TAG_PIXEL_X_DIMENSION, getString(R.string.exif_width))
+            add(ExifInterface.TAG_PIXEL_Y_DIMENSION, getString(R.string.exif_height))
+            add(ExifInterface.TAG_SOFTWARE, getString(R.string.exif_software))
+            val lat = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)
+            val lon = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)
+            val latRef = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF)
+            val lonRef = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF)
+            if (!lat.isNullOrBlank() && !lon.isNullOrBlank()) {
+                lines += getString(
+                    R.string.exif_line_fmt,
+                    getString(R.string.exif_gps),
+                    "$lat ${latRef ?: ""}, $lon ${lonRef ?: ""}"
+                )
+            }
+        } catch (_: Exception) {
+        }
+        if (lines.size == 1) {
+            lines += getString(R.string.exif_none)
+        }
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.exif_title)
+            .setMessage(lines.joinToString("\n"))
+            .setPositiveButton(R.string.action_ok, null)
+            .show()
+    }
+
+    // ------------------------------------------------------------ wallpaper
+
+    private fun setWallpaper() {
+        val f = currentFile() ?: return
+        val rotation = currentRotation()
+        snack(getString(R.string.wallpaper_setting))
+        scope.launch {
+            val result = withContext(Dispatchers.IO) {
+                runCatching {
+                    val bitmap = decodeForWallpaper(f)
+                    if (bitmap == null) {
+                        null
+                    } else {
+                        val rotated = if (rotation != 0f) {
+                            val m = Matrix().apply { postRotate(rotation) }
+                            val out = Bitmap.createBitmap(
+                                bitmap, 0, 0, bitmap.width, bitmap.height, m, true
+                            )
+                            if (out !== bitmap) bitmap.recycle()
+                            out
+                        } else {
+                            bitmap
+                        }
+                        val wm = WallpaperManager.getInstance(this@PreviewActivity)
+                        try {
+                            wm.setBitmap(rotated, null, true, WallpaperManager.FLAG_SYSTEM)
+                        } catch (_: SecurityException) {
+                            wm.setBitmap(rotated)
+                        }
+                        rotated.recycle()
+                        true
+                    }
+                }.getOrNull() ?: false
+            }
+            snack(
+                if (result) getString(R.string.wallpaper_set_ok)
+                else getString(R.string.wallpaper_set_failed)
+            )
+        }
+    }
+
+    /** Decodes the file at a bounded size to protect memory for wallpaper use. */
+    private fun decodeForWallpaper(f: File): Bitmap? {
+        val opts = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(f.path, opts)
+        if (opts.outWidth <= 0 || opts.outHeight <= 0) return null
+        val maxDim = 4096
+        var sample = 1
+        while (opts.outWidth / sample > maxDim || opts.outHeight / sample > maxDim) {
+            sample *= 2
+        }
+        val decodeOpts = BitmapFactory.Options().apply {
+            inSampleSize = sample
+            inPreferredConfig = Bitmap.Config.ARGB_8888
+        }
+        return BitmapFactory.decodeFile(f.path, decodeOpts)
+    }
+
+    // ------------------------------------------------------------ delete
 
     private fun confirmDeleteCurrent() {
         if (images.isEmpty()) return
@@ -113,11 +261,13 @@ class PreviewActivity : AppCompatActivity() {
 
     private fun deleteCurrent() {
         val entry = currentEntry()
-        val dlg = Dialogs.showProgress(this, "Deleting…")
+        val path = entry.path
+        val dlg = Dialogs.showProgress(this, getString(R.string.del_progress))
         scope.launch {
             val result = FileOps.delete(listOf(entry))
             dlg.dismiss()
             if (result.failed == 0) {
+                adapter.rotations.remove(path)
                 images.removeAt(current)
                 if (images.isEmpty()) {
                     finish()
@@ -129,10 +279,12 @@ class PreviewActivity : AppCompatActivity() {
                 current = pos
                 updateTitle()
             } else {
-                com.google.android.material.snackbar.Snackbar
-                    .make(binding.root, result.errors.firstOrNull() ?: getString(R.string.error), com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
-                    .show()
+                snack(result.errors.firstOrNull() ?: getString(R.string.error))
             }
         }
+    }
+
+    private fun snack(text: String) {
+        Snackbar.make(binding.root, text, Snackbar.LENGTH_SHORT).show()
     }
 }

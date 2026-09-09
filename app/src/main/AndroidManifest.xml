@@ -15,6 +15,9 @@
         android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
 
+    <!-- Set-as-wallpaper in the image viewer (normal permission, auto-granted) -->
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
+
     <!-- Vault biometric unlock -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 

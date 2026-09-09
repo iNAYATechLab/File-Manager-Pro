@@ -12,6 +12,21 @@
         android:title="@string/action_delete"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/action_rotate"
+        android:title="@string/action_rotate"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_exif"
+        android:title="@string/action_exif"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_wallpaper"
+        android:title="@string/action_wallpaper"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_properties"
         android:title="@string/action_properties"
         app:showAsAction="never" />

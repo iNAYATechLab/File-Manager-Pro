@@ -95,9 +95,22 @@ dependencies {
     // Image loading for local files & previews
     implementation("io.coil-kt:coil:2.6.0")
 
+    // Archive extraction: .tar/.tar.gz/.tgz via commons-compress, .7z (LZMA/xz),
+    // .rar (RAR4) via junrar. slf4j-nop silences junrar's logger on Android.
+    implementation("org.apache.commons:commons-compress:1.26.2")
+    implementation("org.tukaani:xz:1.9")
+    implementation("com.github.junrar:junrar:7.5.5")
+    implementation("org.slf4j:slf4j-nop:1.7.36")
+
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
     // Local (JVM) unit tests
     testImplementation("junit:junit:4.13.2")
+
+    // Instrumented UI smoke tests (Espresso)
+    androidTestImplementation("androidx.test:core-ktx:1.6.1")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }

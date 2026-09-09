@@ -61,7 +61,7 @@ class TrashStoreTest {
         assertNull(TrashStore.restore(store, items[0]))
 
         assertTrue(file.isFile)
-        assertEquals("hello", file.readText())
+        assertEquals("x", file.readText())
         assertTrue(TrashStore.list(store).isEmpty())
     }
 

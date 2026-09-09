@@ -150,7 +150,6 @@
     <string name="cat_apk">অ্যাপ (APK)</string>
     <string name="cat_empty">এই ক্যাটাগরিতে কোনো ফাইল নেই</string>
     <string name="items_count">টি আইটেম</string>
-
     <!-- Vault (#20) -->
     <string name="nav_vault">ভল্ট</string>
     <string name="vlt_empty">এখনো কোনো ভল্ট নেই</string>
@@ -209,4 +208,44 @@
     <string name="vlt_move_nothing">যোগ করার মতো ফাইল নেই</string>
 
     <string name="vlt_action_restore">পুনরুদ্ধার</string>
+
+    <string name="saf_title">সুরক্ষিত ফোল্ডার</string>
+    <string name="saf_footer_title">Android/data ও obb</string>
+    <string name="saf_footer_sub_none">SAF দিয়ে অ্যাক্সেস দিতে ট্যাপ করুন — Android/data ও obb অ্যাপ-ব্যক্তিগত</string>
+    <string name="saf_footer_sub_fmt">%1$dটি অবস্থান অনুমোদিত — পরিচালনা করতে ট্যাপ করুন</string>
+    <string name="saf_add_data">Android/data</string>
+    <string name="saf_add_obb">Android/obb</string>
+    <string name="saf_add_custom">অন্য ফোল্ডার…</string>
+    <string name="saf_hint_protected">অ্যাপ-ব্যক্তিগত — ট্যাপ করে অনুমতি দিন</string>
+    <string name="saf_hint_custom">সিস্টেম ফোল্ডার বাছাই দিয়ে ব্রাউজ করুন</string>
+    <string name="saf_empty">এখনো কোনো অবস্থান অনুমোদিত হয়নি।
+উপরে Android/data, Android/obb বা অন্য ফোল্ডার যোগ করুন।</string>
+    <string name="saf_unknown_location">অজানা অবস্থান</string>
+    <string name="saf_denied">এই অবস্থানের অ্যাক্সেস বাতিল হয়েছে। এটি সরিয়ে আবার অনুমতি দিন।</string>
+    <string name="saf_open">খুলুন</string>
+    <string name="saf_remove">অবস্থান সরান</string>
+    <string name="saf_remove_confirm_title">অবস্থান সরাবেন?</string>
+    <string name="saf_remove_confirm_msg">“%1$s” আর সুরক্ষিত ফোল্ডারে দেখা যাবে না।</string>
+    <string name="saf_granted_fmt">“%1$s” অ্যাক্সেস মঞ্জুর হয়েছে</string>
+    <string name="saf_grant_failed">নির্বাচিত অবস্থান পড়া যায়নি</string>
+    <string name="saf_loading">খোলা হচ্ছে…</string>
+    <string name="saf_list_failed">এই ফোল্ডার তালিকাভুক্ত করা যায়নি — সম্ভবত সীমাবদ্ধ বা নেই</string>
+    <string name="saf_preparing">প্রস্তুত হচ্ছে…</string>
+    <string name="saf_copy_title">কপি করুন…</string>
+    <string name="saf_copy_choose">অন্য ফোল্ডার বেছে নিন…</string>
+    <string name="saf_copy_same">উৎস ও গন্তব্য একই ফোল্ডার</string>
+    <string name="saf_copying">কপি হচ্ছে…</string>
+    <string name="saf_copy_done_fmt">%1$dটি আইটেম কপি হয়েছে</string>
+    <string name="saf_copy_partial_fmt">কপি হয়েছে %1$d, ব্যর্থ %2$d</string>
+    <string name="saf_deleting">মুছে ফেলা হচ্ছে…</string>
+    <string name="saf_creating">তৈরি হচ্ছে…</string>
+    <string name="saf_folder_created">ফোল্ডার তৈরি হয়েছে</string>
+    <string name="saf_share_partial">%1$dটি আইটেম প্রস্তুত করা যায়নি</string>
+    <string name="saf_props_name_fmt">নাম: %1$s</string>
+    <string name="saf_props_type_fmt">ধরন: %1$s</string>
+    <string name="saf_props_type_folder">ফোল্ডার</string>
+    <string name="saf_props_type_file">ফাইল</string>
+    <string name="saf_props_size_fmt">আকার: %1$s</string>
+    <string name="saf_props_modified_fmt">পরিবর্তিত: %1$s</string>
+    <string name="saf_props_location_fmt">অবস্থান: %1$s</string>
 </resources>

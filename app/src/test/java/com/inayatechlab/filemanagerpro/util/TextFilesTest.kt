@@ -35,8 +35,10 @@ class TextFilesTest {
         assertEquals("café", utf8.text)
         assertEquals("UTF-8", utf8.charsetLabel)
 
-        // Invalid UTF-8 (0xE9 alone) falls back to legacy single byte
-        val legacy = TextFiles.decodeHead(byteArrayOf('c'.code.toByte(), 'a'.code.toByte(), 0xE9.toByte()))
+        // Invalid UTF-8 (lone trailing 0xE9) falls back to legacy single byte
+        val legacy = TextFiles.decodeHead(
+            byteArrayOf('c'.code.toByte(), 'a'.code.toByte(), 'f'.code.toByte(), 0xE9.toByte())
+        )
         assertEquals("café", legacy.text)
         assertEquals("Windows-1252", legacy.charsetLabel)
     }

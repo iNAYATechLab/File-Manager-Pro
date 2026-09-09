@@ -60,8 +60,11 @@ object TextFiles {
             // head must not break viewing.
             String(bytes, StandardCharsets.ISO_8859_1)
         }
-        if (full.length <= MAX_CHARS) return TextResult(full, label, false)
-        val cut = full.take(MAX_CHARS)
+        // Charset decoders keep the byte-order mark as a leading U+FEFF
+        // character; drop it so viewers don't show an invisible glyph.
+        val text = if (full.startsWith('\uFEFF')) full.substring(1) else full
+        if (text.length <= MAX_CHARS) return TextResult(text, label, false)
+        val cut = text.take(MAX_CHARS)
         val trimmed = cut.trimEnd()
         return TextResult(trimmed + "\n…", label, true)
     }

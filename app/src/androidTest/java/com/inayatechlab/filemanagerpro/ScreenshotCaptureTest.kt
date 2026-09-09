@@ -54,7 +54,7 @@ class ScreenshotCaptureTest {
         android.util.Log.i("Screenshots", "saved $name.png -> ${outDir.absolutePath}")
     }
 
-    private fun wait(ms: Long) = Thread.sleep(ms)
+    private fun sleepMs(ms: Long) = Thread.sleep(ms)
 
     /** Each step is best-effort so one flaky step cannot kill the whole capture. */
     private fun step(name: String, block: () -> Unit) {
@@ -79,7 +79,7 @@ class ScreenshotCaptureTest {
 
         // ---- 1. Storage home (quick access chips + volume cards) ------------
         ActivityScenario.launch(MainActivity::class.java).use {
-            wait(4000)
+            sleepMs(4000)
             shot("01-storage-home")
         }
 
@@ -89,23 +89,23 @@ class ScreenshotCaptureTest {
             Intent(ctx, MainActivity::class.java)
                 .putExtra(MainActivity.EXTRA_OPEN_PATH, downloadPath)
         ).use {
-            wait(3500)
+            sleepMs(3500)
             shot("02-folder-downloads")
 
             // tap the guide.md row -> in-app text viewer
             step("text viewer shot") {
                 onView(ViewMatchers.withText("guide.md")).perform(ViewActions.click())
-                wait(2500)
+                sleepMs(2500)
                 shot("03-text-viewer")
                 Espresso.pressBack()
-                wait(1200)
+                sleepMs(1200)
             }
 
             step("library downloads shot") {
                 onView(ViewMatchers.withId(R.id.nav_library)).perform(ViewActions.click())
-                wait(1800)
+                sleepMs(1800)
                 onView(ViewMatchers.withId(R.id.chipDownloads)).perform(ViewActions.click())
-                wait(2200)
+                sleepMs(2200)
                 shot("05-library-downloads")
                 onView(ViewMatchers.withId(R.id.nav_storage)).perform(ViewActions.click())
             }
@@ -114,9 +114,9 @@ class ScreenshotCaptureTest {
         // ---- 4. Categories tab ----------------------------------------------
         step("categories shot") {
             ActivityScenario.launch(MainActivity::class.java).use {
-                wait(3000)
+                sleepMs(3000)
                 onView(ViewMatchers.withId(R.id.nav_categories)).perform(ViewActions.click())
-                wait(2500)
+                sleepMs(2500)
                 shot("04-categories")
             }
         }
@@ -127,10 +127,10 @@ class ScreenshotCaptureTest {
                 Intent(ctx, SearchActivity::class.java)
                     .putExtra(SearchActivity.EXTRA_ROOT, downloadPath)
             ).use {
-                wait(1500)
+                sleepMs(1500)
                 onView(ViewMatchers.withId(R.id.etQuery)).perform(ViewActions.replaceText("guide"))
                 Espresso.closeSoftKeyboard()
-                wait(2500)
+                sleepMs(2500)
                 shot("06-search")
             }
         }
@@ -138,7 +138,7 @@ class ScreenshotCaptureTest {
         // ---- 7. About / company page ----------------------------------------
         step("about shot") {
             ActivityScenario.launch(AboutActivity::class.java).use {
-                wait(2500)
+                sleepMs(2500)
                 shot("07-about")
             }
         }

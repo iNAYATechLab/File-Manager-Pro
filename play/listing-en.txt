@@ -1,0 +1,23 @@
+SHORT DESCRIPTION
+Fast, private file manager: storage overview, categories, vault, SAF, archives.
+
+FULL DESCRIPTION
+File Manager Pro is a fast, lightweight and private file manager for Android.
+
+FEATURES
+• Storage home with cards for internal storage and SD card — used/free/total at a glance
+• Full file operations: copy, move, rename, delete, create folders
+• Categories: images, videos, audio, documents, archives and APKs
+• Search with filters and an optional whole-storage scope
+• Copy/move progress with conflict handling (overwrite / skip / keep both)
+• Archive tools: create ZIP; extract ZIP, TAR, TAR.GZ, 7z and RAR
+• Built-in image viewer with pinch-zoom, rotate, EXIF and set-as-wallpaper
+• Encrypted vault (.fmpvault): AES-256-GCM, password or fingerprint unlock
+• Protected folders: browse Android/data & Android/obb via Storage Access Framework
+• Favorites, Recents, hidden-file toggle, sort/grid preferences
+• Bangla (বাংলা) and English UI
+
+PRIVACY
+File Manager Pro is fully offline. No ads, no trackers, no analytics, no account.
+All operations — including the encrypted vault — stay on your device.
+See the full privacy policy in the app listing.

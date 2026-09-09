@@ -32,7 +32,7 @@ class AppSmokeTest {
     @Test
     fun launch_showsStorageHomeListing() {
         // Default tab is Storage: the browse list (or its empty state) renders.
-        onView(withId(R.id.recycler)).check(matches(isDisplayed()))
+        onView(allOf(withId(R.id.recycler), isDisplayed())).check(matches(isDisplayed()))
         onView(withId(R.id.nav_storage)).check(matches(isDisplayed()))
 
         // When the device granted storage access, volume cards are rendered.
@@ -54,22 +54,27 @@ class AppSmokeTest {
         onView(withId(R.id.nav_categories)).perform(androidx.test.espresso.action.ViewActions.click())
         // Category chips + item list are on screen after switching.
         onView(withId(R.id.chipRecycler)).check(matches(isDisplayed()))
-        onView(withId(R.id.recycler)).check(matches(isDisplayed()))
+        onView(allOf(withId(R.id.recycler), isDisplayed())).check(matches(isDisplayed()))
 
         onView(withId(R.id.nav_storage)).perform(androidx.test.espresso.action.ViewActions.click())
-        onView(withId(R.id.recycler)).check(matches(isDisplayed()))
+        onView(allOf(withId(R.id.recycler), isDisplayed())).check(matches(isDisplayed()))
     }
 
     @Test
     fun rotation_doesNotCrash() {
-        // Open Categories, rotate, come back to Storage.
+        // The activity does not persist the selected tab, so after a recreate
+        // the launch tab (Storage) is shown again; re-select the tab to make
+        // the assertions independent of restore behaviour.
         onView(withId(R.id.nav_categories)).perform(androidx.test.espresso.action.ViewActions.click())
+        onView(withId(R.id.chipRecycler)).check(matches(isDisplayed()))
         activityRule.scenario.recreate()
+        onView(withId(R.id.nav_categories)).perform(androidx.test.espresso.action.ViewActions.click())
         onView(withId(R.id.chipRecycler)).check(matches(isDisplayed()))
 
         onView(withId(R.id.nav_storage)).perform(androidx.test.espresso.action.ViewActions.click())
+        onView(allOf(withId(R.id.recycler), isDisplayed())).check(matches(isDisplayed()))
         activityRule.scenario.recreate()
-        onView(withId(R.id.recycler)).check(matches(isDisplayed()))
+        onView(allOf(withId(R.id.recycler), isDisplayed())).check(matches(isDisplayed()))
     }
 
     private fun storagePermitted(): Boolean {

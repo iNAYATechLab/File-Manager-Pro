@@ -81,7 +81,7 @@ jobs:
   # have no nested virtualization, so this boots without KVM acceleration and
   # is slower than a local run; keep the suite small and permission-free.
   instrumented-tests:
-    name: Instrumented tests (API 30 emulator)
+    name: Instrumented tests (API 29 emulator)
     runs-on: ubuntu-latest
     timeout-minutes: 90
 
@@ -100,8 +100,8 @@ jobs:
 
       - name: Install SDK components
         run: |
-          sdkmanager --install "platforms;android-30" "build-tools;34.0.0" "platform-tools" "emulator"
-          sdkmanager --install "system-images;android-30;google_apis;x86_64"
+          sdkmanager --install "platforms;android-29" "build-tools;34.0.0" "platform-tools" "emulator"
+          sdkmanager --install "system-images;android-29;default;x86_64"
           yes | sdkmanager --licenses >/dev/null 2>&1 || true
 
       - name: Set up Gradle
@@ -113,10 +113,11 @@ jobs:
       - name: Run connected Android tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 30
+          api-level: 29
           arch: x86_64
-          target: google_apis
+          target: default
           profile: pixel_2
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -memory 2048
           disable-animations: true
+          # Software-emulated (no KVM on hosted runners): give the boot more time.
           script: ./gradlew --no-daemon connectedDebugAndroidTest

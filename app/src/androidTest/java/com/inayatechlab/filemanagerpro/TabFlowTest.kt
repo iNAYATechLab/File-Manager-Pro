@@ -60,7 +60,9 @@ class TabFlowTest {
         )
         for ((row, marker) in sections) {
             clickDrawerRow(row)
-            onView(withId(marker)).check(matches(isDisplayed()))
+            // marker ids (esp. recycler) exist in every hidden fragment too,
+            // so require the visible instance of the current section.
+            onView(allOf(withId(marker), isDisplayed())).check(matches(isDisplayed()))
         }
     }
 

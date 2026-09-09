@@ -207,8 +207,9 @@ class SafDirAdapter(
 
     private fun subText(ctx: Context, entry: SafEntry): String {
         val cat = categoryOf(entry)
-        if (entry.isDir) return Icons.label(cat)
-        return "${Icons.label(cat)} • ${FormatUtils.formatSize(entry.size)} • " +
+        val label = ctx.getString(Icons.labelRes(cat))
+        if (entry.isDir) return label
+        return "$label • ${FormatUtils.formatSize(entry.size)} • " +
             FormatUtils.formatDate(entry.lastModified)
     }
 

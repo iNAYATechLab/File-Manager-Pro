@@ -1,0 +1,10 @@
+Meeting notes — 2026-09-09
+
+- Ship basic core: library, trash, search (done)
+- Next: beta testing phase
+- Reminder: full-storage search already merged
+
+Priorities:
+1. Keep the app fast on low-end devices
+2. Bangla + English UI
+3. MIT license, open source

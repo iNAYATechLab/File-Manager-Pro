@@ -1,0 +1,7 @@
+{
+  "app": "File Manager Pro",
+  "version": "0.4.0",
+  "company": "iNayaTech Lab",
+  "features": ["library", "trash", "text-viewer", "whole-storage-search"],
+  "license": "MIT"
+}

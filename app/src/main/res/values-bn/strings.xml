@@ -109,7 +109,6 @@
     <string name="sort_mode_type">ধরন</string>
     <string name="settings_section_language">ভাষা</string>
     <string name="settings_language_note">অ্যাপটি সিস্টেমের ভাষা অনুসরণ করে। বাংলা ও ইংরেজি সমর্থিত; বাকি স্ট্রিংগুলো ধাপে ধাপে অনুবাদ হচ্ছে।</string>
-    <string name="settings_about_text">দ্রুত ও হালকা ফাইল ম্যানেজার — স্টোরেজ ওভারভিউ, ক্যাটাগরি, পছন্দ, সম্প্রতি, লুকানো-ফাইল সাপোর্ট ও আর্কাইভ টুলসহ।</string>
 
     <!-- Operation feedback (UI level) -->
     <string name="ops_copied_clipboard">%1$dটি আইটেম ক্লিপবোর্ডে কপি হয়েছে</string>
@@ -358,4 +357,13 @@
     <string name="action_sort_ext">এক্সটেনশন</string>
     <string name="action_sort_created">তৈরির তারিখ</string>
     <string name="sort_folders_first">ফোল্ডার আগে</string>
+    <!-- About / company -->
+    <string name="about_title">সম্পর্কে</string>
+    <string name="about_desc">স্টোরেজ ওভারভিউ, ক্যাটাগরি, ফেভারিট, সাম্প্রতিক, ট্র্যাশ, সার্চ ও আর্কাইভ টুলসহ দ্রুত ও হালকা ফাইল ম্যানেজার।</string>
+    <string name="about_company_name">iNayaTech Lab</string>
+    <string name="about_made_by_fmt">নির্মাণ: %1$s</string>
+    <string name="about_company_desc">আমরা সহজ ও প্রাইভেসি-বান্ধব অ্যান্ড্রয়েড টুল তৈরি করি। File Manager Pro আমাদের ওপেন-সোর্স প্রকল্প — GitHub-এ অবদান, মতামত ও বাগ রিপোর্ট স্বাগত।</string>
+    <string name="about_visit_github">GitHub-এ প্রকল্প দেখুন</string>
+    <string name="about_open_source">ওপেন-সোর্স · MIT লাইসেন্স</string>
+    <string name="about_copyright_fmt">© %1$d iNayaTech Lab</string>
 </resources>

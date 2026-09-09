@@ -40,7 +40,7 @@ class SettingsActivity : AppCompatActivity() {
         binding.rowSort.setOnClickListener { showSortDialog() }
         updateSortSummary()
 
-        // About: version line + dialog
+        // About: opens the dedicated company/About page
         val version = try {
             packageManager.getPackageInfo(packageName, 0).versionName
         } catch (e: Exception) {
@@ -48,14 +48,7 @@ class SettingsActivity : AppCompatActivity() {
         }
         binding.tvVersion.text = getString(R.string.settings_version_value, version)
         binding.rowAbout.setOnClickListener {
-            MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.app_name)
-                .setMessage(
-                    getString(R.string.settings_version_value, version) + "\n" +
-                        getString(R.string.settings_about_text)
-                )
-                .setPositiveButton(R.string.action_ok, null)
-                .show()
+            startActivity(android.content.Intent(this, AboutActivity::class.java))
         }
     }
 

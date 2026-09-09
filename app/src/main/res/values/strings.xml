@@ -109,7 +109,6 @@
     <string name="sort_mode_type">Type</string>
     <string name="settings_section_language">Language</string>
     <string name="settings_language_note">The app follows the system language. Bangla (বাংলা) and English are supported; remaining strings are translated gradually.</string>
-    <string name="settings_about_text">A fast, lightweight file manager with storage overview, categories, favorites, recent files, hidden-file support and archive tools.</string>
 
     <!-- Operation feedback (UI level) -->
     <string name="ops_copied_clipboard">%1$d item(s) copied to clipboard</string>
@@ -358,4 +357,13 @@ Add Android/data, Android/obb or another folder above.</string>
     <string name="action_sort_ext">Extension</string>
     <string name="action_sort_created">Created</string>
     <string name="sort_folders_first">Folders first</string>
+    <!-- About / company -->
+    <string name="about_title">About</string>
+    <string name="about_desc">A fast, lightweight file manager with storage overview, categories, favorites, recents, trash, search and archive tools.</string>
+    <string name="about_company_name">iNayaTech Lab</string>
+    <string name="about_made_by_fmt">Made by %1$s</string>
+    <string name="about_company_desc">We build simple, privacy-friendly Android tools. File Manager Pro is our open-source project — contributions, ideas and bug reports are welcome on GitHub.</string>
+    <string name="about_visit_github">Visit project on GitHub</string>
+    <string name="about_open_source">Open source · MIT license</string>
+    <string name="about_copyright_fmt">© %1$d iNayaTech Lab</string>
 </resources>

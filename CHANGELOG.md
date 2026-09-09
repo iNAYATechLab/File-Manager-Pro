@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.5.0](https://github.com/iNAYATechLab/File-Manager-Pro/compare/v0.4.0...v0.5.0) (2026-09-09)
+
+
+### Features
+
+* **about:** company/About page + real-emulator screenshot capture pipeline ([a31885d](https://github.com/iNAYATechLab/File-Manager-Pro/commit/a31885d1dd2742bec8cbb6d678d5932693761749))
+* **core:** app-managed Trash (recycle bin) with restore & empty ([ff579f5](https://github.com/iNAYATechLab/File-Manager-Pro/commit/ff579f5654cfcb25fa21e47823ea1b7b81d29afa))
+* **core:** library quick access (favorites/recents/downloads) + in-app text viewer ([48e4306](https://github.com/iNAYATechLab/File-Manager-Pro/commit/48e4306ac9a20cdf826503e76fa9f023efa4681d))
+* **core:** select by type, open with chooser, extended sorting, home quick access ([a52cbd9](https://github.com/iNAYATechLab/File-Manager-Pro/commit/a52cbd99ccf0b8effd4fb4d2c0853a49d9e8a15e))
+* **public:** README with company info & real emulator screenshots ([#37](https://github.com/iNAYATechLab/File-Manager-Pro/issues/37)) ([d175281](https://github.com/iNAYATechLab/File-Manager-Pro/commit/d17528114c506058298dd08381172908341e55b1))
+
+
+### Bug Fixes
+
+* **test:** rename wait() to sleepMs (Object.wait JVM clash) ([2626fe8](https://github.com/iNAYATechLab/File-Manager-Pro/commit/2626fe8b8e4641cb7a3bb54dac3f987eff8fa243))
+* **trash:** unique id per trash event (same-ms double trash of one path) ([c05edd2](https://github.com/iNAYATechLab/File-Manager-Pro/commit/c05edd2f6cde1bb861d57b33b350d9845f5340b1))
+* **viewer:** strip BOM char from decoded text; fix legacy-encoding test bytes ([719589a](https://github.com/iNAYATechLab/File-Manager-Pro/commit/719589a041da394c53ecd3844f6dae0f27d224af))
+* **viewer:** use trash move failure snackbar (no OpResult errors field) ([1e54d60](https://github.com/iNAYATechLab/File-Manager-Pro/commit/1e54d607a9018d60baa9902e0bbc5d3dd14ba74a))
+
 ## [0.4.0](https://github.com/iNAYATechLab/File-Manager-Pro/compare/v0.3.0...v0.4.0) (2026-09-09)
 
 

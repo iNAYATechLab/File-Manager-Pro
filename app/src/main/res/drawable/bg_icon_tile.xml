@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 46dp tile behind a file-type glyph. The solid colour is replaced at
+     runtime with the type colour at low alpha (mockup .row .ico). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="12dp" />
+    <solid android:color="@color/ui_surface2" />
+</shape>

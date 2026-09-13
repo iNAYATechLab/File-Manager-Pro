@@ -104,6 +104,7 @@ class FileAdapter(
         val icon: ImageView = view.findViewById(R.id.ivIcon)
         val name: android.widget.TextView = view.findViewById(R.id.tvName)
         val sub: android.widget.TextView = view.findViewById(R.id.tvSub)
+        val meta: android.widget.TextView = view.findViewById(R.id.tvMeta)
         val check: ImageView = view.findViewById(R.id.ivCheck)
     }
 
@@ -163,38 +164,39 @@ class FileAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val entry = entries[position]
         val cat = FileCat.of(entry)
-        val tint = ContextCompat.getColor(holder.itemView.context, Icons.color(cat))
-        val white = Color.WHITE
+        val ctx = holder.itemView.context
+        val tint = ContextCompat.getColor(ctx, Icons.color(cat))
 
-        fun bindCommon(root: View, icon: ImageView, name: android.widget.TextView, sub: android.widget.TextView, check: ImageView) {
+        /** Paints the glyph in its type colour on a soft tinted tile. */
+        fun paintGlyph(icon: ImageView) {
+            icon.background = tile(tint, ctx)
+            icon.setImageResource(Icons.glyph(cat))
+            icon.imageTintList = ColorStateList.valueOf(tint)
+        }
+
+        fun bindCommon(
+            root: View,
+            name: android.widget.TextView,
+            sub: android.widget.TextView,
+            check: ImageView,
+            meta: android.widget.TextView?
+        ) {
             name.text = entry.name
-            val ctx = holder.itemView.context
             val catLabel = ctx.getString(Icons.labelRes(cat))
-            sub.text = if (entry.isDir) {
-                if (entry.childCount >= 0) {
-                    "${entry.childCount} ${ctx.getString(R.string.items_count)}"
-                } else {
-                    catLabel
-                }
+            sub.text = if (entry.isDir && entry.childCount >= 0) {
+                "${entry.childCount} ${ctx.getString(R.string.items_count)} • " +
+                    ctx.getString(R.string.label_folder)
             } else {
-                "$catLabel • ${FormatUtils.formatSize(entry.size)} • ${FormatUtils.formatDate(entry.lastModified)}"
+                "$catLabel • ${FormatUtils.formatSize(entry.size)}"
             }
+            // The mockup keeps the modification date in its own trailing column.
+            meta?.text = FormatUtils.formatDate(entry.lastModified)
             root.isSelected = isSelected(entry)
-            check.isVisible = selectionMode
-            if (selectionMode) {
-                check.setImageResource(if (isSelected(entry)) R.drawable.ic_check_circle else R.drawable.ic_circle_outline)
-                check.imageTintList = ColorStateList.valueOf(
-                    if (isSelected(entry)) {
-                        ContextCompat.getColor(holder.itemView.context, R.color.brand_primary)
-                    } else {
-                        ContextCompat.getColor(holder.itemView.context, android.R.color.darker_gray)
-                    }
-                )
-            }
+            check.isVisible = isSelected(entry)
         }
 
         if (isGrid && holder is GridHolder) {
-            bindCommon(holder.root, holder.icon, holder.name, holder.sub, holder.check)
+            bindCommon(holder.root, holder.name, holder.sub, holder.check, null)
             holder.thumb.isVisible = cat == FileCat.IMAGE
             if (cat == FileCat.IMAGE) {
                 holder.thumb.load(entry.file) {
@@ -211,21 +213,19 @@ class FileAdapter(
                 holder.icon.visibility = View.GONE
             } else {
                 holder.icon.visibility = View.VISIBLE
-                holder.icon.background = circle(tint)
-                holder.icon.setImageResource(Icons.glyph(cat))
-                holder.icon.imageTintList = ColorStateList.valueOf(white)
+                paintGlyph(holder.icon)
             }
         } else if (holder is ListHolder) {
-            bindCommon(holder.root, holder.icon, holder.name, holder.sub, holder.check)
-            holder.icon.background = circle(tint)
-            holder.icon.setImageResource(Icons.glyph(cat))
-            holder.icon.imageTintList = ColorStateList.valueOf(white)
+            bindCommon(holder.root, holder.name, holder.sub, holder.check, holder.meta)
+            paintGlyph(holder.icon)
         }
     }
 
-    private fun circle(color: Int): GradientDrawable =
+    /** Rounded tile filled with [color] at mockup's 14% glyph wash. */
+    private fun tile(color: Int, context: android.content.Context): GradientDrawable =
         GradientDrawable().apply {
-            shape = GradientDrawable.OVAL
-            setColor(color)
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = 12f * context.resources.displayMetrics.density
+            setColor(Color.argb(0x24, Color.red(color), Color.green(color), Color.blue(color)))
         }
 }

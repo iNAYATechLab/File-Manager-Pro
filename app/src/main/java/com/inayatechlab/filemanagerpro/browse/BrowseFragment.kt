@@ -920,7 +920,8 @@ class BrowseFragment : Fragment() {
                         startActivity(
                             Intent(requireContext(), SafBrowserActivity::class.java)
                         )
-                    })
+                    },
+                    activePath = baseDir.absolutePath)
                 bb.swipe.isRefreshing = false
                 loading.set(false)
             }

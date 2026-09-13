@@ -376,4 +376,5 @@
     <string name="drawer_used">ব্যবহৃত %1$s</string>
     <string name="drawer_free">ফ্রি %1$s</string>
     <string name="drawer_pct_fmt">ব্যবহৃত %1$d%%</string>
+    <string name="root_capacity_fmt">%1$s · ফ্রি %2$s</string>
 </resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Card outline for the storage pills: accent while the pill is the
+     active volume (mockup .ss.on), hairline otherwise. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/ui_accent" android:state_checked="true" />
+    <item android:color="@color/ui_line" />
+</selector>

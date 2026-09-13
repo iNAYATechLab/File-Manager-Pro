@@ -58,6 +58,87 @@
         </LinearLayout>
     </HorizontalScrollView>
 
+    <!-- Mockup .vrow: list/grid segmented control, sort, up one level. -->
+    <LinearLayout
+        android:id="@+id/viewRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="2dp"
+        android:paddingEnd="6dp"
+        android:paddingBottom="4dp">
+
+        <LinearLayout
+            android:id="@+id/segWrap"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_segment"
+            android:orientation="horizontal"
+            android:padding="2dp">
+
+            <ImageButton
+                android:id="@+id/btnList"
+                android:layout_width="38dp"
+                android:layout_height="34dp"
+                android:background="@drawable/bg_seg_on"
+                android:contentDescription="@string/action_view_list"
+                android:src="@drawable/ic_list_view" />
+
+            <ImageButton
+                android:id="@+id/btnGrid"
+                android:layout_width="38dp"
+                android:layout_height="34dp"
+                android:background="@drawable/bg_seg_off"
+                android:contentDescription="@string/action_view_grid"
+                android:src="@drawable/ic_grid_view" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSort"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="34dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minWidth="0dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:text="@string/action_sort"
+            android:textAllCaps="false"
+            android:textColor="@color/ui_ink2"
+            android:textSize="12sp"
+            app:icon="@drawable/ic_sort"
+            app:iconGravity="textStart"
+            app:iconSize="16dp"
+            app:iconTint="@color/ui_ink2" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnUp"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="34dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:minWidth="0dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:text="@string/action_up"
+            android:textAllCaps="false"
+            android:textColor="@color/ui_ink2"
+            android:textSize="12sp"
+            app:icon="@drawable/ic_chevron_up"
+            app:iconGravity="textStart"
+            app:iconSize="16dp"
+            app:iconTint="@color/ui_ink2" />
+    </LinearLayout>
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"

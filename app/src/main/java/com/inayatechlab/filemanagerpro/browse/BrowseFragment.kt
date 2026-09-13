@@ -265,6 +265,7 @@ class BrowseFragment : Fragment() {
                 menu.findItem(R.id.action_hidden)?.isVisible = false
                 menu.findItem(R.id.action_select_all)?.isVisible = false
             }
+            bindViewRow()
             return
         }
 
@@ -285,6 +286,7 @@ class BrowseFragment : Fragment() {
             it.isChecked = show
             it.title = getString(if (show) R.string.hidden_hide else R.string.hidden_show)
         }
+        bindViewRow()
     }
 
     private fun onMenuItem(item: MenuItem): Boolean {
@@ -350,17 +352,7 @@ class BrowseFragment : Fragment() {
                 true
             }
             R.id.action_sort -> {
-                SortDialog.show(requireContext(), sortMode, sortAsc, isGrid, foldersFirst) { mode, asc, grid, folders ->
-                    sortMode = mode
-                    sortAsc = asc
-                    isGrid = grid
-                    foldersFirst = folders
-                    SettingsStore.setSortMode(requireContext(), mode)
-                    SettingsStore.setSortAscending(requireContext(), asc)
-                    SettingsStore.setGridView(requireContext(), grid)
-                    SettingsStore.setFoldersFirst(requireContext(), folders)
-                    reload()
-                }
+                showSortDialog()
                 true
             }
             R.id.action_refresh -> {
@@ -369,6 +361,69 @@ class BrowseFragment : Fragment() {
             }
             else -> false
         }
+    }
+
+    // ------------------------------------------------------- toolbar view row
+
+    private fun showSortDialog() {
+        SortDialog.show(requireContext(), sortMode, sortAsc, isGrid, foldersFirst) { mode, asc, grid, folders ->
+            sortMode = mode
+            sortAsc = asc
+            isGrid = grid
+            foldersFirst = folders
+            SettingsStore.setSortMode(requireContext(), mode)
+            SettingsStore.setSortAscending(requireContext(), asc)
+            SettingsStore.setGridView(requireContext(), grid)
+            SettingsStore.setFoldersFirst(requireContext(), folders)
+            syncViewRow()
+            reload()
+        }
+    }
+
+    /** Applies and persists the list/grid switch from the segmented control. */
+    private fun setGridView(grid: Boolean) {
+        if (isGrid == grid) return
+        isGrid = grid
+        SettingsStore.setGridView(requireContext(), grid)
+        syncViewRow()
+        reload()
+    }
+
+    /** Keeps the mockup .vrow in step with the current sort / view mode. */
+    private fun syncViewRow() {
+        val b = _binding ?: return
+        b.viewRow.isVisible = !storageHome
+        if (storageHome) return
+
+        val ctx = requireContext()
+        val onColor = androidx.core.content.ContextCompat.getColor(ctx, R.color.ui_accent)
+        val offColor = androidx.core.content.ContextCompat.getColor(ctx, R.color.ui_muted)
+
+        b.btnList.setBackgroundResource(if (isGrid) R.drawable.bg_seg_off else R.drawable.bg_seg_on)
+        b.btnGrid.setBackgroundResource(if (isGrid) R.drawable.bg_seg_on else R.drawable.bg_seg_off)
+        b.btnList.imageTintList = android.content.res.ColorStateList.valueOf(if (isGrid) offColor else onColor)
+        b.btnGrid.imageTintList = android.content.res.ColorStateList.valueOf(if (isGrid) onColor else offColor)
+
+        b.btnSort.text = getString(
+            when (sortMode) {
+                SettingsStore.SORT_DATE -> R.string.action_sort_date
+                SettingsStore.SORT_SIZE -> R.string.action_sort_size
+                SettingsStore.SORT_TYPE, SettingsStore.SORT_EXT -> R.string.action_sort_type
+                SettingsStore.SORT_CREATED -> R.string.action_sort_date
+                else -> R.string.action_sort_name
+            }
+        )
+        // Up is only meaningful inside a volume; at the top it returns home.
+        b.btnUp.isVisible = !(storageHome || isAtRoot())
+    }
+
+    private fun bindViewRow() {
+        val b = _binding ?: return
+        b.btnList.setOnClickListener { setGridView(false) }
+        b.btnGrid.setOnClickListener { setGridView(true) }
+        b.btnSort.setOnClickListener { showSortDialog() }
+        b.btnUp.setOnClickListener { goUp() }
+        syncViewRow()
     }
 
     // ---------------------------------------------------------------- selection

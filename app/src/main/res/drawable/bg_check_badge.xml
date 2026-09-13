@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Selection badge on the top-start corner of a row icon (mockup .row .ck). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="6dp" />
+    <solid android:color="@color/ui_accent" />
+    <stroke
+        android:width="2dp"
+        android:color="@color/ui_surface" />
+</shape>

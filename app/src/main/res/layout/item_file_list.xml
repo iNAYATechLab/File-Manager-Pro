@@ -1,24 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- List row: 46dp type-tinted glyph tile + name / "type • size" + date
+     at the end, selection badge on the tile corner (mockup .row). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/itemRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_item"
+    android:background="@drawable/bg_file_row"
     android:gravity="center_vertical"
     android:minHeight="56dp"
     android:orientation="horizontal"
-    android:paddingStart="8dp"
-    android:paddingEnd="12dp">
+    android:paddingStart="6dp"
+    android:paddingTop="5dp"
+    android:paddingEnd="6dp"
+    android:paddingBottom="5dp">
 
-    <ImageView
-        android:id="@+id/ivIcon"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:contentDescription="@string/action_open"
-        android:padding="9dp"
-        android:scaleType="fitCenter" />
+    <FrameLayout
+        android:layout_width="46dp"
+        android:layout_height="46dp">
+
+        <ImageView
+            android:id="@+id/ivIcon"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_icon_tile"
+            android:contentDescription="@string/action_open"
+            android:scaleType="fitCenter" />
+
+        <ImageView
+            android:id="@+id/ivCheck"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="top|start"
+            android:layout_marginStart="-2dp"
+            android:layout_marginTop="-2dp"
+            android:background="@drawable/bg_check_badge"
+            android:contentDescription="@string/action_select"
+            android:padding="3dp"
+            android:src="@drawable/ic_check_glyph"
+            android:visibility="gone" />
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="0dp"
@@ -33,28 +55,30 @@
             android:layout_height="wrap_content"
             android:ellipsize="middle"
             android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="@color/ui_ink"
+            android:textSize="14sp"
             tools:text="report_final_2026.pdf" />
 
         <TextView
             android:id="@+id/tvSub"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
             android:ellipsize="middle"
             android:maxLines="1"
-            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-            android:textColor="?android:attr/textColorSecondary"
-            tools:text="PDF • 1.2 MB • 12/05/2026" />
+            android:textColor="@color/ui_muted"
+            android:textSize="11.5sp"
+            tools:text="PDF • 1.2 MB" />
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/ivCheck"
-        android:layout_width="22dp"
-        android:layout_height="22dp"
+    <TextView
+        android:id="@+id/tvMeta"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:contentDescription="@string/action_select"
-        android:src="@drawable/ic_check_circle"
-        android:visibility="gone" />
+        android:maxLines="1"
+        android:textColor="@color/ui_muted"
+        android:textSize="12sp"
+        tools:text="12/05/2026" />
 
 </LinearLayout>

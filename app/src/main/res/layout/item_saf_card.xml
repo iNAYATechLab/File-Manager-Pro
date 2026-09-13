@@ -12,9 +12,11 @@
     android:clickable="true"
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground"
-    app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+    app:cardBackgroundColor="@color/ui_surface"
     app:cardCornerRadius="16dp"
-    app:cardElevation="0dp">
+    app:cardElevation="0dp"
+    app:strokeColor="@color/ui_line"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -30,7 +32,7 @@
             android:contentDescription="@string/saf_footer_title"
             android:padding="9dp"
             android:src="@drawable/ic_locked_folder"
-            app:tint="@color/brand_primary" />
+            app:tint="@color/ui_accent" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -53,7 +55,7 @@
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                android:textColor="?android:attr/textColorSecondary"
+                android:textColor="@color/ui_muted"
                 tools:text="Tap to grant access via SAF" />
         </LinearLayout>
     </LinearLayout>

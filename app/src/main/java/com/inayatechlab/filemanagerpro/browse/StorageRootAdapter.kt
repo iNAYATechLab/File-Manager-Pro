@@ -1,6 +1,8 @@
 package com.inayatechlab.filemanagerpro.browse
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -10,6 +12,7 @@ import com.inayatechlab.filemanagerpro.databinding.ItemSafCardBinding
 import com.inayatechlab.filemanagerpro.databinding.ItemStorageRootBinding
 import com.inayatechlab.filemanagerpro.util.FormatUtils
 import com.inayatechlab.filemanagerpro.util.StorageRoot
+import com.inayatechlab.filemanagerpro.util.StorageUtils
 
 /**
  * Storage home list: volume cards followed by the SAF (protected folders)
@@ -19,8 +22,13 @@ class StorageRootAdapter(
     private val roots: List<StorageRoot>,
     private val onOpen: (StorageRoot) -> Unit,
     private val grantedSafCount: Int? = null,
-    private val onSafClick: (() -> Unit)? = null
+    private val onSafClick: (() -> Unit)? = null,
+    /** Path of the volume currently being browsed, so it can be marked active. */
+    private val activePath: String? = null
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    private val activeIndex: Int =
+        roots.indexOfFirst { it.file.path == activePath }
 
     private val safVisible: Boolean get() = grantedSafCount != null
 
@@ -44,29 +52,50 @@ class StorageRootAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-            is RootHolder -> bindRoot(holder, roots[position])
+            is RootHolder -> bindRoot(holder, roots[position], position)
             is SafHolder -> bindSaf(holder)
         }
     }
 
-    private fun bindRoot(holder: RootHolder, root: StorageRoot) {
+    private fun bindRoot(holder: RootHolder, root: StorageRoot, position: Int) {
         val b = holder.binding
         val ctx: Context = holder.itemView.context
+        val primary = isPrimaryRoot(root)
 
         b.tvName.text = root.label
-        b.tvPath.text = root.file.path
-
-        val used = (root.total - root.free).coerceAtLeast(0L)
-        val pct = FormatUtils.formatPercent(used, root.total)
-        b.progress.setProgressCompat(pct, true)
-        b.tvStats.text = ctx.getString(
-            R.string.storage_summary,
-            FormatUtils.formatSize(used),
-            FormatUtils.formatSize(root.free),
-            FormatUtils.formatSize(root.total)
+        b.tvCap.text = ctx.getString(
+            R.string.root_capacity_fmt,
+            FormatUtils.formatSize(root.total),
+            FormatUtils.formatSize(root.free)
         )
+
+        // Mockup paints the internal pill blue and the SD pill warm orange.
+        b.ivIcon.background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = 10f * ctx.resources.displayMetrics.density
+            setColor(
+                ContextCompat.getColor(
+                    ctx,
+                    if (primary) R.color.vol_internal_bg else R.color.vol_sd_bg
+                )
+            )
+        }
+        b.ivIcon.setImageResource(if (primary) R.drawable.ic_folder else R.drawable.ic_sd_24)
+        b.ivIcon.imageTintList = ColorStateList.valueOf(
+            ContextCompat.getColor(
+                ctx,
+                if (primary) R.color.vol_internal_fg else R.color.vol_sd_fg
+            )
+        )
+
+        b.root.isChecked = position == if (activeIndex >= 0) activeIndex else 0
         b.root.setOnClickListener { onOpen(root) }
     }
+
+    /** True for the primary shared storage; removable volumes get the SD look. */
+    private fun isPrimaryRoot(root: StorageRoot): Boolean = runCatching {
+        root.file.canonicalPath == StorageUtils.primaryRoot().canonicalPath
+    }.getOrDefault(true)
 
     private fun bindSaf(holder: SafHolder) {
         val b = holder.binding

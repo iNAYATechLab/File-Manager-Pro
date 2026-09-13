@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Mockup .ss .sel: grey dot, accent with a soft ring when active. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true">
+        <layer-list>
+            <item
+                android:gravity="center"
+                android:height="14dp"
+                android:width="14dp">
+                <shape android:shape="oval">
+                    <solid android:color="@color/ui_accent_soft" />
+                </shape>
+            </item>
+            <item
+                android:gravity="center"
+                android:height="8dp"
+                android:width="8dp">
+                <shape android:shape="oval">
+                    <solid android:color="@color/ui_accent" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/ui_line" />
+        </shape>
+    </item>
+</selector>

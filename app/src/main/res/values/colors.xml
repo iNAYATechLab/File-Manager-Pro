@@ -47,4 +47,10 @@
     <color name="selection_tint">#331F6FEB</color>
     <color name="scrim_light">#66FFFFFF</color>
     <color name="launcher_background">#2563EB</color>
+
+    <!-- Storage pills (mockup .ss .d1 / .d2) -->
+    <color name="vol_internal_bg">#E8F1FF</color>
+    <color name="vol_internal_fg">#2F7FE0</color>
+    <color name="vol_sd_bg">#FFF0E2</color>
+    <color name="vol_sd_fg">#F08C2E</color>
 </resources>

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Storage home pill: tinted volume tile + name + capacity + a dot that
+     marks the active volume (mockup .ss / .ss.on). -->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -6,36 +8,42 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginStart="12dp"
-    android:layout_marginTop="6dp"
+    android:layout_marginTop="5dp"
     android:layout_marginEnd="12dp"
-    android:layout_marginBottom="6dp"
+    android:layout_marginBottom="5dp"
+    android:checkable="true"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground"
-    app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+    app:cardBackgroundColor="@color/ui_surface"
     app:cardCornerRadius="16dp"
-    app:cardElevation="0dp">
+    app:cardElevation="0dp"
+    app:strokeColor="@color/sel_storage_stroke"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:paddingStart="12dp"
+        android:paddingTop="9dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="9dp">
 
         <ImageView
             android:id="@+id/ivIcon"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="@drawable/bg_icon_tile"
             android:contentDescription="@string/nav_storage"
-            android:padding="10dp"
-            android:src="@drawable/ic_storage"
-            app:tint="@color/brand_primary" />
+            android:padding="7dp"
+            android:scaleType="fitCenter" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="10dp"
             android:layout_weight="1"
             android:orientation="vertical">
 
@@ -43,37 +51,32 @@
                 android:id="@+id/tvName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/ui_ink"
+                android:textSize="12.5sp"
                 tools:text="Internal storage" />
 
             <TextView
-                android:id="@+id/tvPath"
+                android:id="@+id/tvCap"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ellipsize="middle"
+                android:layout_marginTop="1dp"
+                android:ellipsize="end"
                 android:maxLines="1"
-                android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                android:textColor="?android:attr/textColorSecondary"
-                tools:text="/storage/emulated/0" />
-
-            <com.google.android.material.progressindicator.LinearProgressIndicator
-                android:id="@+id/progress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:max="100"
-                app:indicatorColor="@color/brand_primary"
-                app:trackColor="#26000000"
-                tools:progress="55" />
-
-            <TextView
-                android:id="@+id/tvStats"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
-                android:textColor="?android:attr/textColorSecondary"
-                tools:text="Used 32.0 GB • Free 96.0 GB • Total 128.0 GB" />
+                android:textColor="@color/ui_muted"
+                android:textSize="10sp"
+                tools:text="112 GB · 44 GB free" />
         </LinearLayout>
+
+        <View
+            android:id="@+id/vSel"
+            android:duplicateParentState="true"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/sel_pill_dot" />
+
     </LinearLayout>
+
 </com.google.android.material.card.MaterialCardView>

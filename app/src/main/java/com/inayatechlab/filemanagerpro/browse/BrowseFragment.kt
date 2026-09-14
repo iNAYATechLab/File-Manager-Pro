@@ -395,14 +395,10 @@ class BrowseFragment : Fragment() {
         b.viewRow.isVisible = !storageHome
         if (storageHome) return
 
-        val ctx = requireContext()
-        val onColor = androidx.core.content.ContextCompat.getColor(ctx, R.color.ui_accent)
-        val offColor = androidx.core.content.ContextCompat.getColor(ctx, R.color.ui_muted)
-
-        b.btnList.setBackgroundResource(if (isGrid) R.drawable.bg_seg_off else R.drawable.bg_seg_on)
-        b.btnGrid.setBackgroundResource(if (isGrid) R.drawable.bg_seg_on else R.drawable.bg_seg_off)
-        b.btnList.imageTintList = android.content.res.ColorStateList.valueOf(if (isGrid) offColor else onColor)
-        b.btnGrid.imageTintList = android.content.res.ColorStateList.valueOf(if (isGrid) onColor else offColor)
+        // The pill background and icon tint are state-driven (bg_seg_btn /
+        // seg_icon_tint), so the row only has to flip the selected state.
+        b.btnList.isSelected = !isGrid
+        b.btnGrid.isSelected = isGrid
 
         b.btnSort.text = getString(
             when (sortMode) {

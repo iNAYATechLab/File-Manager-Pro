@@ -82,17 +82,19 @@
                 android:id="@+id/btnList"
                 android:layout_width="38dp"
                 android:layout_height="34dp"
-                android:background="@drawable/bg_seg_on"
+                android:background="@drawable/bg_seg_btn"
                 android:contentDescription="@string/action_view_list"
-                android:src="@drawable/ic_list_view" />
+                android:src="@drawable/ic_list_view"
+                app:tint="@color/seg_icon_tint" />
 
             <ImageButton
                 android:id="@+id/btnGrid"
                 android:layout_width="38dp"
                 android:layout_height="34dp"
-                android:background="@drawable/bg_seg_off"
+                android:background="@drawable/bg_seg_btn"
                 android:contentDescription="@string/action_view_grid"
-                android:src="@drawable/ic_grid_view" />
+                android:src="@drawable/ic_grid_view"
+                app:tint="@color/seg_icon_tint" />
         </LinearLayout>
 
         <View

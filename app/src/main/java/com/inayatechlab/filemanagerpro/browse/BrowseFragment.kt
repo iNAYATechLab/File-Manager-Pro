@@ -102,6 +102,8 @@ class BrowseFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         readPrefs()
 
+        bindViewRow()
+
         binding.swipe.setOnRefreshListener { reload() }
         binding.tvEmpty.setOnClickListener {
             if (!StorageUtils.isStoragePermitted(requireContext())) {
@@ -265,7 +267,7 @@ class BrowseFragment : Fragment() {
                 menu.findItem(R.id.action_hidden)?.isVisible = false
                 menu.findItem(R.id.action_select_all)?.isVisible = false
             }
-            bindViewRow()
+            syncViewRow()
             return
         }
 
@@ -286,7 +288,7 @@ class BrowseFragment : Fragment() {
             it.isChecked = show
             it.title = getString(if (show) R.string.hidden_hide else R.string.hidden_show)
         }
-        bindViewRow()
+        syncViewRow()
     }
 
     private fun onMenuItem(item: MenuItem): Boolean {
@@ -385,8 +387,24 @@ class BrowseFragment : Fragment() {
         if (isGrid == grid) return
         isGrid = grid
         SettingsStore.setGridView(requireContext(), grid)
-        syncViewRow()
         reload()
+    }
+
+    /**
+     * Wires the view row once, when the fragment view is created.
+     *
+     * It is deliberately NOT called from [syncMenu]: the listeners below end up
+     * calling [reload] -> [syncMenu], so re-registering them on every refresh
+     * would close a call cycle (and that cycle is what hung the lint
+     * call-graph analysis in CI).
+     */
+    private fun bindViewRow() {
+        val b = _binding ?: return
+        b.btnList.setOnClickListener { setGridView(false) }
+        b.btnGrid.setOnClickListener { setGridView(true) }
+        b.btnSort.setOnClickListener { showSortDialog() }
+        b.btnUp.setOnClickListener { goUp() }
+        syncViewRow()
     }
 
     /** Keeps the mockup .vrow in step with the current sort / view mode. */
@@ -402,24 +420,14 @@ class BrowseFragment : Fragment() {
 
         b.btnSort.text = getString(
             when (sortMode) {
-                SettingsStore.SORT_DATE -> R.string.action_sort_date
+                SettingsStore.SORT_DATE, SettingsStore.SORT_CREATED -> R.string.action_sort_date
                 SettingsStore.SORT_SIZE -> R.string.action_sort_size
                 SettingsStore.SORT_TYPE, SettingsStore.SORT_EXT -> R.string.action_sort_type
-                SettingsStore.SORT_CREATED -> R.string.action_sort_date
                 else -> R.string.action_sort_name
             }
         )
         // Up is only meaningful inside a volume; at the top it returns home.
-        b.btnUp.isVisible = !(storageHome || isAtRoot())
-    }
-
-    private fun bindViewRow() {
-        val b = _binding ?: return
-        b.btnList.setOnClickListener { setGridView(false) }
-        b.btnGrid.setOnClickListener { setGridView(true) }
-        b.btnSort.setOnClickListener { showSortDialog() }
-        b.btnUp.setOnClickListener { goUp() }
-        syncViewRow()
+        b.btnUp.isVisible = !isAtRoot()
     }
 
     // ---------------------------------------------------------------- selection

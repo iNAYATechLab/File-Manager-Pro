@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Background of one half of the list/grid segmented control: the selected
+     half gets the accent-soft pill (mockup .vseg button.on). -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/bg_seg_on" android:state_selected="true" />
+    <item android:drawable="@drawable/bg_seg_off" />
+</selector>

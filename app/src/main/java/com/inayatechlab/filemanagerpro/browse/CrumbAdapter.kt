@@ -2,6 +2,7 @@ package com.inayatechlab.filemanagerpro.browse
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.inayatechlab.filemanagerpro.databinding.ItemCrumbBinding
 import com.inayatechlab.filemanagerpro.model.PathCrumb
@@ -20,17 +21,19 @@ class CrumbAdapter(
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val crumb = crumbs[position]
-        holder.binding.tvCrumb.text = crumb.label
-        holder.binding.tvCrumb.setTextColor(
-            if (position == crumbs.lastIndex) {
-                androidx.core.content.ContextCompat.getColor(holder.itemView.context, com.inayatechlab.filemanagerpro.R.color.brand_primary)
-            } else {
-                com.google.android.material.color.MaterialColors.getColor(
-                    holder.itemView,
-                    com.google.android.material.R.attr.colorOnSurfaceVariant
+        val ctx = holder.itemView.context
+        val last = position == crumbs.lastIndex
+        with(holder.binding) {
+            tvCrumb.text = crumb.label
+            tvSep.isVisible = !last
+            tvCrumb.setTextColor(
+                androidx.core.content.ContextCompat.getColor(
+                    ctx,
+                    if (last) com.inayatechlab.filemanagerpro.R.color.ui_accent
+                    else com.inayatechlab.filemanagerpro.R.color.ui_muted
                 )
-            }
-        )
-        holder.binding.tvCrumb.setOnClickListener { onClick(crumb) }
+            )
+            tvCrumb.setOnClickListener { onClick(crumb) }
+        }
     }
 }

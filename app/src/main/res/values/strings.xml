@@ -378,4 +378,7 @@ Add Android/data, Android/obb or another folder above.</string>
     <string name="drawer_pct_fmt">Used %1$d%%</string>
     <string name="root_capacity_fmt">%1$s · %2$s free</string>
     <string name="action_up">Up</string>
+    <string name="action_more">More actions</string>
+    <string name="action_close">Close</string>
+    <string name="sel_count_fmt">%1$d selected</string>
 </resources>

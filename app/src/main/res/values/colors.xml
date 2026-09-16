@@ -53,4 +53,5 @@
     <color name="vol_internal_fg">#2F7FE0</color>
     <color name="vol_sd_bg">#FFF0E2</color>
     <color name="vol_sd_fg">#F08C2E</color>
+    <color name="ui_danger">#E05543</color>
 </resources>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Selection bar: count + copy / cut / delete / share + overflow, shown
+     while the list is in selection mode (mockup .selbar). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="10dp"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/bg_selbar"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="8dp"
+    android:paddingTop="2dp"
+    android:paddingEnd="2dp"
+    android:paddingBottom="2dp"
+    android:visibility="gone">
+
+    <ImageButton
+        android:id="@+id/btnSelClose"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/action_clear_selection"
+        android:src="@drawable/ic_close"
+        app:tint="@color/ui_muted" />
+
+    <TextView
+        android:id="@+id/tvSelCount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@color/ui_ink"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        tools:text="3 selected" />
+
+    <ImageButton
+        android:id="@+id/btnSelCopy"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/action_copy"
+        android:src="@drawable/ic_copy"
+        app:tint="@color/ui_ink2" />
+
+    <ImageButton
+        android:id="@+id/btnSelCut"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/action_cut"
+        android:src="@drawable/ic_cut"
+        app:tint="@color/ui_ink2" />
+
+    <ImageButton
+        android:id="@+id/btnSelDelete"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/action_delete"
+        android:src="@drawable/ic_delete"
+        app:tint="@color/ui_danger" />
+
+    <ImageButton
+        android:id="@+id/btnSelShare"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/action_share"
+        android:src="@drawable/ic_share"
+        app:tint="@color/ui_ink2" />
+
+    <ImageButton
+        android:id="@+id/btnSelMore"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/action_more"
+        android:src="@drawable/ic_more_vert"
+        app:tint="@color/ui_ink2" />
+
+</LinearLayout>

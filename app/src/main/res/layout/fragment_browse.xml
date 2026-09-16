@@ -141,6 +141,10 @@
             app:iconTint="@color/ui_ink2" />
     </LinearLayout>
 
+    <include
+        android:id="@+id/selectionBar"
+        layout="@layout/view_selection_bar" />
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"

@@ -75,5 +75,17 @@ class ActionsSheet : BottomSheetDialogFragment() {
                 this.actions = actions
             }.show(fragment.childFragmentManager, TAG)
         }
+
+        /** Same sheet from a plain activity (e.g. the search screen). */
+        fun show(
+            activity: androidx.fragment.app.FragmentActivity,
+            title: String,
+            actions: List<Action>
+        ) {
+            ActionsSheet().apply {
+                this.title = title
+                this.actions = actions
+            }.show(activity.supportFragmentManager, TAG)
+        }
     }
 }

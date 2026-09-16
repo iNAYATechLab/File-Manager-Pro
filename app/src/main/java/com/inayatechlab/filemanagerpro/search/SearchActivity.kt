@@ -10,9 +10,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.inayatechlab.filemanagerpro.MainActivity
 import com.inayatechlab.filemanagerpro.R
+import com.inayatechlab.filemanagerpro.browse.ActionsSheet
 import com.inayatechlab.filemanagerpro.browse.FileAdapter
 import com.inayatechlab.filemanagerpro.databinding.ActivitySearchBinding
 import com.inayatechlab.filemanagerpro.model.FileEntry
+import com.inayatechlab.filemanagerpro.util.Dialogs
 import com.inayatechlab.filemanagerpro.util.FileCat
 import com.inayatechlab.filemanagerpro.util.OpenUtils
 import com.inayatechlab.filemanagerpro.util.Scanner
@@ -48,6 +50,9 @@ class SearchActivity : AppCompatActivity() {
 
         val adapter = FileAdapter(isGrid = false, selectable = false).apply {
             onItemClick = { entry -> onResultClick(entry) }
+            // Built once, here in onCreate, so the row's ⋮ (and long-press)
+            // open the same action sheet the other screens use.
+            onItemMenu = { entry -> showResultActions(entry) }
         }
         binding.recycler.layoutManager = LinearLayoutManager(this)
         binding.recycler.adapter = adapter
@@ -122,6 +127,34 @@ class SearchActivity : AppCompatActivity() {
         runOnUiThread {
             adapter.entries = (adapter.entries + added).toMutableList()
         }
+    }
+
+    /** Actions for one search result, in the mockup sheet. */
+    private fun showResultActions(entry: FileEntry) {
+        val picked = listOf(entry)
+        val actions = mutableListOf<ActionsSheet.Action>()
+
+        actions += ActionsSheet.Action(
+            R.string.action_open,
+            if (entry.isDir) R.drawable.ic_folder else R.drawable.ic_generic_file
+        ) { onResultClick(entry) }
+        if (!entry.isDir) {
+            actions += ActionsSheet.Action(
+                R.string.action_open_with, R.drawable.ic_generic_file
+            ) {
+                if (!OpenUtils.openWith(this, entry.file)) {
+                    snack(getString(R.string.no_app_found))
+                }
+            }
+        }
+        actions += ActionsSheet.Action(R.string.action_properties, R.drawable.ic_info) {
+            Dialogs.properties(this, entry, lifecycleScope)
+        }
+        actions += ActionsSheet.Action(R.string.action_share, R.drawable.ic_share) {
+            if (!OpenUtils.share(this, picked)) snack(getString(R.string.no_app_found))
+        }
+
+        ActionsSheet.show(this, entry.name, actions)
     }
 
     private fun onResultClick(entry: FileEntry) {

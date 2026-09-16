@@ -14,6 +14,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.inayatechlab.filemanagerpro.MainActivity
 import com.inayatechlab.filemanagerpro.R
+import com.inayatechlab.filemanagerpro.browse.ActionsSheet
 import com.inayatechlab.filemanagerpro.browse.FileAdapter
 import com.inayatechlab.filemanagerpro.browse.FileOpsComparator
 import com.inayatechlab.filemanagerpro.databinding.FragmentLibraryBinding
@@ -270,53 +271,53 @@ class LibraryFragment : Fragment() {
 
     private fun showItemActions(entry: FileEntry) {
         val ctx = requireContext()
-        val actions = mutableListOf<String>()
+        val actions = mutableListOf<ActionsSheet.Action>()
+
         when (current) {
-            Section.FAVORITES -> {
-                actions += getString(R.string.lib_remove_from_favorites)
+            Section.FAVORITES -> actions += ActionsSheet.Action(
+                R.string.lib_remove_from_favorites, R.drawable.ic_star
+            ) {
+                LibraryStore.removeFavorite(storeDir, entry.path)
+                reloadAfterRemove()
             }
             Section.RECENT -> {
-                actions += getString(R.string.lib_remove_from_recents)
-                actions += getString(R.string.action_add_favorite)
+                actions += ActionsSheet.Action(
+                    R.string.lib_remove_from_recents, R.drawable.ic_history
+                ) {
+                    LibraryStore.removeRecent(storeDir, entry.path)
+                    reloadAfterRemove()
+                }
+                actions += ActionsSheet.Action(
+                    R.string.action_add_favorite, R.drawable.ic_star
+                ) {
+                    LibraryStore.addFavorite(storeDir, entry)
+                    snack(getString(R.string.lib_added_favorite_fmt, entry.name))
+                }
             }
-            Section.DOWNLOADS -> {
-                actions += getString(R.string.action_add_favorite)
+            Section.DOWNLOADS -> actions += ActionsSheet.Action(
+                R.string.action_add_favorite, R.drawable.ic_star
+            ) {
+                LibraryStore.addFavorite(storeDir, entry)
+                snack(getString(R.string.lib_added_favorite_fmt, entry.name))
             }
             Section.TRASH -> Unit
         }
-        actions += getString(R.string.action_share)
-        actions += getString(R.string.action_properties)
-        if (!entry.isDir) actions += getString(R.string.action_open_with)
 
-        MaterialAlertDialogBuilder(ctx)
-            .setTitle(entry.name)
-            .setItems(actions.toTypedArray()) { _, which ->
-                when {
-                    which == 0 && current == Section.FAVORITES ->
-                        LibraryStore.removeFavorite(storeDir, entry.path).also { reloadAfterRemove() }
-                    which == 0 && current == Section.RECENT ->
-                        LibraryStore.removeRecent(storeDir, entry.path).also { reloadAfterRemove() }
-                    (which == 0 && current == Section.DOWNLOADS) ||
-                        (which == 1 && current == Section.RECENT) -> {
-                        LibraryStore.addFavorite(storeDir, entry)
-                        snack(getString(R.string.lib_added_favorite_fmt, entry.name))
-                    }
-                    else -> {
-                        val relWhich = when (current) {
-                            Section.FAVORITES -> which - 1
-                            Section.RECENT -> which - 2
-                            Section.DOWNLOADS -> which - 1
-                            Section.TRASH -> which - 1
-                        }
-                        when (relWhich) {
-                            0 -> if (!OpenUtils.share(ctx, listOf(entry))) snack(getString(R.string.no_app_found))
-                            1 -> Dialogs.properties(ctx, entry, scope)
-                            2 -> if (!OpenUtils.openWith(ctx, entry.file)) snack(getString(R.string.no_app_found))
-                        }
-                    }
-                }
+        actions += ActionsSheet.Action(R.string.action_share, R.drawable.ic_share) {
+            if (!OpenUtils.share(ctx, listOf(entry))) snack(getString(R.string.no_app_found))
+        }
+        actions += ActionsSheet.Action(R.string.action_properties, R.drawable.ic_info) {
+            Dialogs.properties(ctx, entry, scope)
+        }
+        if (!entry.isDir) {
+            actions += ActionsSheet.Action(
+                R.string.action_open_with, R.drawable.ic_generic_file
+            ) {
+                if (!OpenUtils.openWith(ctx, entry.file)) snack(getString(R.string.no_app_found))
             }
-            .show()
+        }
+
+        ActionsSheet.show(this, entry.name, actions)
     }
 
     // ---------------------------------------------------------------- trash actions

@@ -129,6 +129,12 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+    private fun snack(text: String) {
+        com.google.android.material.snackbar.Snackbar
+            .make(binding.root, text, com.google.android.material.snackbar.Snackbar.LENGTH_LONG)
+            .show()
+    }
+
     /** Actions for one search result, in the mockup sheet. */
     private fun showResultActions(entry: FileEntry) {
         val picked = listOf(entry)

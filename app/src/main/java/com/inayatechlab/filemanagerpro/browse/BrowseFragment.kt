@@ -71,6 +71,15 @@ class BrowseFragment : Fragment() {
     private var storageHome = true
     private var adapter: FileAdapter? = null
     private var selectionActive = false
+
+    /**
+     * Stable listener for the row overflow, built once.
+     *
+     * reload() must not build the lambda itself: the sheet's actions call
+     * reload() again, and lint's call-graph analysis hangs on that cycle
+     * (see #42). Assigning this field keeps reload() to a plain read.
+     */
+    private val rowMenuListener: (FileEntry) -> Unit = { showItemActions(it) }
     private val loading = AtomicBoolean(false)
     /** Active copy/move job so the user can cancel it from the progress dialog. */
     private var transferJob: Job? = null
@@ -1096,7 +1105,7 @@ class BrowseFragment : Fragment() {
                 onItemClick = { openEntry(it) }
                 onItemLongClick = { enterSelectionMode() }
                 onSelectionChanged = { updateSelectionBar() }
-                onItemMenu = { showItemActions(it) }
+                onItemMenu = rowMenuListener
             }
             adapter = newAdapter
             b.recycler.adapter = newAdapter

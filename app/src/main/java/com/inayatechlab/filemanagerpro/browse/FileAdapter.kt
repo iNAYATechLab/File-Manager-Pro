@@ -105,6 +105,7 @@ class FileAdapter(
         val name: android.widget.TextView = view.findViewById(R.id.tvName)
         val sub: android.widget.TextView = view.findViewById(R.id.tvSub)
         val meta: android.widget.TextView = view.findViewById(R.id.tvMeta)
+        val more: View = view.findViewById(R.id.btnMore)
         val check: ImageView = view.findViewById(R.id.ivCheck)
     }
 
@@ -138,6 +139,14 @@ class FileAdapter(
                 onItemClick?.invoke(entry)
             }
         }
+        // Wired once per view: the handler looks the entry up by position, so
+        // it never has to be re-assigned while the list scrolls.
+        (root as? android.view.ViewGroup)?.findViewById<View?>(R.id.btnMore)
+            ?.setOnClickListener {
+                val pos = holder.bindingAdapterPosition
+                if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
+                onItemMenu?.invoke(entries[pos])
+            }
         root.setOnLongClickListener {
             val pos = holder.bindingAdapterPosition
             if (pos == RecyclerView.NO_POSITION) return@setOnLongClickListener false
@@ -218,6 +227,8 @@ class FileAdapter(
         } else if (holder is ListHolder) {
             bindCommon(holder.root, holder.name, holder.sub, holder.check, holder.meta)
             paintGlyph(holder.icon)
+            // The ⋮ menu belongs to normal browsing; selection has its own bar.
+            holder.more.isVisible = onItemMenu != null && !selectionMode
         }
     }
 

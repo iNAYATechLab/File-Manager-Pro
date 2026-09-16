@@ -29,6 +29,11 @@
         <item name="colorOutline">@color/ui_line</item>
         <item name="colorOutlineVariant">@color/ui_line</item>
 
+        <!-- Toast/snackbar (mockup .toast pill; see styles.xml) -->
+        <item name="snackbarStyle">@style/Widget.App.Snackbar</item>
+        <item name="snackbarTextViewStyle">@style/Widget.App.Snackbar.TextView</item>
+        <item name="snackbarButtonStyle">@style/Widget.App.Snackbar.Button</item>
+
         <!-- System bars: transparent status, bg nav bar, dark icons in light -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@color/ui_bg</item>

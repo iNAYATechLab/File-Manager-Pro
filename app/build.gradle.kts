@@ -4,6 +4,12 @@ plugins {
 }
 
 android {
+    lint {
+        // The gate is for production sources. Analysing the unit-test and
+        // android-test variants adds two more lintAnalyze tasks to every
+        // run and made the CI step crawl after the runner image changed.
+        checkTestSources = false
+    }
     namespace = "com.inayatechlab.filemanagerpro"
     compileSdk = 34
 

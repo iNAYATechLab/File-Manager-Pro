@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Filter chip label: accent + bold-ish emphasis when checked (mockup .ditem.on). -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/ui_accent" android:state_checked="true" />
+    <item android:color="@color/ui_ink2" />
+</selector>

@@ -1,11 +1,26 @@
 package com.inayatechlab.filemanagerpro.util
 
+import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.inayatechlab.filemanagerpro.R
 
 object Icons {
+
+    /**
+     * Soft, type-tinted tile drawn behind a glyph — the mockup `.row .ico`
+     * look. Shared by every row that shows a file-type glyph.
+     */
+    fun tile(@ColorInt color: Int, context: android.content.Context): android.graphics.drawable.GradientDrawable =
+        android.graphics.drawable.GradientDrawable().apply {
+            shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+            cornerRadius = 12f * context.resources.displayMetrics.density
+            setColor(android.graphics.Color.argb(0x24,
+                android.graphics.Color.red(color),
+                android.graphics.Color.green(color),
+                android.graphics.Color.blue(color)))
+        }
 
     @DrawableRes
     fun glyph(cat: FileCat): Int = when (cat) {

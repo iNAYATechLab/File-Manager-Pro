@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Grab handle at the top of the action sheet (mockup .grab). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="2dp" />
+    <solid android:color="@color/ui_chip_bg" />
+</shape>

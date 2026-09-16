@@ -3,13 +3,10 @@ package com.inayatechlab.filemanagerpro.browse
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.view.ActionMode
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -73,7 +70,7 @@ class BrowseFragment : Fragment() {
     /** When true the Storage home (volume cards) is shown instead of a folder. */
     private var storageHome = true
     private var adapter: FileAdapter? = null
-    private var actionMode: ActionMode? = null
+    private var selectionActive = false
     private val loading = AtomicBoolean(false)
     /** Active copy/move job so the user can cancel it from the progress dialog. */
     private var transferJob: Job? = null
@@ -103,6 +100,7 @@ class BrowseFragment : Fragment() {
         readPrefs()
 
         bindViewRow()
+        bindSelectionBar()
 
         binding.swipe.setOnRefreshListener { reload() }
         binding.tvEmpty.setOnClickListener {
@@ -230,7 +228,13 @@ class BrowseFragment : Fragment() {
         return true
     }
 
-    fun handleBack(): Boolean = goUp()
+    fun handleBack(): Boolean {
+        if (selectionActive) {
+            exitSelectionMode()
+            return true
+        }
+        return goUp()
+    }
 
     private fun crumbs(): List<PathCrumb> {
         val out = mutableListOf<PathCrumb>()
@@ -345,7 +349,7 @@ class BrowseFragment : Fragment() {
                 true
             }
             R.id.action_select_all -> {
-                if (actionMode == null) enterSelectionMode()
+                if (!selectionActive) enterSelectionMode()
                 adapter?.selectAll()
                 true
             }
@@ -433,15 +437,114 @@ class BrowseFragment : Fragment() {
     // ---------------------------------------------------------------- selection
 
     private fun enterSelectionMode() {
-        if (actionMode != null) return
-        actionMode = (activity as AppCompatActivity).startSupportActionMode(actionModeCallback)
+        if (selectionActive) return
+        selectionActive = true
+        adapter?.selectionMode = true
+        binding.selectionBar.root.isVisible = true
+        updateSelectionBar()
     }
 
+    /**
+     * Leaves selection mode and hides the bar.
+     *
+     * Safe to call before the view exists: the bar is refreshed from
+     * [updateSelectionBar] once the list is bound again.
+     */
     private fun exitSelectionMode() {
-        actionMode?.finish()
-        actionMode = null
+        selectionActive = false
+        _binding?.selectionBar?.root?.isVisible = false
         adapter?.selectionMode = false
         adapter?.clearSelection()
+    }
+
+    /** Wires the selection bar once; state is refreshed by [updateSelectionBar]. */
+    private fun bindSelectionBar() {
+        val b = _binding ?: return
+        b.selectionBar.btnSelClose.setOnClickListener { exitSelectionMode() }
+        b.selectionBar.btnSelCopy.setOnClickListener {
+            val picked = adapter?.selectedEntries() ?: return@setOnClickListener
+            stageClipboard(picked, cut = false)
+            exitSelectionMode()
+        }
+        b.selectionBar.btnSelCut.setOnClickListener {
+            val picked = adapter?.selectedEntries() ?: return@setOnClickListener
+            stageClipboard(picked, cut = true)
+            exitSelectionMode()
+        }
+        b.selectionBar.btnSelDelete.setOnClickListener {
+            val picked = adapter?.selectedEntries() ?: return@setOnClickListener
+            confirmTrash(picked)
+        }
+        b.selectionBar.btnSelShare.setOnClickListener {
+            val picked = adapter?.selectedEntries() ?: return@setOnClickListener
+            share(picked)
+            exitSelectionMode()
+        }
+        b.selectionBar.btnSelMore.setOnClickListener { showSelectionSheet() }
+        updateSelectionBar()
+    }
+
+    /** Keeps the count and the enabled state of the bar up to date. */
+    private fun updateSelectionBar() {
+        val b = _binding ?: return
+        val count = adapter?.selected?.size ?: 0
+        b.selectionBar.root.isVisible = selectionActive
+        b.selectionBar.tvSelCount.text = getString(R.string.sel_count_fmt, count)
+        val has = count > 0
+        b.selectionBar.btnSelCopy.isEnabled = has
+        b.selectionBar.btnSelCut.isEnabled = has
+        b.selectionBar.btnSelDelete.isEnabled = has
+        b.selectionBar.btnSelShare.isEnabled = has
+        b.selectionBar.btnSelMore.isEnabled = has
+    }
+
+    /** Overflow of the selection bar — everything that is not one of the four main actions. */
+    private fun showSelectionSheet() {
+        val picked = adapter?.selectedEntries() ?: return
+        if (picked.isEmpty()) return
+        val single = picked.size == 1
+        val first = picked.firstOrNull()
+        val actions = mutableListOf<ActionsSheet.Action>()
+        actions += ActionsSheet.Action(R.string.action_select_all, R.drawable.ic_check_circle) {
+            adapter?.selectAll()
+        }
+        actions += ActionsSheet.Action(R.string.action_select_type, R.drawable.ic_list_view) {
+            showSelectTypeDialog()
+        }
+        if (single && first != null) {
+            actions += ActionsSheet.Action(R.string.action_rename, R.drawable.ic_rename) {
+                renameSingle(first)
+            }
+            if (!first.isDir) {
+                actions += ActionsSheet.Action(R.string.action_open_with, R.drawable.ic_generic_file) {
+                    if (!OpenUtils.openWith(requireContext(), first.file)) snack(getString(R.string.no_app_found))
+                }
+            }
+            if (Extractor.isSupportedName(first.name)) {
+                actions += ActionsSheet.Action(R.string.action_extract, R.drawable.ic_unzip) {
+                    extractArchive(first)
+                }
+            }
+        }
+        actions += ActionsSheet.Action(R.string.action_compress, R.drawable.ic_zip) {
+            compress(picked)
+            exitSelectionMode()
+        }
+        actions += ActionsSheet.Action(R.string.vlt_action_add, R.drawable.ic_locked_folder) {
+            addSelectionToVault(picked)
+            exitSelectionMode()
+        }
+        actions += ActionsSheet.Action(R.string.action_add_favorite, R.drawable.ic_star) {
+            addSelectionToFavorites(picked)
+            exitSelectionMode()
+        }
+        actions += ActionsSheet.Action(R.string.action_properties, R.drawable.ic_info) {
+            properties(picked)
+        }
+        actions += ActionsSheet.Action(R.string.action_delete, R.drawable.ic_delete, danger = true) {
+            confirmTrash(picked)
+        }
+        ActionsSheet.show(this, getString(R.string.action_more), actions)
     }
 
     /** Selection-mode helper: select all entries of one kind in this folder. */
@@ -464,112 +567,9 @@ class BrowseFragment : Fragment() {
             .setTitle(R.string.action_select_type)
             .setItems(options.map { it.first }.toTypedArray()) { _, which ->
                 adapter?.selectAllWhere(options[which].second)
-                actionMode?.invalidate()
+                updateSelectionBar()
             }
             .show()
-    }
-
-    private val actionModeCallback = object : ActionMode.Callback {
-        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-            mode.menuInflater.inflate(R.menu.menu_selection, menu)
-            adapter?.selectionMode = true
-            return true
-        }
-
-        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-            val count = adapter?.selected?.size ?: 0
-            mode.title = "$count ${getString(R.string.action_selected)}"
-            menu.findItem(R.id.action_rename)?.isVisible = count == 1
-            menu.findItem(R.id.action_extract)?.isVisible =
-                count == 1 && Extractor.isSupportedName(
-                    adapter?.selectedEntries()?.firstOrNull()?.name.orEmpty()
-                )
-            menu.findItem(R.id.action_open_with)?.isVisible =
-                count == 1 && adapter?.selectedEntries()?.firstOrNull()?.let { !it.isDir } == true
-            return true
-        }
-
-        override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-            val selected = adapter?.selectedEntries()?.toList() ?: emptyList()
-            if (selected.isEmpty()) return false
-            return when (item.itemId) {
-                R.id.action_clear_selection -> {
-                    adapter?.clearSelection()
-                    mode.finish()
-                    true
-                }
-                R.id.action_select_all -> {
-                    adapter?.selectAll()
-                    true
-                }
-                R.id.action_cut -> {
-                    stageClipboard(selected, cut = true)
-                    mode.finish()
-                    true
-                }
-                R.id.action_copy -> {
-                    stageClipboard(selected, cut = false)
-                    mode.finish()
-                    true
-                }
-                R.id.action_delete -> {
-                    confirmTrash(selected)
-                    true
-                }
-                R.id.action_open_with -> {
-                    val entry = selected.firstOrNull()
-                    if (entry != null && !entry.isDir) {
-                        OpenUtils.openWith(requireContext(), entry.file)
-                    }
-                    mode.finish()
-                    true
-                }
-                R.id.action_select_type -> {
-                    showSelectTypeDialog()
-                    true
-                }
-                R.id.action_rename -> {
-                    renameSingle(selected.first())
-                    true
-                }
-                R.id.action_compress -> {
-                    compress(selected)
-                    mode.finish()
-                    true
-                }
-                R.id.action_extract -> {
-                    extractArchive(selected.first())
-                    mode.finish()
-                    true
-                }
-                R.id.action_vault -> {
-                    addSelectionToVault(selected)
-                    mode.finish()
-                    true
-                }
-                R.id.action_favorite -> {
-                    addSelectionToFavorites(selected)
-                    mode.finish()
-                    true
-                }
-                R.id.action_share -> {
-                    share(selected)
-                    mode.finish()
-                    true
-                }
-                R.id.action_properties -> {
-                    properties(selected)
-                    true
-                }
-                else -> false
-            }
-        }
-
-        override fun onDestroyActionMode(mode: ActionMode) {
-            adapter?.selectionMode = false
-            adapter?.clearSelection()
-            actionMode = null
-        }
     }
 
     // ---------------------------------------------------------------- file operations
@@ -1041,7 +1041,7 @@ class BrowseFragment : Fragment() {
                 this.entries = entries.toMutableList()
                 onItemClick = { openEntry(it) }
                 onItemLongClick = { enterSelectionMode() }
-                onSelectionChanged = { actionMode?.invalidate() }
+                onSelectionChanged = { updateSelectionBar() }
             }
             adapter = newAdapter
             b.recycler.adapter = newAdapter

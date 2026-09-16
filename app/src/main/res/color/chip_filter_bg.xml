@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Filter chip background: accent-soft pill when checked (mockup .ditem.on). -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/ui_accent_soft" android:state_checked="true" />
+    <item android:color="@android:color/transparent" />
+</selector>

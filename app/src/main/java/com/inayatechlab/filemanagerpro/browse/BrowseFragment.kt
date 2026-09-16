@@ -498,6 +498,60 @@ class BrowseFragment : Fragment() {
         b.selectionBar.btnSelMore.isEnabled = has
     }
 
+    /** Per-item actions behind the row's ⋮ button (mockup .sheet). */
+    private fun showItemActions(entry: FileEntry) {
+        val picked = listOf(entry)
+        val actions = mutableListOf<ActionsSheet.Action>()
+
+        actions += ActionsSheet.Action(
+            if (entry.isDir) R.string.action_open else R.string.action_open,
+            if (entry.isDir) R.drawable.ic_folder else R.drawable.ic_generic_file
+        ) { openEntry(entry) }
+
+        if (!entry.isDir) {
+            actions += ActionsSheet.Action(R.string.action_open_with, R.drawable.ic_generic_file) {
+                if (!OpenUtils.openWith(requireContext(), entry.file)) {
+                    snack(getString(R.string.no_app_found))
+                }
+            }
+        }
+
+        actions += ActionsSheet.Action(R.string.action_copy, R.drawable.ic_copy) {
+            stageClipboard(picked, cut = false)
+        }
+        actions += ActionsSheet.Action(R.string.action_cut, R.drawable.ic_cut) {
+            stageClipboard(picked, cut = true)
+        }
+        actions += ActionsSheet.Action(R.string.action_rename, R.drawable.ic_rename) {
+            renameSingle(entry)
+        }
+        if (Extractor.isSupportedName(entry.name)) {
+            actions += ActionsSheet.Action(R.string.action_extract, R.drawable.ic_unzip) {
+                extractArchive(entry)
+            }
+        }
+        actions += ActionsSheet.Action(R.string.action_compress, R.drawable.ic_zip) {
+            compress(picked)
+        }
+        actions += ActionsSheet.Action(R.string.action_add_favorite, R.drawable.ic_star) {
+            addSelectionToFavorites(picked)
+        }
+        actions += ActionsSheet.Action(R.string.vlt_action_add, R.drawable.ic_locked_folder) {
+            addSelectionToVault(picked)
+        }
+        actions += ActionsSheet.Action(R.string.action_share, R.drawable.ic_share) {
+            share(picked)
+        }
+        actions += ActionsSheet.Action(R.string.action_properties, R.drawable.ic_info) {
+            properties(picked)
+        }
+        actions += ActionsSheet.Action(R.string.action_delete, R.drawable.ic_delete, danger = true) {
+            confirmTrash(picked)
+        }
+
+        ActionsSheet.show(this, entry.name, actions)
+    }
+
     /** Overflow of the selection bar — everything that is not one of the four main actions. */
     private fun showSelectionSheet() {
         val picked = adapter?.selectedEntries() ?: return
@@ -1042,6 +1096,7 @@ class BrowseFragment : Fragment() {
                 onItemClick = { openEntry(it) }
                 onItemLongClick = { enterSelectionMode() }
                 onSelectionChanged = { updateSelectionBar() }
+                onItemMenu = { showItemActions(it) }
             }
             adapter = newAdapter
             b.recycler.adapter = newAdapter

@@ -21,7 +21,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipFavorites"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/Widget.App.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/lib_chip_favorites"
@@ -30,7 +30,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipRecents"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/Widget.App.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -40,7 +40,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipDownloads"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/Widget.App.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
@@ -50,7 +50,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipTrash"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/Widget.App.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"

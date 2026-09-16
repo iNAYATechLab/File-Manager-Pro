@@ -2,7 +2,7 @@
 <com.google.android.material.chip.Chip xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/chipCategory"
-    style="@style/Widget.Material3.Chip.Filter"
+    style="@style/Widget.App.Chip.Filter"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:ellipsize="end"

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Filter chip icon: muted until checked, then accent (mockup .ditem svg). -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/ui_accent" android:state_checked="true" />
+    <item android:color="@color/ui_muted" />
+</selector>

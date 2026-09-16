@@ -44,7 +44,13 @@ jobs:
           java-version: "17"
 
       - name: Set up Android SDK
+        # The runner image already ships the SDK and cmdline-tools on PATH; this
+        # action only re-validates them. Recent images made it try to install the
+        # retired 'tools' package, which now fails with exit code 1, so it must
+        # not be allowed to fail the gate. The step below installs what we need
+        # and fails loudly if the SDK is genuinely missing.
         uses: android-actions/setup-android@v3
+        continue-on-error: true
 
       - name: Install SDK components
         run: |
@@ -100,7 +106,13 @@ jobs:
           java-version: "17"
 
       - name: Set up Android SDK
+        # The runner image already ships the SDK and cmdline-tools on PATH; this
+        # action only re-validates them. Recent images made it try to install the
+        # retired 'tools' package, which now fails with exit code 1, so it must
+        # not be allowed to fail the gate. The step below installs what we need
+        # and fails loudly if the SDK is genuinely missing.
         uses: android-actions/setup-android@v3
+        continue-on-error: true
 
       - name: Install SDK components
         run: |
@@ -147,7 +159,13 @@ jobs:
           java-version: "17"
 
       - name: Set up Android SDK
+        # The runner image already ships the SDK and cmdline-tools on PATH; this
+        # action only re-validates them. Recent images made it try to install the
+        # retired 'tools' package, which now fails with exit code 1, so it must
+        # not be allowed to fail the gate. The step below installs what we need
+        # and fails loudly if the SDK is genuinely missing.
         uses: android-actions/setup-android@v3
+        continue-on-error: true
 
       - name: Install SDK components
         run: |

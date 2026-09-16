@@ -49,4 +49,23 @@
             android:textColor="?android:attr/textColorSecondary"
             tools:text="Downloads • Trashed 09 Sep 2026" />
     </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/btnRestore"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/trash_restore"
+        android:src="@drawable/ic_restore"
+        app:tint="@color/ui_muted" />
+
+    <ImageButton
+        android:id="@+id/btnPurge"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:layout_marginStart="2dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/trash_purge"
+        android:src="@drawable/ic_delete"
+        app:tint="@color/ui_danger" />
 </LinearLayout>

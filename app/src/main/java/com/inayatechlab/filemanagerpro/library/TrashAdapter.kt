@@ -2,6 +2,7 @@ package com.inayatechlab.filemanagerpro.library
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -20,6 +21,12 @@ class TrashAdapter : RecyclerView.Adapter<TrashAdapter.TrashHolder>() {
         }
 
     var onItemClick: ((TrashStore.Item) -> Unit)? = null
+
+    /** Restore button on the row — puts the item back where it came from. */
+    var onRestore: ((TrashStore.Item) -> Unit)? = null
+
+    /** Delete-forever button on the row — the caller asks for confirmation. */
+    var onPurge: ((TrashStore.Item) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrashHolder {
         val view = LayoutInflater.from(parent.context)
@@ -44,11 +51,21 @@ class TrashAdapter : RecyclerView.Adapter<TrashAdapter.TrashHolder>() {
             val pos = holder.bindingAdapterPosition
             if (pos != RecyclerView.NO_POSITION) onItemClick?.invoke(items[pos])
         }
+        holder.restore.setOnClickListener {
+            val pos = holder.bindingAdapterPosition
+            if (pos != RecyclerView.NO_POSITION) onRestore?.invoke(items[pos])
+        }
+        holder.purge.setOnClickListener {
+            val pos = holder.bindingAdapterPosition
+            if (pos != RecyclerView.NO_POSITION) onPurge?.invoke(items[pos])
+        }
     }
 
     class TrashHolder(view: android.view.View) : RecyclerView.ViewHolder(view) {
         val icon: ImageView = view.findViewById(R.id.ivIcon)
         val name: TextView = view.findViewById(R.id.tvName)
         val sub: TextView = view.findViewById(R.id.tvSub)
+        val restore: ImageButton = view.findViewById(R.id.btnRestore)
+        val purge: ImageButton = view.findViewById(R.id.btnPurge)
     }
 }

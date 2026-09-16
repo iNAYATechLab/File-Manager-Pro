@@ -145,8 +145,17 @@ jobs:
           profile: pixel_2
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -memory 2048
           disable-animations: true
-          # Software-emulated (no KVM on hosted runners): give the boot more time.
-          script: ./gradlew --no-daemon connectedDebugAndroidTest
+          # Software-emulated (no KVM on hosted runners): give the boot more
+          # time, and let the System UI finish settling before the suite
+          # starts. When it has not, Espresso's root never gains window focus
+          # and every test dies with RootViewWithoutFocusException — a flake
+          # that has already cost three re-runs. The action already sends the
+          # unlock keyevent itself, so the wait plus one retry is the lever
+          # left. A genuine app failure fails both attempts anyway.
+          script: |
+            adb shell am wait-for-broadcast-idle || true
+            sleep 30
+            ./gradlew --no-daemon connectedDebugAndroidTest || (sleep 15 && ./gradlew --no-daemon connectedDebugAndroidTest)
 
   # Real-emulator screenshots for the README (not mockups). Runs only when a
   # pull request carries the 'screenshots' label (added before a capture is

@@ -83,6 +83,8 @@ class LibraryFragment : Fragment() {
         }
         trashAdapter = TrashAdapter().apply {
             onItemClick = { showTrashItemActions(it) }
+            onRestore = { confirmRestore(it) }
+            onPurge = { confirmPurge(it) }
         }
         binding.recycler.adapter = fileAdapter
 

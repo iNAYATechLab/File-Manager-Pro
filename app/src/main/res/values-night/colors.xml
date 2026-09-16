@@ -29,6 +29,9 @@
     <!-- Hairline/outline -->
     <color name="ui_line">#262C37</color>
 
+    <!-- Toast/snackbar surface (mockup .dark .toast) -->
+    <color name="ui_snack_bg">#2C3240</color>
+
     <!-- File type icon colors (mockup dark set) -->
     <color name="file_folder">#FFCF6E</color>
     <color name="file_image">#C7A2FF</color>

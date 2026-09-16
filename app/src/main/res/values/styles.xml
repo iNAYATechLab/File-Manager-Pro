@@ -52,4 +52,30 @@
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>
     </style>
+
+    <!-- ============================================================
+         Toast/snackbar — every transient message in the app (open,
+         rename, share, undo, …) picks these up through the theme, so
+         no call site has to change. Matches the mockup `.toast` pill:
+         solid dark surface, white 13sp label, 12dp radius, floating.
+         ============================================================ -->
+
+    <style name="Widget.App.Snackbar" parent="Widget.Material3.Snackbar">
+        <item name="backgroundTint">@color/ui_snack_bg</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.App.Snackbar</item>
+        <item name="android:layout_margin">16dp</item>
+    </style>
+
+    <style name="ShapeAppearance.App.Snackbar" parent="">
+        <item name="cornerSize">12dp</item>
+    </style>
+
+    <style name="Widget.App.Snackbar.TextView" parent="Widget.Material3.Snackbar.TextView">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="Widget.App.Snackbar.Button" parent="Widget.Material3.Button.TextButton.Snackbar">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
 </resources>

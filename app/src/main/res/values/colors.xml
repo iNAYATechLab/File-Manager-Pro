@@ -30,6 +30,9 @@
     <!-- Hairline/outline -->
     <color name="ui_line">#E6E9EF</color>
 
+    <!-- Toast/snackbar surface (mockup .toast; dark twin in values-night) -->
+    <color name="ui_snack_bg">#3A3F4B</color>
+
     <!-- File type icon colors (mockup folder/pdf/doc/...) -->
     <color name="file_folder">#F3A83B</color>
     <color name="file_image">#9A63D6</color>

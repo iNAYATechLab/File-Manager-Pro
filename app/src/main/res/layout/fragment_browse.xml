@@ -164,14 +164,47 @@
                 android:paddingBottom="72dp" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-        <TextView
-            android:id="@+id/tvEmpty"
+        <!-- Mockup .empty: big faded glyph, title, hint. -->
+        <LinearLayout
+            android:id="@+id/emptyState"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/folder_empty"
-            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-            android:textColor="?android:attr/textColorSecondary"
-            android:visibility="gone" />
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingStart="30dp"
+            android:paddingEnd="30dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/ivEmpty"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:alpha="0.4"
+                android:contentDescription="@string/folder_empty"
+                android:src="@drawable/ic_folder"
+                app:tint="@color/ui_muted" />
+
+            <TextView
+                android:id="@+id/tvEmpty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:text="@string/folder_empty"
+                android:textColor="@color/ui_ink2"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvEmptySub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:text="@string/folder_empty_hint"
+                android:textColor="@color/ui_muted"
+                android:textSize="12sp" />
+        </LinearLayout>
     </FrameLayout>
 </LinearLayout>

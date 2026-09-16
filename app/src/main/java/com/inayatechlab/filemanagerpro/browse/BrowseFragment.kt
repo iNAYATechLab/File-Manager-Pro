@@ -1010,7 +1010,8 @@ class BrowseFragment : Fragment() {
 
         if (!StorageUtils.isStoragePermitted(requireContext())) {
             loading.set(false)
-            b.tvEmpty.isVisible = true
+            b.emptyState.isVisible = true
+            b.tvEmptySub.isVisible = false
             b.tvEmpty.text = getString(R.string.storage_permission_needed)
             b.recycler.adapter = null
             return
@@ -1025,9 +1026,9 @@ class BrowseFragment : Fragment() {
                     loading.set(false)
                     return@launch
                 }
-                bb.tvEmpty.isVisible = roots.isEmpty()
+                bb.emptyState.isVisible = roots.isEmpty()
+                bb.tvEmptySub.isVisible = false
                 bb.tvEmpty.text = getString(R.string.storage_empty)
-                bb.tvEmpty.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
                 if (bb.recycler.layoutManager !is LinearLayoutManager) {
                     bb.recycler.layoutManager = LinearLayoutManager(bb.recycler.context)
                 }
@@ -1096,9 +1097,9 @@ class BrowseFragment : Fragment() {
                 loading.set(false)
                 return@launch
             }
-            b.tvEmpty.isVisible = entries.isEmpty()
+            b.emptyState.isVisible = entries.isEmpty()
+            b.tvEmptySub.isVisible = true
             b.tvEmpty.text = getString(R.string.folder_empty)
-            b.tvEmpty.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
 
             val newAdapter = FileAdapter(grid).apply {
                 this.entries = entries.toMutableList()

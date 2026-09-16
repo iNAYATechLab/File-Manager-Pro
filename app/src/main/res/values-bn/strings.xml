@@ -381,4 +381,5 @@
     <string name="action_more">আরও অ্যাকশন</string>
     <string name="action_close">বন্ধ</string>
     <string name="sel_count_fmt">%1$dটি নির্বাচিত</string>
+    <string name="folder_empty_hint">এই ফোল্ডারে এখনো কোনো ফাইল নেই</string>
 </resources>

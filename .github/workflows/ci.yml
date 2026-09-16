@@ -54,6 +54,11 @@ jobs:
 
       - name: Install SDK components
         run: |
+          # Locate cmdline-tools ourselves: the setup action above is now
+          # best-effort, so PATH may not have been updated.
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/cmdline-tools/16.0/bin:$ANDROID_HOME/platform-tools:$PATH"
           sdkmanager --install "platforms;android-34" "build-tools;34.0.0" "platform-tools"
           yes | sdkmanager --licenses >/dev/null 2>&1 || true
 
@@ -116,6 +121,11 @@ jobs:
 
       - name: Install SDK components
         run: |
+          # Locate cmdline-tools ourselves: the setup action above is now
+          # best-effort, so PATH may not have been updated.
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/cmdline-tools/16.0/bin:$ANDROID_HOME/platform-tools:$PATH"
           sdkmanager --install "platforms;android-29" "build-tools;34.0.0" "platform-tools" "emulator"
           sdkmanager --install "system-images;android-29;default;x86_64"
           yes | sdkmanager --licenses >/dev/null 2>&1 || true
@@ -169,6 +179,11 @@ jobs:
 
       - name: Install SDK components
         run: |
+          # Locate cmdline-tools ourselves: the setup action above is now
+          # best-effort, so PATH may not have been updated.
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/cmdline-tools/16.0/bin:$ANDROID_HOME/platform-tools:$PATH"
           sdkmanager --install "platforms;android-29" "build-tools;34.0.0" "platform-tools" "emulator"
           sdkmanager --install "system-images;android-29;default;x86_64"
           yes | sdkmanager --licenses >/dev/null 2>&1 || true

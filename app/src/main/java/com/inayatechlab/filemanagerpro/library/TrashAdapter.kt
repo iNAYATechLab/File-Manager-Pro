@@ -1,14 +1,18 @@
 package com.inayatechlab.filemanagerpro.library
 
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.inayatechlab.filemanagerpro.R
 import com.inayatechlab.filemanagerpro.model.TrashStore
+import com.inayatechlab.filemanagerpro.util.FileCat
 import com.inayatechlab.filemanagerpro.util.FormatUtils
+import com.inayatechlab.filemanagerpro.util.Icons
 import java.io.File
 
 /** Rows for the Trash section of the Library tab. */
@@ -46,7 +50,15 @@ class TrashAdapter : RecyclerView.Adapter<TrashAdapter.TrashHolder>() {
             parent,
             FormatUtils.formatDate(item.trashedAt)
         )
-        holder.icon.setImageResource(R.drawable.ic_delete)
+        // Same type-tinted glyph tile the file rows use, so a trashed PDF
+        // still reads as a PDF instead of a generic bin.
+        val cat = if (item.isDir) FileCat.FOLDER
+        else FileCat.ofExtension(item.name.substringAfterLast('.')) ?: FileCat.GENERIC
+        val tint = ContextCompat.getColor(ctx, Icons.color(cat))
+        holder.icon.background = Icons.tile(tint, ctx)
+        holder.icon.setImageResource(Icons.glyph(cat))
+        holder.icon.imageTintList = ColorStateList.valueOf(tint)
+
         holder.itemView.setOnClickListener {
             val pos = holder.bindingAdapterPosition
             if (pos != RecyclerView.NO_POSITION) onItemClick?.invoke(items[pos])

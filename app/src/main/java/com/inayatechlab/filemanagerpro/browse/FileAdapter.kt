@@ -1,8 +1,6 @@
 package com.inayatechlab.filemanagerpro.browse
 
 import android.content.res.ColorStateList
-import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -178,7 +176,7 @@ class FileAdapter(
 
         /** Paints the glyph in its type colour on a soft tinted tile. */
         fun paintGlyph(icon: ImageView) {
-            icon.background = tile(tint, ctx)
+            icon.background = Icons.tile(tint, ctx)
             icon.setImageResource(Icons.glyph(cat))
             icon.imageTintList = ColorStateList.valueOf(tint)
         }
@@ -232,11 +230,4 @@ class FileAdapter(
         }
     }
 
-    /** Rounded tile filled with [color] at mockup's 14% glyph wash. */
-    private fun tile(color: Int, context: android.content.Context): GradientDrawable =
-        GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            cornerRadius = 12f * context.resources.displayMetrics.density
-            setColor(Color.argb(0x24, Color.red(color), Color.green(color), Color.blue(color)))
-        }
 }

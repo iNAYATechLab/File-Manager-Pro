@@ -2,6 +2,7 @@
 <!-- List row: 46dp type-tinted glyph tile + name / "type • size" + date
      at the end, selection badge on the tile corner (mockup .row). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/itemRoot"
     android:layout_width="match_parent"
@@ -80,5 +81,16 @@
         android:textColor="@color/ui_muted"
         android:textSize="12sp"
         tools:text="12/05/2026" />
+
+    <ImageButton
+        android:id="@+id/btnMore"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/action_more"
+        android:src="@drawable/ic_more_vert"
+        android:visibility="gone"
+        app:tint="@color/ui_muted"
+        tools:visibility="visible" />
 
 </LinearLayout>

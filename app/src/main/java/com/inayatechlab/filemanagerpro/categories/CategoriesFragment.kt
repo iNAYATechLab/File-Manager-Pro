@@ -14,6 +14,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.inayatechlab.filemanagerpro.MainActivity
 import com.inayatechlab.filemanagerpro.R
+import com.inayatechlab.filemanagerpro.browse.ActionsSheet
 import com.inayatechlab.filemanagerpro.browse.FileAdapter
 import com.inayatechlab.filemanagerpro.browse.FileOpsComparator
 import com.inayatechlab.filemanagerpro.databinding.FragmentCategoriesBinding
@@ -189,42 +190,47 @@ class CategoriesFragment : Fragment() {
     }
 
     private fun showItemActions(entry: FileEntry) {
-        val actions = mutableListOf(
-            getString(R.string.action_share),
-            getString(R.string.action_properties)
-        )
-        if (!entry.isDir) actions += getString(R.string.action_open_with)
-        actions += getString(R.string.action_delete)
-        val openWithIndex = if (entry.isDir) -1 else 2
-        val deleteIndex = actions.lastIndex
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(entry.name)
-            .setItems(actions.toTypedArray()) { _, which ->
-                when (which) {
-                    0 -> if (!OpenUtils.share(requireContext(), listOf(entry))) snack(getString(R.string.no_app_found))
-                    1 -> Dialogs.properties(requireContext(), entry, scope)
-                    openWithIndex -> if (!OpenUtils.openWith(requireContext(), entry.file)) {
-                        snack(getString(R.string.no_app_found))
-                    }
-                    deleteIndex -> Dialogs.confirm(
-                        requireContext(),
-                        getString(R.string.trash_confirm_title),
-                        getString(R.string.trash_confirm_message) + "\n\n" + entry.name,
-                        getString(R.string.trash_confirm_ok)
-                    ) {
-                        scope.launch {
-                            val r = TrashOps.move(requireContext(), listOf(entry))
-                            if (r.failed == 0) {
-                                snack(getString(R.string.trash_moved_fmt, r.done))
-                            } else {
-                                snack(getString(R.string.trash_failed_fmt, entry.name))
-                            }
-                            loadCategory()
-                        }
-                    }
-                }
+        val ctx = requireContext()
+        val actions = mutableListOf<ActionsSheet.Action>()
+
+        actions += ActionsSheet.Action(R.string.action_share, R.drawable.ic_share) {
+            if (!OpenUtils.share(ctx, listOf(entry))) snack(getString(R.string.no_app_found))
+        }
+        actions += ActionsSheet.Action(R.string.action_properties, R.drawable.ic_info) {
+            Dialogs.properties(ctx, entry, scope)
+        }
+        if (!entry.isDir) {
+            actions += ActionsSheet.Action(
+                R.string.action_open_with, R.drawable.ic_generic_file
+            ) {
+                if (!OpenUtils.openWith(ctx, entry.file)) snack(getString(R.string.no_app_found))
             }
-            .show()
+        }
+        actions += ActionsSheet.Action(R.string.action_delete, R.drawable.ic_delete, danger = true) {
+            confirmTrash(entry)
+        }
+
+        ActionsSheet.show(this, entry.name, actions)
+    }
+
+    /** Moves one entry to the recycle bin after the usual confirmation. */
+    private fun confirmTrash(entry: FileEntry) {
+        Dialogs.confirm(
+            requireContext(),
+            getString(R.string.trash_confirm_title),
+            getString(R.string.trash_confirm_message) + "\n\n" + entry.name,
+            getString(R.string.trash_confirm_ok)
+        ) {
+            scope.launch {
+                val r = TrashOps.move(requireContext(), listOf(entry))
+                if (r.failed == 0) {
+                    snack(getString(R.string.trash_moved_fmt, r.done))
+                } else {
+                    snack(getString(R.string.trash_failed_fmt, entry.name))
+                }
+                loadCategory()
+            }
+        }
     }
 
     private fun snack(text: String) {

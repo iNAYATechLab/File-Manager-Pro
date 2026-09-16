@@ -381,4 +381,5 @@ Add Android/data, Android/obb or another folder above.</string>
     <string name="action_more">More actions</string>
     <string name="action_close">Close</string>
     <string name="sel_count_fmt">%1$d selected</string>
+    <string name="folder_empty_hint">This folder has no files yet</string>
 </resources>

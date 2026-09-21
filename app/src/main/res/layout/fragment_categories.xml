@@ -6,16 +6,14 @@
     android:orientation="vertical">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/chipRecycler"
+        android:id="@+id/cardRecycler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clipToPadding="false"
-        android:orientation="horizontal"
-        android:paddingStart="12dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="12dp"
         android:overScrollMode="never"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        android:paddingStart="6dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="6dp" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -29,15 +27,37 @@
             android:clipToPadding="false"
             android:paddingTop="4dp" />
 
-        <TextView
-            android:id="@+id/tvEmpty"
+        <LinearLayout
+            android:id="@+id/emptyState"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/cat_empty"
-            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-            android:textColor="?android:attr/textColorSecondary"
-            android:visibility="gone" />
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingStart="30dp"
+            android:paddingEnd="30dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/ivEmpty"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:alpha="0.4"
+                android:contentDescription="@string/cat_empty"
+                android:src="@drawable/ic_folder"
+                app:tint="@color/ui_muted" />
+
+            <TextView
+                android:id="@+id/tvEmpty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center"
+                android:text="@string/cat_empty"
+                android:textColor="@color/ui_ink2"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/progress"

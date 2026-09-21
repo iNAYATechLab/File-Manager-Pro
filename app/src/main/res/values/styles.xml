@@ -41,6 +41,22 @@
         <item name="android:importantForAccessibility">no</item>
     </style>
 
+    <!-- Trailing count pill on a drawer row (mockup .ditem .ch). Hidden
+         until the background scan reports a number for that category. -->
+    <style name="DrawerRowCount">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/bg_count_badge</item>
+        <item name="android:paddingStart">9dp</item>
+        <item name="android:paddingEnd">9dp</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:textColor">@color/ui_muted</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:visibility">gone</item>
+    </style>
+
     <style name="DrawerRowLabel">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>

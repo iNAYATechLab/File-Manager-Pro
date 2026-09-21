@@ -153,13 +153,13 @@ class LibraryFragment : Fragment() {
         val b = _binding ?: return
         val ctx = requireContext()
         if (!StorageUtils.isStoragePermitted(ctx)) {
-            b.tvEmpty.isVisible = true
+            b.emptyState.isVisible = true
             b.tvEmpty.text = getString(R.string.storage_permission_needed)
-            b.tvEmpty.setOnClickListener { StorageUtils.requestStorageAccess(ctx) }
+            b.emptyState.setOnClickListener { StorageUtils.requestStorageAccess(ctx) }
             b.progress.isVisible = false
             return
         }
-        b.tvEmpty.setOnClickListener(null)
+        b.emptyState.setOnClickListener(null)
         if (loading.getAndSet(true)) return
         b.progress.isVisible = true
 
@@ -182,7 +182,7 @@ class LibraryFragment : Fragment() {
                         fileAdapter?.entries = (rows as List<FileEntry>).toMutableList()
                     }
                 }
-                bb.tvEmpty.isVisible = rows.isEmpty()
+                bb.emptyState.isVisible = rows.isEmpty()
                 bb.tvEmpty.text = getString(section.emptyRes)
             } finally {
                 loading.set(false)

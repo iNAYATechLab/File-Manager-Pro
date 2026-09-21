@@ -16,6 +16,10 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.isVisible
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.inayatechlab.filemanagerpro.browse.BrowseFragment
 import com.inayatechlab.filemanagerpro.browse.CrumbAdapter
@@ -25,10 +29,13 @@ import com.inayatechlab.filemanagerpro.library.LibraryFragment
 import com.inayatechlab.filemanagerpro.library.LibrarySection
 import com.inayatechlab.filemanagerpro.model.PathCrumb
 import com.inayatechlab.filemanagerpro.settings.SettingsActivity
+import com.inayatechlab.filemanagerpro.util.FileCat
 import com.inayatechlab.filemanagerpro.util.MediaCat
+import com.inayatechlab.filemanagerpro.util.Scanner
 import com.inayatechlab.filemanagerpro.util.StorageUtils
 import com.inayatechlab.filemanagerpro.vault.VaultFragment
 import java.io.File
+import java.util.Locale
 import android.os.StatFs
 import android.text.format.Formatter
 
@@ -162,6 +169,7 @@ class MainActivity : AppCompatActivity() {
 
         // storage meter + dark switch
         fillStorageMeter()
+        refreshCategoryCounts()
         binding.swDark.isChecked = isDarkMode()
         binding.swDark.setOnCheckedChangeListener { _, checked ->
             applyDarkMode(checked)
@@ -304,6 +312,55 @@ class MainActivity : AppCompatActivity() {
         binding.tvDrawerFree.text = getString(R.string.drawer_free, Formatter.formatShortFileSize(this, free))
         binding.tvDrawerPct.text = getString(R.string.drawer_pct_fmt, pct)
         binding.pbDrawerStorage.progress = pct
+    }
+
+    /**
+     * Drawer category counts (mockup `.ch` pill). Three of the categories
+     * come from MediaStore and the rest from a filesystem walk, so the work
+     * runs once in the background; a row simply stays empty if its count is
+     * unknown or zero.
+     */
+    private fun refreshCategoryCounts() {
+        if (!StorageUtils.isStoragePermitted(this)) return
+        lifecycleScope.launch {
+            val counts = withContext(Dispatchers.IO) {
+                MediaCat.values().associateWith { cat ->
+                    val filter = cat.filter ?: FileCat.GENERIC
+                    runCatching {
+                        when (filter) {
+                            FileCat.IMAGE, FileCat.VIDEO, FileCat.AUDIO ->
+                                Scanner.scanMedia(this@MainActivity, filter).size
+                            else -> Scanner.scanFilesystem(filter).size
+                        }
+                    }.getOrDefault(-1)
+                }
+            }
+            applyCategoryCounts(counts)
+        }
+    }
+
+    private fun applyCategoryCounts(counts: Map<MediaCat, Int>) {
+        val rows = mapOf(
+            MediaCat.IMAGES to binding.tvCountImages,
+            MediaCat.VIDEOS to binding.tvCountVideos,
+            MediaCat.AUDIO to binding.tvCountAudio,
+            MediaCat.DOCUMENTS to binding.tvCountDocs,
+            MediaCat.ARCHIVES to binding.tvCountArchives,
+            MediaCat.APPS to binding.tvCountApks
+        )
+        for ((cat, view) in rows) {
+            val n = counts[cat] ?: -1
+            if (n <= 0) {
+                view.isVisible = false
+                continue
+            }
+            view.text = if (n < 1000) {
+                n.toString()
+            } else {
+                String.format(Locale.getDefault(), "%.1fK", n / 1000f)
+            }
+            view.isVisible = true
+        }
     }
 
     private fun isDarkMode(): Boolean {

@@ -53,7 +53,7 @@ class TabFlowTest {
     @Test
     fun allSections_roundTripWithoutCrash() {
         val sections = listOf(
-            R.id.drowImages to R.id.chipRecycler,
+            R.id.drowImages to R.id.cardRecycler,
             R.id.drowFavorites to R.id.chipFavorites,
             R.id.drowVault to R.id.fabCreate,
             R.id.drowHome to R.id.recycler
@@ -78,9 +78,9 @@ class TabFlowTest {
     }
 
     @Test
-    fun categoriesRow_showsChipRow() {
+    fun categoriesRow_showsCategoryCards() {
         clickDrawerRow(R.id.drowImages)
-        onView(withId(R.id.chipRecycler)).check(matches(isDisplayed()))
+        onView(withId(R.id.cardRecycler)).check(matches(isDisplayed()))
         onView(allOf(withId(R.id.recycler), isDisplayed())).check(matches(isDisplayed()))
     }
 }

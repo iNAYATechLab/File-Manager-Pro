@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
@@ -48,7 +49,7 @@ class CategoriesFragment : Fragment() {
 
     private var adapter: FileAdapter? = null
     private var currentCat = MediaCat.IMAGES
-    private var chipAdapter: CategoryChipAdapter? = null
+    private var cardAdapter: CategoryCardAdapter? = null
     /** Category requested before the view existed (drawer deep link). */
     private var pendingCat: MediaCat? = null
     private var scanJob: Job? = null
@@ -61,12 +62,12 @@ class CategoriesFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.chipRecycler.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        chipAdapter = CategoryChipAdapter(MediaCat.values().toList(), 0) { cat ->
+        binding.cardRecycler.layoutManager = GridLayoutManager(requireContext(), 2)
+        cardAdapter = CategoryCardAdapter(MediaCat.values().toList(), 0) { cat ->
             currentCat = cat
             loadCategory()
         }
-        binding.chipRecycler.adapter = chipAdapter
+        binding.cardRecycler.adapter = cardAdapter
         pendingCat?.let { applyCategory(it) }
         pendingCat = null
 
@@ -116,7 +117,7 @@ class CategoriesFragment : Fragment() {
     private fun applyCategory(cat: MediaCat) {
         currentCat = cat
         val idx = MediaCat.values().indexOf(cat)
-        if (idx >= 0) chipAdapter?.select(idx)
+        if (idx >= 0) cardAdapter?.select(idx)
         if (scanning.getAndSet(true)) {
             // An older scan may still be finishing for a different category:
             // cancel it and release the flag so a fresh scan starts now.
@@ -130,14 +131,14 @@ class CategoriesFragment : Fragment() {
         val b = _binding ?: return
         val ctx = requireContext()
         if (!StorageUtils.isStoragePermitted(ctx)) {
-            b.tvEmpty.isVisible = true
+            b.emptyState.isVisible = true
             b.tvEmpty.text = getString(R.string.storage_permission_needed)
-            b.tvEmpty.setOnClickListener {
+            b.emptyState.setOnClickListener {
                 StorageUtils.requestStorageAccess(ctx)
             }
             return
         }
-        b.tvEmpty.setOnClickListener(null)
+        b.emptyState.setOnClickListener(null)
         if (scanning.getAndSet(true)) return
 
         scanJob = scope.launch {
@@ -157,7 +158,7 @@ class CategoriesFragment : Fragment() {
                 if (cat != currentCat) return@launch // stale scan for a previous category
                 b1.progress.isVisible = false
                 adapter?.entries = result.toMutableList()
-                b1.tvEmpty.isVisible = result.isEmpty()
+                b1.emptyState.isVisible = result.isEmpty()
                 b1.tvEmpty.text = getString(R.string.cat_empty)
                 (activity as? MainActivity)?.setAppTitle(
                     getString(cat.titleRes) + (if (result.isNotEmpty()) " (${result.size})" else "")

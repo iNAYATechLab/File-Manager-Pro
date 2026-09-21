@@ -59,10 +59,10 @@ class AppSmokeTest {
     }
 
     @Test
-    fun drawerToCategories_rendersChipsAndList() {
+    fun drawerToCategories_rendersCardsAndList() {
         clickDrawerRow(R.id.drowImages)
         // Category chips + item list are on screen after switching.
-        onView(withId(R.id.chipRecycler)).check(matches(isDisplayed()))
+        onView(withId(R.id.cardRecycler)).check(matches(isDisplayed()))
         onView(allOf(withId(R.id.recycler), isDisplayed())).check(matches(isDisplayed()))
 
         clickDrawerRow(R.id.drowHome)
@@ -75,10 +75,10 @@ class AppSmokeTest {
         // recreate the launch screen (Storage home) is shown again; re-open
         // the section to make the assertions independent of restore behaviour.
         clickDrawerRow(R.id.drowImages)
-        onView(withId(R.id.chipRecycler)).check(matches(isDisplayed()))
+        onView(withId(R.id.cardRecycler)).check(matches(isDisplayed()))
         activityRule.scenario.recreate()
         clickDrawerRow(R.id.drowImages)
-        onView(withId(R.id.chipRecycler)).check(matches(isDisplayed()))
+        onView(withId(R.id.cardRecycler)).check(matches(isDisplayed()))
 
         clickDrawerRow(R.id.drowHome)
         onView(allOf(withId(R.id.recycler), isDisplayed())).check(matches(isDisplayed()))
